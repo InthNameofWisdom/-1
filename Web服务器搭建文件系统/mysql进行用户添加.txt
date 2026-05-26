@@ -1,0 +1,22 @@
+INSERT INTO users (username, password, email, user_group) 
+SELECT 'kfzxroot', 'kfzx@-1122', 'admin@example.com', 'root'
+FROM dual
+WHERE NOT EXISTS (SELECT 1 FROM users WHERE username = 'kfzxroot');
+
+
+ALTER TABLE file_info ADD COLUMN folder_id INT NULL AFTER storage_type;
+ALTER TABLE file_info ADD FOREIGN KEY (folder_id) REFERENCES folders(id) ON DELETE SET NULL;
+
+
+USE file_manager;
+
+-- 添加 creator_group 列到 folders 表
+ALTER TABLE folders ADD COLUMN creator_group ENUM('root2', 'root', 'competition', 'other') DEFAULT 'other' AFTER is_visible_to_all;
+
+-- 更新现有记录的 creator_group 值
+UPDATE folders f 
+JOIN users u ON f.created_by = u.id 
+SET f.creator_group = u.user_group;
+
+-- 验证修改
+DESCRIBE folders;

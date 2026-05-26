@@ -1,0 +1,222 @@
+#!/usr/bin/env python3
+# -*- coding: utf-8 -*-
+
+import os
+import pymysql
+
+# 数据库配置
+DB_CONFIG = {
+    'host': 'localhost',
+    'user': 'root',
+    'password': '!Gbadmin123',
+    'db': 'file_manager',
+    'charset': 'utf8mb4'
+}
+
+# 目录配置
+EXTERNAL_UPLOAD_FOLDER = '/mnt/uploads'
+BASE_UPLOAD_FOLDER = '/root/flask_file_upload/uploads'
+
+def sync_all_subcategories():
+    """同步所有文件子分类信息（包括比赛文件和公用文件）"""
+    try:
+        conn = pymysql.connect(**DB_CONFIG)
+        cursor = conn.cursor()
+        
+        updated_count = 0
+        
+        print("开始同步所有文件子分类信息...")
+        print(f"主要扫描目录: {EXTERNAL_UPLOAD_FOLDER}")
+        
+        # 扫描所有分类（比赛文件和公用文件）
+        for category in ['competition', 'everyone']:
+            print(f"\n{'='*50}")
+            print(f"处理分类: {category}")
+            print(f"{'='*50}")
+            
+            # 扫描所有子分类
+            for subcategory in ['mirror', 'image', 'document', 'video', 'other']:
+                # 外部存储目录 - 这是主要的扫描目录
+                external_dir = os.path.join(EXTERNAL_UPLOAD_FOLDER, category, subcategory)
+                if os.path.exists(external_dir):
+                    print(f"\n扫描目录: {external_dir}")
+                    try:
+                        files = [f for f in os.listdir(external_dir) if os.path.isfile(os.path.join(external_dir, f))]
+                        print(f"找到 {len(files)} 个文件")
+                        
+                        for filename in files:
+                            # 更新数据库记录
+                            sql = """
+                                UPDATE file_info 
+                                SET file_subcategory = %s 
+                                WHERE stored_filename = %s AND file_category = %s
+                            """
+                            cursor.execute(sql, (subcategory, filename, category))
+                            if cursor.rowcount > 0:
+                                updated_count += 1
+                                print(f"  更新: {filename} -> {subcategory} ({category})")
+                            else:
+                                # 检查文件是否在数据库中
+                                check_sql = "SELECT stored_filename FROM file_info WHERE stored_filename = %s"
+                                cursor.execute(check_sql, (filename,))
+                                result = cursor.fetchone()
+                                if result:
+                                    print(f"  文件已在数据库中但分类不匹配: {filename}")
+                                else:
+                                    print(f"  文件不在数据库中: {filename}")
+                    except Exception as e:
+                        print(f"  读取目录错误: {e}")
+                else:
+                    print(f"\n目录不存在: {external_dir}")
+        
+        conn.commit()
+        cursor.close()
+        conn.close()
+        
+        print(f"\n同步完成！共更新了 {updated_count} 个文件的子分类信息。")
+        return updated_count
+        
+    except Exception as e:
+        print(f"同步过程中出现错误: {e}")
+        return -1
+
+def check_all_directories():
+    """检查所有目录结构"""
+    print("检查所有目录结构...")
+    
+    # 检查外部存储目录
+    print(f"\n外部存储目录: {EXTERNAL_UPLOAD_FOLDER}")
+    for category in ['competition', 'everyone']:
+        print(f"\n分类: {category}")
+        for subcategory in ['mirror', 'image', 'document', 'video', 'other']:
+            dir_path = os.path.join(EXTERNAL_UPLOAD_FOLDER, category, subcategory)
+            if os.path.exists(dir_path):
+                files = [f for f in os.listdir(dir_path) if os.path.isfile(os.path.join(dir_path, f))]
+                print(f"  {subcategory}: {dir_path} (找到 {len(files)} 个文件)")
+                if files:
+                    for file in files[:5]:  # 只显示前5个文件
+                        print(f"    - {file}")
+                    if len(files) > 5:
+                        print(f"    ... 还有 {len(files)-5} 个文件")
+            else:
+                print(f"  {subcategory}: {dir_path} (不存在)")
+
+def check_database_status():
+    """检查数据库状态"""
+    try:
+        conn = pymysql.connect(**DB_CONFIG)
+        cursor = conn.cursor()
+        
+        # 检查各分类的文件数量
+        cursor.execute("SELECT file_category, file_subcategory, COUNT(*) FROM file_info GROUP BY file_category, file_subcategory")
+        results = cursor.fetchall()
+        
+        print("\n数据库中各分类文件数量:")
+        print("分类\t\t子分类\t\t数量")
+        print("-" * 40)
+        for result in results:
+            category, subcategory, count = result
+            print(f"{category}\t{subcategory}\t\t{count}")
+        
+        cursor.close()
+        conn.close()
+        
+    except Exception as e:
+        print(f"检查数据库状态时出现错误: {e}")
+
+def manual_update_specific_files():
+    """手动更新特定文件（如果自动更新不工作）"""
+    try:
+        conn = pymysql.connect(**DB_CONFIG)
+        cursor = conn.cursor()
+        
+        # 手动更新一些已知的文件
+        updates = [
+            # 比赛文件的镜像文件
+            ('rhel-server-7.0-x86_64-dvd.iso', 'competition', 'mirror'),
+            ('Win10_22H2_Chinese_Simplified_x64v1.iso', 'competition', 'mirror'),
+            ('Win11_23H2_Chinese_Simplified_x64v2.iso', 'competition', 'mirror'),
+            ('zh-cn_windows_10_business_editions_version', 'competition', 'mirror'),
+            ('cn_office_professional_plus_2016_x86_x64_c', 'competition', 'mirror'),
+            
+            # 比赛文件的其他文件
+            ('SecureCRT_1_1757232994.zip', 'competition', 'other'),
+            ('Cisco_Packet_Tracer_7.3.0.zip', 'competition', 'other'),
+            ('app_1757243221.zip', 'competition', 'other'),
+            
+            # 公用文件的图片文件
+            ('2025-08-14_180407_1757243032.png', 'everyone', 'image'),
+            ('2025-08-14_181206_1757243031.png', 'everyone', 'image'),
+            ('2025-08-14_193915_1757243031.png', 'everyone', 'image'),
+            ('2024-02-07_094055_1757232953.png', 'everyone', 'image'),
+            ('2024-03-01_221605_1757257207.png', 'everyone', 'image'),
+        ]
+        
+        updated_count = 0
+        for filename, category, subcategory in updates:
+            sql = "UPDATE file_info SET file_subcategory = %s WHERE stored_filename = %s AND file_category = %s"
+            cursor.execute(sql, (subcategory, filename, category))
+            if cursor.rowcount > 0:
+                updated_count += 1
+                print(f"手动更新: {filename} -> {subcategory} ({category})")
+            else:
+                print(f"未找到: {filename}")
+        
+        conn.commit()
+        cursor.close()
+        conn.close()
+        
+        print(f"\n手动更新完成！共更新了 {updated_count} 个文件的子分类信息。")
+        return updated_count
+        
+    except Exception as e:
+        print(f"手动更新过程中出现错误: {e}")
+        return -1
+
+if __name__ == '__main__':
+    print("=" * 60)
+    print("文件子分类同步工具 - 完整版")
+    print("=" * 60)
+    
+    # 检查目录结构
+    check_all_directories()
+    
+    # 检查数据库状态
+    check_database_status()
+    
+    # 提供选项
+    print("\n请选择操作:")
+    print("1. 自动同步所有文件子分类")
+    print("2. 手动更新特定文件")
+    print("3. 退出")
+    
+    choice = input("\n请输入选择 (1/2/3): ")
+    
+    if choice == '1':
+        # 自动同步
+        confirm = input("\n是否开始自动同步? (y/N): ")
+        if confirm.lower() == 'y':
+            result = sync_all_subcategories()
+            if result >= 0:
+                print(f"\n✓ 自动同步成功！共更新了 {result} 个文件的子分类信息。")
+            else:
+                print(f"\n✗ 自动同步过程中出现错误。")
+        else:
+            print("自动同步已取消")
+    
+    elif choice == '2':
+        # 手动更新
+        confirm = input("\n是否开始手动更新特定文件? (y/N): ")
+        if confirm.lower() == 'y':
+            result = manual_update_specific_files()
+            if result >= 0:
+                print(f"\n✓ 手动更新成功！共更新了 {result} 个文件的子分类信息。")
+            else:
+                print(f"\n✗ 手动更新过程中出现错误。")
+        else:
+            print("手动更新已取消")
+    
+    else:
+        print("退出程序")
+    
+    print("\n程序执行完成！")

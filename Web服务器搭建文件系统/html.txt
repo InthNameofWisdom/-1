@@ -1,0 +1,1354 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+	<head>
+		<meta charset="UTF-8">
+		<meta name="viewport" content="width=device-width, initial-scale=1.0">
+		<title>文件管理系统</title>
+		<style>
+			* {
+				box-sizing: border-box;
+				margin: 0;
+				padding: 0;
+				font-family: 'Arial', sans-serif;
+			}
+
+			body {
+				background-color: #f5f5f5;
+				color: #333;
+				line-height: 1.6;
+				padding: 20px;
+			}
+
+			.container {
+				max-width: 1400px;
+				margin: 0 auto;
+				background: white;
+				padding: 25px;
+				border-radius: 8px;
+				box-shadow: 0 2px 10px rgba(0, 0, 0, 0.1);
+			}
+
+			h1 {
+				text-align: center;
+				margin-bottom: 25px;
+				color: #2c3e50;
+			}
+
+			.login-section {
+				max-width: 400px;
+				margin: 50px auto;
+				background: #f9f9f9;
+				padding: 25px;
+				border-radius: 6px;
+				border: 1px solid #ddd;
+			}
+
+			.upload-section {
+				background: #f9f9f9;
+				padding: 20px;
+				border-radius: 6px;
+				margin-bottom: 30px;
+				border: 2px dashed #ddd;
+				display: none;
+			}
+
+			.user-management-section {
+				background: #f9f9f9;
+				padding: 20px;
+				border-radius: 6px;
+				margin-bottom: 30px;
+				border: 2px dashed #ddd;
+				display: none;
+			}
+
+			.folder-management-section {
+				background: #f9f9f9;
+				padding: 20px;
+				border-radius: 6px;
+				margin-bottom: 30px;
+				border: 2px dashed #ddd;
+				display: none;
+			}
+
+			.form-group {
+				margin-bottom: 15px;
+			}
+
+			label {
+				display: block;
+				margin-bottom: 5px;
+				font-weight: bold;
+			}
+
+			input[type="text"],
+			input[type="password"],
+			input[type="email"],
+			input[type="file"],
+			select {
+				width: 100%;
+				padding: 10px;
+				border: 1px solid #ddd;
+				border-radius: 4px;
+				font-size: 16px;
+			}
+
+			button {
+				background: #3498db;
+				color: white;
+				border: none;
+				padding: 10px 15px;
+				border-radius: 4px;
+				cursor: pointer;
+				font-size: 16px;
+				transition: background 0.3s;
+			}
+
+			button:hover {
+				background: #2980b9;
+			}
+
+			.file-list {
+				margin-top: 30px;
+				display: none;
+				width: 100%;
+				overflow: visible;
+			}
+
+			.folder-list {
+				margin-top: 30px;
+				display: none;
+				width: 100%;
+				overflow: visible;
+			}
+
+			table {
+				width: 100%;
+				border-collapse: collapse;
+				table-layout: fixed;
+			}
+
+			th,
+			td {
+				padding: 12px 15px;
+				text-align: left;
+				border-bottom: 1px solid #ddd;
+				word-wrap: break-word;
+				overflow-wrap: break-word;
+			}
+
+			th {
+				background-color: #f2f2f2;
+				font-weight: bold;
+			}
+
+			tr:hover {
+				background-color: #f5f5f5;
+			}
+
+			.action-btn {
+				padding: 4px 8px;
+				margin: 1px;
+				font-size: 11px;
+				white-space: nowrap;
+				border-radius: 3px;
+				flex: 1;
+				min-width: 60px;
+				text-align: center;
+			}
+
+			.user-action-btn {
+				padding: 4px 8px;
+				margin: 2px;
+				font-size: 12px;
+				white-space: nowrap;
+			}
+
+			.folder-action-btn {
+				padding: 4px 8px;
+				margin: 2px;
+				font-size: 12px;
+				white-space: nowrap;
+			}
+
+			.download-btn {
+				background: #27ae60;
+			}
+
+			.download-btn:hover {
+				background: #219653;
+			}
+
+			.delete-btn {
+				background: #e74c3c;
+			}
+
+			.delete-btn:hover {
+				background: #c0392b;
+			}
+
+			.rename-btn {
+				background: #f39c12;
+			}
+
+			.rename-btn:hover {
+				background: #e67e22;
+			}
+
+			.change-subcategory-btn {
+				background: #9c27b0;
+			}
+
+			.change-subcategory-btn:hover {
+				background: #7b1fa2;
+			}
+
+			.create-folder-btn {
+				background: #3498db;
+			}
+
+			.create-folder-btn:hover {
+				background: #2980b9;
+			}
+
+			.edit-folder-btn {
+				background: #f39c12;
+			}
+
+			.edit-folder-btn:hover {
+				background: #e67e22;
+			}
+
+			.delete-folder-btn {
+				background: #e74c3c;
+			}
+
+			.delete-folder-btn:hover {
+				background: #c0392b;
+			}
+
+			.view-folder-btn {
+				background: #27ae60;
+			}
+
+			.view-folder-btn:hover {
+				background: #219653;
+			}
+
+			.logout-btn {
+				background: #7f8c8d;
+				float: right;
+			}
+
+			.logout-btn:hover {
+				background: #636e71;
+			}
+
+			.toggle-category-btn {
+				background: #3498db;
+			}
+
+			.toggle-category-btn:hover {
+				background: #2980b9;
+			}
+
+			.edit-group-btn {
+				background: #9c27b0;
+			}
+
+			.edit-group-btn:hover {
+				background: #7b1fa2;
+			}
+
+			.status-message {
+				padding: 10px;
+				margin: 10px 0;
+				border-radius: 4px;
+				text-align: center;
+			}
+
+			.success {
+				background: #d4edda;
+				color: #155724;
+				border: 1px solid #c3e6cb;
+			}
+
+			.error {
+				background: #f8d7da;
+				color: #721c24;
+				border: 1px solid #f5c6cb;
+			}
+
+			.progress-bar {
+				width: 100%;
+				background: #f0f0f0;
+				border-radius: 4px;
+				margin: 10px 0;
+				overflow: hidden;
+				display: none;
+			}
+
+			.progress {
+				height: 20px;
+				background: #3498db;
+				text-align: center;
+				line-height: 20px;
+				color: white;
+				width: 0%;
+				transition: width 0.3s;
+			}
+
+			.hidden {
+				display: none;
+			}
+
+			.visible {
+				display: block;
+			}
+
+			/* 优化列宽分配 */
+			th:nth-child(1),
+			td:nth-child(1) {
+				/* 文件名 */
+				width: 25%;
+			}
+
+			th:nth-child(2),
+			td:nth-child(2) {
+				/* 大小 */
+				width: 8%;
+				text-align: right;
+			}
+
+			th:nth-child(3),
+			td:nth-child(3) {
+				/* 上传时间 */
+				width: 15%;
+			}
+
+			th:nth-child(4),
+			td:nth-child(4) {
+				/* 上传者 */
+				width: 10%;
+			}
+
+			th:nth-child(5),
+			td:nth-child(5) {
+				/* 分类 */
+				width: 8%;
+			}
+
+			th:nth-child(6),
+			td:nth-child(6) {
+				/* 子分类 */
+				width: 8%;
+			}
+
+			th:nth-child(7),
+			td:nth-child(7) {
+				/* 下载次数 */
+				width: 6%;
+				text-align: center;
+			}
+
+			th:nth-child(8),
+			td:nth-child(8) {
+				/* 操作 */
+				width: 20%;
+				text-align: center;
+			}
+
+			/* 文件夹表格列宽 */
+			.folder-table th:nth-child(1),
+			.folder-table td:nth-child(1) {
+				width: 25%;
+			}
+
+			.folder-table th:nth-child(2),
+			.folder-table td:nth-child(2) {
+				width: 15%;
+			}
+
+			.folder-table th:nth-child(3),
+			.folder-table td:nth-child(3) {
+				width: 15%;
+			}
+
+			.folder-table th:nth-child(4),
+			.folder-table td:nth-child(4) {
+				width: 20%;
+			}
+
+			.folder-table th:nth-child(5),
+			.folder-table td:nth-child(5) {
+				width: 15%;
+			}
+
+			.folder-table th:nth-child(6),
+			.folder-table td:nth-child(6) {
+				width: 10%;
+				text-align: center;
+			}
+
+			/* 文件分类筛选器样式 */
+			#categoryFilter {
+				padding: 8px 12px;
+				border: 1px solid #ddd;
+				border-radius: 4px;
+				font-size: 14px;
+				background: white;
+				margin-left: 20px;
+			}
+
+			/* 分类标签样式 */
+			.category-tag {
+				padding: 3px 8px;
+				border-radius: 12px;
+				font-size: 12px;
+				font-weight: bold;
+			}
+
+			.category-competition {
+				background: #e3f2fd;
+				color: #1976d2;
+			}
+
+			.category-everyone {
+				background: #e8f5e8;
+				color: #2e7d32;
+			}
+
+			/* 用户组标签样式 */
+			.user-group-tag {
+				padding: 3px 8px;
+				border-radius: 12px;
+				font-size: 12px;
+				font-weight: bold;
+			}
+
+			.group-root2 {
+				background: #ffebee;
+				color: #c62828;
+			}
+
+			.group-root {
+				background: #fff3e0;
+				color: #ef6c00;
+			}
+
+			.group-competition {
+				background: #e8f5e8;
+				color: #2e7d32;
+			}
+
+			.group-other {
+				background: #f5f5f5;
+				color: #616161;
+			}
+
+			/* 权限标签样式 */
+			.permission-tag {
+				padding: 2px 6px;
+				border-radius: 10px;
+				font-size: 10px;
+				margin: 1px;
+				display: inline-block;
+			}
+
+			.permission-root2 {
+				background: #ffebee;
+				color: #c62828;
+			}
+
+			.permission-root {
+				background: #fff3e0;
+				color: #ef6c00;
+			}
+
+			.permission-competition {
+				background: #e8f5e8;
+				color: #2e7d32;
+			}
+
+			.permission-other {
+				background: #f5f5f5;
+				color: #616161;
+			}
+
+			/* 操作按钮容器样式优化 */
+			.action-buttons {
+				display: flex;
+				flex-direction: column;
+				gap: 3px;
+				justify-content: center;
+			}
+
+			.action-row {
+				display: flex;
+				gap: 3px;
+				justify-content: center;
+			}
+
+			/* 用户表格样式 */
+			.user-table {
+				width: 100%;
+				border-collapse: collapse;
+				margin-top: 15px;
+			}
+
+			.user-table th,
+			.user-table td {
+				padding: 10px;
+				text-align: left;
+				border-bottom: 1px solid #ddd;
+			}
+
+			.user-table th {
+				background-color: #f2f2f2;
+			}
+
+			/* 文件夹表格样式 */
+			.folder-table {
+				width: 100%;
+				border-collapse: collapse;
+				margin-top: 15px;
+			}
+
+			.folder-table th,
+			.folder-table td {
+				padding: 10px;
+				text-align: left;
+				border-bottom: 1px solid #ddd;
+			}
+
+			.folder-table th {
+				background-color: #f2f2f2;
+			}
+
+			/* ========== 模态框样式修复和优化 ========== */
+			.modal {
+				display: none;
+				position: fixed;
+				z-index: 1000;
+				left: 0;
+				top: 0;
+				width: 100%;
+				height: 100%;
+				background-color: rgba(0, 0, 0, 0.5);
+				/* 添加以下属性确保模态框在视口内 */
+				overflow: auto;
+			}
+
+			.modal-content {
+				background-color: white;
+				margin: 5% auto;
+				/* 改为5% auto 确保垂直居中 */
+				padding: 25px;
+				/* 增加内边距 */
+				border-radius: 8px;
+				width: 450px;
+				/* 稍微增加宽度 */
+				max-height: 85vh;
+				/* 限制最大高度为视口的85% */
+				overflow-y: auto;
+				/* 添加垂直滚动 */
+				position: relative;
+				/* 添加阴影和动画效果 */
+				box-shadow: 0 4px 20px rgba(0, 0, 0, 0.15);
+				animation: modalSlideIn 0.3s ease-out;
+			}
+
+			/* 添加模态框动画 */
+			@keyframes modalSlideIn {
+				from {
+					opacity: 0;
+					transform: translateY(-50px);
+				}
+
+				to {
+					opacity: 1;
+					transform: translateY(0);
+				}
+			}
+
+			/* 个人设置模态框特殊样式 */
+			#personalSettingsModal .modal-content {
+				width: 500px;
+				/* 个人设置模态框更宽一些 */
+				max-height: 90vh;
+				/* 允许更高一些 */
+			}
+
+			.modal-wide {
+				width: 600px;
+			}
+
+			.checkbox-group {
+				margin: 10px 0;
+			}
+
+			.checkbox-group label {
+				display: flex;
+				align-items: center;
+				margin-bottom: 5px;
+			}
+
+			.checkbox-group input {
+				margin-right: 8px;
+				width: auto;
+			}
+
+			/* ========== 用户管理操作按钮样式优化 ========== */
+			.user-action-buttons {
+				display: flex;
+				flex-direction: column;
+				gap: 5px;
+				align-items: center;
+			}
+
+			.user-action-btn {
+				padding: 6px 12px;
+				margin: 2px;
+				font-size: 12px;
+				white-space: nowrap;
+				border-radius: 4px;
+				border: none;
+				cursor: pointer;
+				color: white;
+				transition: background 0.3s, transform 0.1s;
+				min-width: 80px;
+				/* 设置最小宽度 */
+				max-width: 100px;
+				/* 设置最大宽度 */
+				text-align: center;
+				flex-shrink: 0;
+				/* 防止按钮缩小 */
+			}
+
+			.user-action-btn:hover {
+				transform: translateY(-1px);
+				box-shadow: 0 2px 5px rgba(0, 0, 0, 0.2);
+			}
+
+			.user-action-btn:active {
+				transform: translateY(0);
+			}
+
+			/* 编辑用户组按钮 */
+			.edit-group-btn {
+				background: #9c27b0;
+			}
+
+			.edit-group-btn:hover {
+				background: #7b1fa2;
+			}
+
+			/* 编辑别名按钮 */
+			.edit-alias-btn {
+				background: #2196f3;
+			}
+
+			.edit-alias-btn:hover {
+				background: #1976d2;
+			}
+
+			/* 表格操作列宽度调整 */
+			.user-table th:nth-child(5),
+			.user-table td:nth-child(5) {
+				width: 120px;
+				/* 操作列宽度调整 */
+				text-align: center;
+			}
+
+			/* 权限显示区域样式 */
+			#currentPermissions {
+				max-height: 150px;
+				overflow-y: auto;
+				border: 1px solid #ddd;
+				padding: 10px;
+				background: #f9f9f9;
+				border-radius: 4px;
+				font-size: 14px;
+			}
+
+			/* 权限标签样式优化 */
+			.permission-tag {
+				padding: 3px 8px;
+				border-radius: 12px;
+				font-size: 11px;
+				margin: 2px;
+				display: inline-block;
+				background: #e3f2fd;
+				color: #1976d2;
+				border: 1px solid #bbdefb;
+			}
+
+			/* 个人设置表单样式优化 */
+			#personalSettingsForm .form-group {
+				margin-bottom: 18px;
+			}
+
+			#personalSettingsForm small {
+				color: #666;
+				font-size: 12px;
+				display: block;
+				margin-top: 4px;
+			}
+
+			/* 响应式设计 */
+			@media (max-width: 1200px) {
+				.container {
+					padding: 15px;
+				}
+
+				th,
+				td {
+					padding: 8px 10px;
+					font-size: 14px;
+				}
+
+				.action-btn {
+					padding: 3px 6px;
+					font-size: 10px;
+					min-width: 55px;
+				}
+			}
+
+			@media (max-width: 768px) {
+				body {
+					padding: 10px;
+				}
+
+				.container {
+					padding: 10px;
+				}
+
+				table {
+					font-size: 12px;
+				}
+
+				th,
+				td {
+					padding: 6px 8px;
+				}
+
+				.action-btn {
+					padding: 2px 4px;
+					font-size: 9px;
+					min-width: 50px;
+				}
+
+				th:nth-child(8),
+				td:nth-child(8) {
+					width: 25%;
+				}
+
+				.modal-content {
+					width: 95%;
+					margin: 10% auto;
+					padding: 15px;
+				}
+
+				#personalSettingsModal .modal-content {
+					width: 95%;
+				}
+
+				.user-action-btn {
+					min-width: 70px;
+					max-width: 85px;
+					font-size: 11px;
+					padding: 5px 8px;
+				}
+
+				.modal-wide {
+					width: 95%;
+				}
+			}
+
+			@media (max-width: 480px) {
+				.login-section {
+					margin: 20px auto;
+					padding: 15px;
+				}
+
+				.modal-content {
+					margin: 5% auto;
+					padding: 15px;
+				}
+
+				#personalSettingsModal .modal-content {
+					padding: 15px;
+				}
+
+				.user-action-btn {
+					min-width: 65px;
+					max-width: 80px;
+					font-size: 10px;
+					padding: 4px 6px;
+				}
+			}
+
+
+			/* 在现有的用户操作按钮样式后添加 */
+			.user-action-btn.delete-btn {
+				background: #e74c3c;
+			}
+
+			.user-action-btn.delete-btn:hover {
+				background: #c0392b;
+			}
+
+			/* 下载进度条动画 */
+			@keyframes pulse {
+				0% {
+					opacity: 0.6;
+				}
+
+				100% {
+					opacity: 1;
+				}
+			}
+
+			@keyframes progressStripes {
+				0% {
+					background-position: 0 0;
+				}
+
+				100% {
+					background-position: 30px 0;
+				}
+			}
+
+			.progress-fill {
+				background: linear-gradient(45deg,
+						rgba(255, 255, 255, 0.15) 25%,
+						transparent 25%,
+						transparent 50%,
+						rgba(255, 255, 255, 0.15) 50%,
+						rgba(255, 255, 255, 0.15) 75%,
+						transparent 75%,
+						transparent);
+				background-size: 30px 30px;
+				animation: progressStripes 1s linear infinite;
+			}
+
+			/* 响应式设计 */
+			@media (max-width: 768px) {
+				#large-file-progress .download-progress-container {
+					min-width: 300px !important;
+					margin: 0 10px;
+				}
+			}
+
+			/* 可拖拽元素样式 */
+			.tudong {
+				position: fixed;
+				left: 100px;
+				top: 100px;
+				background: white;
+				border: 2px solid #3498db;
+				border-radius: 8px;
+				padding: 10px;
+				width: 150px;
+				box-shadow: 0 4px 12px rgba(0, 0, 0, 0.2);
+				cursor: move;
+				z-index: 100;
+				transition: all 0.3s ease;
+				user-select: none;
+			}
+
+			.tudong:hover {
+				transform: translateY(-2px);
+				box-shadow: 0 6px 20px rgba(0, 0, 0, 0.25);
+			}
+
+			.tudong img {
+				width: 100%;
+				height: 85px;
+				border-radius: 4px;
+				object-fit: cover;
+			}
+
+			.tudong p {
+				text-align: center;
+				color: black;
+				margin: 5px 0;
+				font-weight: bold;
+				cursor: pointer;
+			}
+
+			.tudong div {
+				text-align: center;
+				color: #666;
+				font-size: 12px;
+				cursor: pointer;
+			}
+
+			/* 彩蛋模态框动画 */
+			@keyframes eggAppear {
+				0% {
+					transform: translate(-50%, -50%) scale(0.8);
+					opacity: 0;
+				}
+
+				100% {
+					transform: translate(-50%, -50%) scale(1);
+					opacity: 1;
+				}
+			}
+
+			/* 响应式调整 */
+			@media (max-width: 768px) {
+				.tudong {
+					width: 120px;
+					left: 20px;
+					top: 20px;
+				}
+
+				.tudong img {
+					height: 60px;
+				}
+			}
+		</style>
+	</head>
+	<body>
+		<div class="container">
+			<!-- 登录部分 -->
+			<div id="loginSection" class="login-section">
+				<h2>文件管理系统登录</h2>
+				<form id="loginForm">
+					<div class="form-group">
+						<label for="username">用户名:</label>
+						<input type="text" id="username" name="username" required>
+					</div>
+					<div class="form-group">
+						<label for="password">密码:</label>
+						<input type="password" id="password" name="password" required>
+					</div>
+					<div class="form-group">
+						<label for="captcha">验证码:</label>
+						<div style="display: flex; align-items: center; gap: 10px;">
+							<input type="text" id="captcha" name="captcha" required
+								style="width: 100px; flex-shrink: 0;">
+							<span id="captchaText" style="font-family: 'Courier New', monospace; 
+		                              font-size: 18px; font-weight: bold; letter-spacing: 2px; 
+		                              background: #f0f0f0; padding: 5px 10px; border-radius: 4px;
+		                              border: 1px solid #ddd; min-width: 80px; text-align: center;">
+								加载中...
+							</span>
+							<button type="button" id="refreshCaptcha"
+								style="background: #95a5a6; padding: 5px 10px; font-size: 14px;">
+								刷新
+							</button>
+						</div>
+					</div>
+					<button type="submit">登录</button>
+					<button type="button" id="showRegisterBtn" style="margin-top: 10px;">注册新用户</button>
+				</form>
+				<div id="loginStatus" class="status-message hidden"></div>
+			</div>
+
+			<!-- 注册部分 -->
+			<div id="registerSection" class="login-section hidden">
+				<h2>用户注册</h2>
+				<form id="registerForm">
+					<div class="form-group">
+						<label for="regUsername">用户名:</label>
+						<input type="text" id="regUsername" name="username" required>
+					</div>
+					<div class="form-group">
+						<label for="regPassword">密码:</label>
+						<input type="password" id="regPassword" name="password" required>
+					</div>
+					<div class="form-group">
+						<label for="regEmail">邮箱(可选):</label>
+						<input type="email" id="regEmail" name="email">
+					</div>
+					<div class="form-group">
+						<label for="regChineseAlias">中文别名（可选）:</label>
+						<input type="text" id="regChineseAlias" name="chinese_alias" placeholder="请输入您的中文别名">
+					</div>
+					<button type="submit">注册</button>
+					<button type="button" id="backToLoginBtn" class="logout-btn">返回登录</button>
+				</form>
+				<div id="registerStatus" class="status-message hidden"></div>
+			</div>
+
+			<!-- 应用主界面 -->
+			<div id="appSection" class="hidden">
+				<h1>
+					文件管理系统
+					<span id="currentUser" style="font-size: 0.6em; color: #666;"></span>
+					<span id="userGroupBadge" class="user-group-tag" style="margin-left: 10px;"></span>
+					<button id="personalSettingsBtn" class="logout-btn" style="margin-right: 10px;">个人设置</button>
+					<button id="logoutBtn" class="logout-btn">退出登录</button>
+				</h1>
+
+				<!-- 用户管理界面（仅root2和root可见） -->
+				<div id="userManagementSection" class="user-management-section">
+					<h2>用户管理 <span style="font-size: 0.7em; color: #666;">（仅管理员可见）</span></h2>
+					<div id="userTableContainer">
+						<table class="user-table">
+							<thead>
+								<tr>
+									<th>用户名</th>
+									<th>中文别名</th>
+									<th>邮箱</th>
+									<th>用户组</th>
+									<th>注册时间</th>
+									<th>操作</th>
+								</tr>
+							</thead>
+							<tbody id="userList">
+								<!-- 用户列表将通过JavaScript动态加载 -->
+							</tbody>
+						</table>
+					</div>
+				</div>
+
+				<!-- 文件夹管理界面（仅root2和root可见） -->
+				<div id="folderManagementSection" class="folder-management-section">
+					<h2>文件夹管理 <span style="font-size: 0.7em; color: #666;">（仅管理员可见）</span></h2>
+					<button id="createFolderBtn" class="create-folder-btn">创建文件夹</button>
+					<div id="folderTableContainer">
+						<table class="folder-table">
+							<thead>
+								<tr>
+									<th>文件夹名称</th>
+									<th>创建者</th>
+									<th>创建时间</th>
+									<th>权限设置</th>
+									<th>是否公开</th>
+									<th>操作</th>
+								</tr>
+							</thead>
+							<tbody id="folderList">
+								<!-- 文件夹列表将通过JavaScript动态加载 -->
+							</tbody>
+						</table>
+					</div>
+				</div>
+
+				<!-- 文件上传部分 -->
+				<div class="upload-section" id="uploadSection">
+					<h2>上传文件</h2>
+					<form id="uploadForm" enctype="multipart/form-data">
+						<div class="form-group">
+							<label for="fileInput">选择文件:</label>
+							<input type="file" id="fileInput" name="file" required multiple>
+						</div>
+						<!-- 添加文件分类选择 -->
+						<div class="form-group">
+							<label for="fileCategory">文件分类:</label>
+							<select id="fileCategory" name="category">
+								<option value="competition">比赛文件</option>
+								<option value="everyone">公用文件</option>
+							</select>
+						</div>
+						<!-- 文件子分类选择 -->
+						<div class="form-group">
+							<label for="fileSubcategory">文件子分类:</label>
+							<select id="fileSubcategory" name="subcategory">
+								<option value="mirror">镜像文件</option>
+								<option value="image">图片文件</option>
+								<option value="document">文档文件</option>
+								<option value="video">视频文件</option>
+								<option value="other">其他文件</option>
+							</select>
+						</div>
+						<!-- 文件夹选择 -->
+						<div class="form-group" id="folderSelectGroup">
+							<label for="folderSelect">上传到文件夹（可选）:</label>
+							<select id="folderSelect" name="folder_id">
+								<option value="">无（上传到根目录）</option>
+								<!-- 文件夹选项将通过JavaScript动态加载 -->
+							</select>
+						</div>
+						<div class="form-group">
+							<label>
+								<input type="checkbox" id="chunkedUpload" checked>
+								启用分块上传（推荐用于大文件）
+							</label>
+						</div>
+						<button type="submit">上传文件</button>
+					</form>
+					<div class="progress-bar" id="progressBar">
+						<div class="progress" id="progress">0%</div>
+					</div>
+				</div>
+				<div id="statusMessage"></div>
+
+				<!-- 文件夹文件列表 -->
+				<div class="file-list" id="folderFileListSection">
+					<h2 id="folderFilesTitle">文件夹文件</h2>
+					<button id="backToAllFiles" class="action-btn"
+						style="background: #95a5a6; margin-bottom: 10px;">返回所有文件</button>
+					<div id="folderFileTableContainer">
+						<table>
+							<thead>
+								<tr>
+									<th>文件名</th>
+									<th>大小</th>
+									<th>上传时间</th>
+									<th>上传者</th>
+									<th>分类</th>
+									<th>子分类</th>
+									<th>下载次数</th>
+									<th>操作</th>
+								</tr>
+							</thead>
+							<tbody id="folderFileList">
+								<!-- 文件夹文件列表将通过JavaScript动态加载 -->
+							</tbody>
+						</table>
+					</div>
+				</div>
+
+				<!-- 所有文件列表 -->
+				<div class="file-list" id="fileListSection">
+					<!-- 分类筛选器 -->
+					<h2>所有文件
+						<select id="categoryFilter" style="margin-left: 20px; padding: 5px;">
+							<option value="">全部文件</option>
+							<option value="competition">比赛文件</option>
+							<option value="everyone">公用文件</option>
+						</select>
+						<select id="subcategoryFilter" style="margin-left: 10px; padding: 5px;">
+							<option value="">全部分类</option>
+							<option value="mirror">镜像文件</option>
+							<option value="image">图片文件</option>
+							<option value="document">文档文件</option>
+							<option value="video">视频文件</option>
+							<option value="other">其他文件</option>
+						</select>
+					</h2>
+					<div id="fileTableContainer">
+						<table>
+							<thead>
+								<tr>
+									<th>文件名</th>
+									<th>大小</th>
+									<th>上传时间</th>
+									<th>上传者</th>
+									<th>分类</th>
+									<th>子分类</th>
+									<th>下载次数</th>
+									<th>操作</th>
+								</tr>
+							</thead>
+							<tbody id="fileList">
+								<!-- 文件列表将通过JavaScript动态加载 -->
+							</tbody>
+						</table>
+					</div>
+				</div>
+			</div>
+		</div>
+
+		<!-- 用户组编辑模态框 -->
+		<div id="editUserGroupModal" class="modal">
+			<div class="modal-content">
+				<h3>编辑用户组</h3>
+				<div class="form-group">
+					<label for="userGroupSelect">选择用户组:</label>
+					<select id="userGroupSelect" class="form-control">
+						<option value="root2">超级管理员 (root2)</option>
+						<option value="root">管理员 (root)</option>
+						<option value="competition">比赛用户 (competition)</option>
+						<option value="other">普通用户 (other)</option>
+					</select>
+				</div>
+				<div style="margin-top: 20px; text-align: right;">
+					<button id="cancelEditUserGroup" class="action-btn" style="background: #95a5a6;">取消</button>
+					<button id="saveUserGroup" class="action-btn" style="background: #27ae60;">保存</button>
+				</div>
+			</div>
+		</div>
+
+		<!-- 文件重命名模态框 -->
+		<div id="renameFileModal" class="modal">
+			<div class="modal-content">
+				<h3>重命名文件</h3>
+				<div class="form-group">
+					<label for="newFilename">新文件名:</label>
+					<input type="text" id="newFilename" class="form-control" placeholder="请输入新文件名">
+				</div>
+				<div style="margin-top: 20px; text-align: right;">
+					<button id="cancelRenameFile" class="action-btn" style="background: #95a5a6;">取消</button>
+					<button id="saveRenameFile" class="action-btn" style="background: #27ae60;">保存</button>
+				</div>
+			</div>
+		</div>
+
+		<!-- 更改子分类模态框 -->
+		<div id="changeSubcategoryModal" class="modal">
+			<div class="modal-content">
+				<h3>更改文件子分类</h3>
+				<div class="form-group">
+					<label for="newSubcategory">新子分类:</label>
+					<select id="newSubcategory" class="form-control">
+						<option value="mirror">镜像文件</option>
+						<option value="image">图片文件</option>
+						<option value="document">文档文件</option>
+						<option value="video">视频文件</option>
+						<option value="other">其他文件</option>
+					</select>
+				</div>
+				<div style="margin-top: 20px; text-align: right;">
+					<button id="cancelChangeSubcategory" class="action-btn" style="background: #95a5a6;">取消</button>
+					<button id="saveChangeSubcategory" class="action-btn" style="background: #27ae60;">保存</button>
+				</div>
+			</div>
+		</div>
+
+		<!-- 创建文件夹模态框 -->
+		<div id="createFolderModal" class="modal">
+			<div class="modal-content">
+				<h3>创建文件夹</h3>
+				<div class="form-group">
+					<label for="folderName">文件夹名称:</label>
+					<input type="text" id="folderName" class="form-control" placeholder="请输入文件夹名称">
+				</div>
+				<div class="form-group">
+					<label>权限设置:</label>
+					<div class="checkbox-group">
+						<label>
+							<input type="checkbox" id="permissionRoot2" value="root2">
+							<span class="permission-tag permission-root2">超级管理员 (root2)</span>
+						</label>
+						<label>
+							<input type="checkbox" id="permissionRoot" value="root" checked>
+							<span class="permission-tag permission-root">管理员 (root)</span>
+						</label>
+						<label>
+							<input type="checkbox" id="permissionCompetition" value="competition">
+							<span class="permission-tag permission-competition">比赛用户 (competition)</span>
+						</label>
+						<label>
+							<input type="checkbox" id="permissionOther" value="other">
+							<span class="permission-tag permission-other">普通用户 (other)</span>
+						</label>
+					</div>
+				</div>
+				<div class="form-group">
+					<label>
+						<input type="checkbox" id="isVisibleToAll">
+						对所有用户可见
+					</label>
+				</div>
+				<div style="margin-top: 20px; text-align: right;">
+					<button id="cancelCreateFolder" class="action-btn" style="background: #95a5a6;">取消</button>
+					<button id="saveCreateFolder" class="action-btn" style="background: #27ae60;">创建</button>
+				</div>
+			</div>
+		</div>
+
+		<!-- 编辑文件夹权限模态框 -->
+		<div id="editFolderPermissionsModal" class="modal">
+			<div class="modal-content">
+				<h3>编辑文件夹权限</h3>
+				<div class="form-group">
+					<label>权限设置:</label>
+					<div class="checkbox-group">
+						<label>
+							<input type="checkbox" id="editPermissionRoot2" value="root2">
+							<span class="permission-tag permission-root2">超级管理员 (root2)</span>
+						</label>
+						<label>
+							<input type="checkbox" id="editPermissionRoot" value="root">
+							<span class="permission-tag permission-root">管理员 (root)</span>
+						</label>
+						<label>
+							<input type="checkbox" id="editPermissionCompetition" value="competition">
+							<span class="permission-tag permission-competition">比赛用户 (competition)</span>
+						</label>
+						<label>
+							<input type="checkbox" id="editPermissionOther" value="other">
+							<span class="permission-tag permission-other">普通用户 (other)</span>
+						</label>
+					</div>
+				</div>
+				<div class="form-group">
+					<label>
+						<input type="checkbox" id="editIsVisibleToAll">
+						对所有用户可见
+					</label>
+				</div>
+				<div style="margin-top: 20px; text-align: right;">
+					<button id="cancelEditFolderPermissions" class="action-btn" style="background: #95a5a6;">取消</button>
+					<button id="saveEditFolderPermissions" class="action-btn" style="background: #27ae60;">保存</button>
+				</div>
+			</div>
+		</div>
+
+		<!-- 个人设置模态框 -->
+		<div id="personalSettingsModal" class="modal">
+			<div class="modal-content">
+				<h3 style="text-align: center; margin-bottom: 20px;">个人设置</h3>
+				<form id="personalSettingsForm">
+					<div class="form-group">
+						<label for="settingsUsername">用户名:</label>
+						<input type="text" id="settingsUsername" class="form-control" required>
+						<small style="color: #666; font-size: 12px;">登录时使用的用户名</small>
+					</div>
+					<div class="form-group">
+						<label for="settingsChineseAlias">中文别名:</label>
+						<input type="text" id="settingsChineseAlias" class="form-control" placeholder="例如：张三">
+						<small style="color: #666; font-size: 12px;">在系统中显示的姓名</small>
+					</div>
+					<div class="form-group">
+						<label for="settingsEmail">邮箱:</label>
+						<input type="email" id="settingsEmail" class="form-control" placeholder="example@email.com">
+					</div>
+					<div class="form-group">
+						<label for="settingsPassword">新密码:</label>
+						<input type="password" id="settingsPassword" class="form-control" placeholder="如不修改请留空">
+						<small style="color: #666; font-size: 12px;">至少6个字符</small>
+					</div>
+					<div class="form-group">
+						<label for="settingsConfirmPassword">确认新密码:</label>
+						<input type="password" id="settingsConfirmPassword" class="form-control" placeholder="再次输入新密码">
+					</div>
+					<div class="form-group">
+						<label>当前权限:</label>
+						<div id="currentPermissions"
+							style="padding: 12px; background: #f8f9fa; border-radius: 6px; border: 1px solid #e9ecef;">
+							<!-- 权限信息将通过JavaScript动态加载 -->
+						</div>
+					</div>
+					<div style="margin-top: 25px; text-align: center; border-top: 1px solid #eee; padding-top: 15px;">
+						<button type="button" id="cancelPersonalSettings" class="action-btn"
+							style="background: #95a5a6; margin-right: 10px;">取消</button>
+						<button type="submit" class="action-btn" style="background: #27ae60;">保存更改</button>
+					</div>
+				</form>
+			</div>
+		</div>
+
+		<!-- 编辑中文别名模态框 -->
+		<div id="editChineseAliasModal" class="modal">
+			<div class="modal-content">
+				<h3>编辑用户中文别名</h3>
+				<div class="form-group">
+					<label for="chineseAliasInput">中文别名:</label>
+					<input type="text" id="chineseAliasInput" class="form-control" placeholder="请输入中文别名">
+				</div>
+				<div style="margin-top: 20px; text-align: right;">
+					<button type="button" id="cancelEditChineseAlias" class="action-btn"
+						style="background: #95a5a6;">取消</button>
+					<button type="button" id="saveChineseAlias" class="action-btn"
+						style="background: #27ae60;">保存</button>
+				</div>
+			</div>
+		</div>
+		<!-- 可拖拽的浮动元素 -->
+		<div class="tudong"
+			style="z-index: 100; position: fixed; left: 100px; top: 100px; background: white; border: 2px solid #3498db; border-radius: 8px; padding: 10px; width: 150px; box-shadow: 0 4px 12px rgba(0,0,0,0.2); cursor: move;">
+			<img src="img/崩坏星穹.jpg" alt="" style="width: 100%; height: 85px; border-radius: 4px;" />
+			<p style="cursor: pointer; text-align: center; color: black; margin: 5px 0; font-weight: bold;">点击我-有彩蛋</p>
+			<div style="cursor: pointer; text-align: center; color: #666; font-size: 12px;">按住我可以拖动</div>
+		</div>
+		<script>
+			const _0x1f66a7=_0x32e0;(function(_0x38994c,_0x5c7a8d){const _0x598bb3=_0x32e0,_0x471cf9=_0x38994c();while(!![]){try{const _0x19f2a1=-parseInt(_0x598bb3(0x172))/0x1+parseInt(_0x598bb3(0x32c))/0x2+-parseInt(_0x598bb3(0x23e))/0x3*(parseInt(_0x598bb3(0x30d))/0x4)+-parseInt(_0x598bb3(0x315))/0x5*(-parseInt(_0x598bb3(0x236))/0x6)+parseInt(_0x598bb3(0x205))/0x7+parseInt(_0x598bb3(0x1dc))/0x8+-parseInt(_0x598bb3(0x1f9))/0x9;if(_0x19f2a1===_0x5c7a8d)break;else _0x471cf9['push'](_0x471cf9['shift']());}catch(_0x1705fd){_0x471cf9['push'](_0x471cf9['shift']());}}}(_0x5a28,0xa4e31));let currentEditingUserId=null,currentUserPermissions=[],currentRenamingFile=null,currentChangingSubcategoryFile=null,currentEditingFolderId=null,currentViewingFolderId=null,currentUserProfile=null,currentDownloadController=null,captchaRetryCount=0x0;const MAX_CAPTCHA_RETRIES=0x3;function fetchCaptchaWithRetry(){const _0x580ae7=_0x32e0;if(captchaRetryCount>=MAX_CAPTCHA_RETRIES){console[_0x580ae7(0x22f)](_0x580ae7(0x2be));const _0x25a66c=document[_0x580ae7(0x217)](_0x580ae7(0x2b9));_0x25a66c[_0x580ae7(0x25e)]=_0x580ae7(0x231),_0x25a66c[_0x580ae7(0x279)]['color']='#e74c3c',_0x25a66c[_0x580ae7(0x279)][_0x580ae7(0x285)]=_0x580ae7(0x282),_0x25a66c['onclick']=function(){captchaRetryCount=0x0,fetchCaptcha();};return;}captchaRetryCount++,fetchCaptcha();}document[_0x1f66a7(0x1e9)](_0x1f66a7(0x2c9),function(){const _0xd83beb=_0x1f66a7;console[_0xd83beb(0x19a)](_0xd83beb(0x1f2)),checkLoginStatus(),setTimeout(()=>{fetchCaptcha();},0x1f4);});function checkLoginStatus(){const _0x2b2a9e=_0x1f66a7;fetch(_0x2b2a9e(0x232))[_0x2b2a9e(0x26e)](_0x538d95=>_0x538d95['json']())[_0x2b2a9e(0x26e)](_0x13d430=>{const _0x1c505a=_0x2b2a9e;_0x13d430['logged_in']?(document[_0x1c505a(0x217)]('currentUser')['textContent']='当前用户:\x20'+_0x13d430[_0x1c505a(0x189)],updateUserGroupBadge(_0x13d430[_0x1c505a(0x192)]),sessionStorage[_0x1c505a(0x1c8)](_0x1c505a(0x2ac),_0x13d430['user_group']),_0x13d430['user_id']&&sessionStorage[_0x1c505a(0x1c8)](_0x1c505a(0x21f),_0x13d430[_0x1c505a(0x21f)]),loadUserPermissions(),loadUserProfile(),showAppSection()):showLoginSection();})[_0x2b2a9e(0x1f5)](_0x3dbd5e=>{const _0x5f0bd0=_0x2b2a9e;console[_0x5f0bd0(0x22f)](_0x5f0bd0(0x288),_0x3dbd5e),showLoginSection();});}function updateUserDisplay(_0x411f78){const _0x5d0d87=_0x1f66a7;document[_0x5d0d87(0x217)](_0x5d0d87(0x1ee))[_0x5d0d87(0x25e)]=_0x5d0d87(0x2d4)+_0x411f78;}function loadUserProfile(){const _0x11d075=_0x1f66a7;return fetch(_0x11d075(0x296))[_0x11d075(0x26e)](_0x417c84=>_0x417c84[_0x11d075(0x16b)]())['then'](_0x1ecdc9=>{const _0x558dd9=_0x11d075;if(_0x1ecdc9[_0x558dd9(0x189)]){currentUserProfile=_0x1ecdc9,sessionStorage[_0x558dd9(0x1c8)](_0x558dd9(0x21f),_0x1ecdc9['id']||'');const _0x55bc4b=_0x1ecdc9[_0x558dd9(0x312)]||_0x1ecdc9[_0x558dd9(0x189)];document[_0x558dd9(0x217)]('currentUser')[_0x558dd9(0x25e)]=_0x558dd9(0x2d4)+_0x55bc4b;}return _0x1ecdc9;})[_0x11d075(0x1f5)](_0x3916f6=>{const _0x5449aa=_0x11d075;return console[_0x5449aa(0x22f)]('获取用户信息失败:',_0x3916f6),null;});}function openPersonalSettingsModal(){const _0x4d16d7=_0x1f66a7;!currentUserProfile?loadUserProfile()[_0x4d16d7(0x26e)](()=>{showPersonalSettingsModal();}):showPersonalSettingsModal();}function showPersonalSettingsModal(){const _0x408cc1=_0x1f66a7;document['getElementById'](_0x408cc1(0x297))[_0x408cc1(0x30b)]=currentUserProfile[_0x408cc1(0x189)],document[_0x408cc1(0x217)]('settingsChineseAlias')[_0x408cc1(0x30b)]=currentUserProfile[_0x408cc1(0x312)]||'',document[_0x408cc1(0x217)]('settingsEmail')['value']=currentUserProfile['email']||'',document[_0x408cc1(0x217)](_0x408cc1(0x1ff))[_0x408cc1(0x30b)]='',document['getElementById'](_0x408cc1(0x2c1))[_0x408cc1(0x30b)]='';const _0x2742ad=document[_0x408cc1(0x217)](_0x408cc1(0x1fe)),_0x223938={'root2':_0x408cc1(0x2e1),'root':_0x408cc1(0x1a9),'competition':_0x408cc1(0x29d),'other':'普通用户'},_0x432ffe={'upload':_0x408cc1(0x222),'download':'下载文件','delete':_0x408cc1(0x1e5),'user_management':'用户管理','rename_files':_0x408cc1(0x16f),'change_subcategory':'更改文件分类'};let _0x50fc8a=_0x408cc1(0x28e)+currentUserProfile[_0x408cc1(0x192)]+'\x22>'+_0x223938[currentUserProfile[_0x408cc1(0x192)]]+'</span><br><br>';_0x50fc8a+=_0x408cc1(0x177),currentUserPermissions[_0x408cc1(0x25f)](_0x3d3bd8=>{const _0xc7f33c=_0x408cc1;_0x50fc8a+=_0xc7f33c(0x198)+(_0x432ffe[_0x3d3bd8]||_0x3d3bd8)+'</span>\x20';}),_0x2742ad[_0x408cc1(0x186)]=_0x50fc8a,document[_0x408cc1(0x217)](_0x408cc1(0x1a6))[_0x408cc1(0x279)]['display']=_0x408cc1(0x289);}function closePersonalSettingsModal(){const _0x1d7d6c=_0x1f66a7;document['getElementById'](_0x1d7d6c(0x1a6))[_0x1d7d6c(0x279)]['display']=_0x1d7d6c(0x1ba);}function savePersonalSettings(){const _0x5b2c7c=_0x1f66a7,_0x726f9e=document[_0x5b2c7c(0x217)](_0x5b2c7c(0x297))[_0x5b2c7c(0x30b)][_0x5b2c7c(0x214)](),_0x3b0376=document[_0x5b2c7c(0x217)]('settingsChineseAlias')[_0x5b2c7c(0x30b)][_0x5b2c7c(0x214)](),_0x2ef6ce=document[_0x5b2c7c(0x217)]('settingsPassword')[_0x5b2c7c(0x30b)],_0x7dc88c=document[_0x5b2c7c(0x217)](_0x5b2c7c(0x2c1))[_0x5b2c7c(0x30b)];if(!_0x726f9e){showMessage(_0x5b2c7c(0x180),_0x5b2c7c(0x22f));return;}if(_0x726f9e['length']<0x2){showMessage(_0x5b2c7c(0x24e),_0x5b2c7c(0x22f));return;}if(_0x2ef6ce){if(_0x2ef6ce[_0x5b2c7c(0x31c)]<0x6){showMessage(_0x5b2c7c(0x2b3),_0x5b2c7c(0x22f));return;}if(_0x2ef6ce!==_0x7dc88c){showMessage(_0x5b2c7c(0x226),'error');return;}}const _0x2db36d={'username':_0x726f9e,'chinese_alias':_0x3b0376};_0x2ef6ce&&(_0x2db36d[_0x5b2c7c(0x1b8)]=_0x2ef6ce);const _0x26cce7=document['querySelector']('#personalSettingsForm\x20button[type=\x22submit\x22]'),_0x4a2c5c=_0x26cce7[_0x5b2c7c(0x25e)];_0x26cce7[_0x5b2c7c(0x25e)]=_0x5b2c7c(0x1c5),_0x26cce7[_0x5b2c7c(0x246)]=!![],fetch(_0x5b2c7c(0x296),{'method':_0x5b2c7c(0x1c3),'headers':{'Content-Type':'application/json'},'body':JSON[_0x5b2c7c(0x15b)](_0x2db36d)})[_0x5b2c7c(0x26e)](_0x58d3b7=>{const _0x342fdd=_0x5b2c7c;if(!_0x58d3b7['ok'])return _0x58d3b7['json']()['then'](_0x30a4d6=>{const _0x4dcfc9=_0x32e0;throw new Error(_0x30a4d6[_0x4dcfc9(0x22f)]||_0x4dcfc9(0x256));});return _0x58d3b7[_0x342fdd(0x16b)]();})[_0x5b2c7c(0x26e)](_0x59e9a9=>{const _0x299b34=_0x5b2c7c;if(_0x59e9a9[_0x299b34(0x340)]){showMessage(_0x299b34(0x26a),'success'),closePersonalSettingsModal(),updateCurrentUserDisplay(_0x726f9e,_0x3b0376),loadUserProfile();const _0x287c23=sessionStorage[_0x299b34(0x20e)]('userGroup');(_0x287c23===_0x299b34(0x273)||_0x287c23==='root')&&loadUserList();}else showMessage(_0x299b34(0x2e3)+(_0x59e9a9[_0x299b34(0x22f)]||_0x299b34(0x160)),'error');})['catch'](_0x2b8acd=>{const _0x1c6b10=_0x5b2c7c;showMessage(_0x1c6b10(0x1eb)+_0x2b8acd[_0x1c6b10(0x194)],_0x1c6b10(0x22f));})['finally'](()=>{const _0x5d7561=_0x5b2c7c;_0x26cce7[_0x5d7561(0x25e)]=_0x4a2c5c,_0x26cce7[_0x5d7561(0x246)]=![];});}function updateCurrentUserDisplay(_0x4a35da,_0x24b968){const _0x4bb623=_0x1f66a7,_0x515590=_0x24b968||_0x4a35da;document[_0x4bb623(0x217)](_0x4bb623(0x1ee))[_0x4bb623(0x25e)]=_0x4bb623(0x2d4)+_0x515590,currentUserProfile&&(currentUserProfile[_0x4bb623(0x189)]=_0x4a35da,currentUserProfile[_0x4bb623(0x312)]=_0x24b968);}function loadUserPermissions(){const _0xbc35=_0x1f66a7;fetch(_0xbc35(0x278))[_0xbc35(0x26e)](_0xdadd8f=>_0xdadd8f['json']())['then'](_0x245e28=>{const _0x42d59a=_0xbc35;_0x245e28[_0x42d59a(0x192)]&&(currentUserPermissions=_0x245e28[_0x42d59a(0x195)]||[],sessionStorage[_0x42d59a(0x1c8)](_0x42d59a(0x2ac),_0x245e28[_0x42d59a(0x192)]),updateUIByPermissions(_0x245e28));})[_0xbc35(0x1f5)](_0x37a211=>{const _0x156554=_0xbc35;console[_0x156554(0x22f)](_0x156554(0x21d),_0x37a211);});}function updateUIByPermissions(_0x127d7e){const _0x140b81=_0x1f66a7,_0x45e0d2=_0x127d7e['user_group'],_0x3643b7=_0x127d7e[_0x140b81(0x195)],_0x5e2045=_0x127d7e[_0x140b81(0x345)];updateUserGroupBadge(_0x45e0d2),_0x45e0d2===_0x140b81(0x273)||_0x45e0d2===_0x140b81(0x2c5)?(document[_0x140b81(0x217)](_0x140b81(0x178))[_0x140b81(0x279)][_0x140b81(0x22c)]=_0x140b81(0x289),loadUserList()):document[_0x140b81(0x217)](_0x140b81(0x178))['style'][_0x140b81(0x22c)]='none',_0x45e0d2==='root2'||_0x45e0d2===_0x140b81(0x2c5)?(document[_0x140b81(0x217)](_0x140b81(0x316))[_0x140b81(0x279)][_0x140b81(0x22c)]='block',loadFolders(),loadFolderOptions()):(document[_0x140b81(0x217)](_0x140b81(0x316))['style'][_0x140b81(0x22c)]='none',document[_0x140b81(0x217)]('folderSelectGroup')[_0x140b81(0x279)][_0x140b81(0x22c)]='none'),_0x3643b7[_0x140b81(0x29e)]('upload')?document['getElementById'](_0x140b81(0x151))['style']['display']=_0x140b81(0x289):document['getElementById'](_0x140b81(0x151))[_0x140b81(0x279)][_0x140b81(0x22c)]=_0x140b81(0x1ba),_0x3643b7[_0x140b81(0x29e)](_0x140b81(0x2a5))?document[_0x140b81(0x217)](_0x140b81(0x19d))[_0x140b81(0x279)][_0x140b81(0x22c)]=_0x140b81(0x289):document[_0x140b81(0x217)](_0x140b81(0x19d))['style']['display']=_0x140b81(0x1ba);}function updateUserGroupBadge(_0x458b52){const _0x3fb186=_0x1f66a7,_0x5029ac=document[_0x3fb186(0x217)](_0x3fb186(0x154)),_0x15f76d={'root2':_0x3fb186(0x2e1),'root':_0x3fb186(0x1a9),'competition':_0x3fb186(0x29d),'other':_0x3fb186(0x166)};_0x5029ac[_0x3fb186(0x25e)]=_0x15f76d[_0x458b52]||_0x458b52,_0x5029ac[_0x3fb186(0x2d0)]=_0x3fb186(0x156)+_0x458b52;}function showLoginSection(){const _0x38e8d6=_0x1f66a7;document[_0x38e8d6(0x217)]('loginSection')['classList'][_0x38e8d6(0x173)](_0x38e8d6(0x1f7)),document[_0x38e8d6(0x217)](_0x38e8d6(0x2cf))[_0x38e8d6(0x179)][_0x38e8d6(0x175)]('hidden'),document[_0x38e8d6(0x217)](_0x38e8d6(0x2da))['classList']['add'](_0x38e8d6(0x1f7));}function showRegisterSection(){const _0x1854ac=_0x1f66a7;document[_0x1854ac(0x217)](_0x1854ac(0x27c))[_0x1854ac(0x179)][_0x1854ac(0x175)]('hidden'),document[_0x1854ac(0x217)](_0x1854ac(0x2cf))['classList'][_0x1854ac(0x173)](_0x1854ac(0x1f7)),document[_0x1854ac(0x217)]('appSection')['classList'][_0x1854ac(0x175)](_0x1854ac(0x1f7));}function showAppSection(){const _0x427d85=_0x1f66a7;document[_0x427d85(0x217)]('loginSection')[_0x427d85(0x179)]['add'](_0x427d85(0x1f7)),document[_0x427d85(0x217)](_0x427d85(0x2cf))[_0x427d85(0x179)][_0x427d85(0x175)](_0x427d85(0x1f7)),document[_0x427d85(0x217)]('appSection')[_0x427d85(0x179)][_0x427d85(0x173)](_0x427d85(0x1f7)),fetchFiles();}function fetchCaptcha(){const _0x4d7098=_0x1f66a7;console['log'](_0x4d7098(0x304));const _0x227304=document['getElementById']('captchaText');_0x227304['textContent']=_0x4d7098(0x272),_0x227304['style']['color']='#666',fetch('/get_captcha')[_0x4d7098(0x26e)](_0x2f56a8=>{const _0x205a1b=_0x4d7098;console['log'](_0x205a1b(0x1ad),_0x2f56a8[_0x205a1b(0x2d8)]);if(!_0x2f56a8['ok'])return _0x2f56a8['json']()[_0x205a1b(0x26e)](_0x52ea19=>{const _0x58cac6=_0x205a1b;if(_0x52ea19[_0x58cac6(0x338)])return _0x52ea19;throw new Error(_0x58cac6(0x1a7)+_0x2f56a8[_0x58cac6(0x2d8)]);})['catch'](()=>{const _0x41a940=_0x205a1b;throw new Error(_0x41a940(0x1a7)+_0x2f56a8[_0x41a940(0x2d8)]);});return _0x2f56a8[_0x205a1b(0x16b)]();})[_0x4d7098(0x26e)](_0x501d1f=>{const _0x1540ec=_0x4d7098;console['log'](_0x1540ec(0x187),_0x501d1f);if(_0x501d1f[_0x1540ec(0x338)])_0x227304['textContent']=_0x501d1f[_0x1540ec(0x338)],_0x227304[_0x1540ec(0x279)][_0x1540ec(0x311)]=_0x1540ec(0x1f1),_0x227304[_0x1540ec(0x279)][_0x1540ec(0x2ea)]='bold',console['log']('验证码显示成功:',_0x501d1f[_0x1540ec(0x338)]);else _0x501d1f[_0x1540ec(0x22f)]?(console['error']('获取验证码失败:',_0x501d1f[_0x1540ec(0x22f)]),_0x227304[_0x1540ec(0x25e)]=_0x1540ec(0x28a),_0x227304[_0x1540ec(0x279)][_0x1540ec(0x311)]=_0x1540ec(0x1f1)):(console[_0x1540ec(0x22f)]('验证码响应格式错误:',_0x501d1f),_0x227304[_0x1540ec(0x25e)]=_0x1540ec(0x164),_0x227304['style'][_0x1540ec(0x311)]='#000');})[_0x4d7098(0x1f5)](_0x19d763=>{const _0x28fa7e=_0x4d7098;console[_0x28fa7e(0x22f)](_0x28fa7e(0x302),_0x19d763),_0x227304[_0x28fa7e(0x25e)]=_0x28fa7e(0x28a),_0x227304[_0x28fa7e(0x279)][_0x28fa7e(0x311)]=_0x28fa7e(0x1f1);});}document[_0x1f66a7(0x217)](_0x1f66a7(0x1e0))[_0x1f66a7(0x1e9)](_0x1f66a7(0x2ce),function(){const _0x9b1676=_0x1f66a7;console['log'](_0x9b1676(0x2dd)),fetchCaptcha(),document[_0x9b1676(0x217)](_0x9b1676(0x338))[_0x9b1676(0x30b)]='';const _0x43e352=this,_0x233c6c=_0x43e352[_0x9b1676(0x25e)];_0x43e352['textContent']=_0x9b1676(0x2b0),_0x43e352[_0x9b1676(0x246)]=!![],setTimeout(()=>{const _0x31ba64=_0x9b1676;_0x43e352['textContent']=_0x233c6c,_0x43e352[_0x31ba64(0x246)]=![];},0x3e8);}),document['getElementById'](_0x1f66a7(0x1d5))[_0x1f66a7(0x1e9)]('submit',function(_0x3f875d){const _0x12ecdb=_0x1f66a7;_0x3f875d[_0x12ecdb(0x153)]();const _0x121410=document[_0x12ecdb(0x217)]('username')[_0x12ecdb(0x30b)],_0x2829a7=document[_0x12ecdb(0x217)](_0x12ecdb(0x1b8))[_0x12ecdb(0x30b)],_0x39a268=document[_0x12ecdb(0x217)]('captcha')[_0x12ecdb(0x30b)],_0x1321f0=document[_0x12ecdb(0x217)](_0x12ecdb(0x2af));_0x1321f0[_0x12ecdb(0x2d0)]=_0x12ecdb(0x329);if(!_0x39a268){_0x1321f0['textContent']=_0x12ecdb(0x251),_0x1321f0[_0x12ecdb(0x2d0)]=_0x12ecdb(0x2c3),_0x1321f0[_0x12ecdb(0x179)]['remove'](_0x12ecdb(0x1f7));return;}fetch('/login',{'method':_0x12ecdb(0x2c8),'headers':{'Content-Type':_0x12ecdb(0x1bf)},'body':JSON[_0x12ecdb(0x15b)]({'username':_0x121410,'password':_0x2829a7,'captcha':_0x39a268})})['then'](_0x273d9c=>{const _0x1087d2=_0x12ecdb;if(!_0x273d9c['ok'])return _0x273d9c[_0x1087d2(0x16b)]()[_0x1087d2(0x26e)](_0x136ddc=>{const _0x252657=_0x1087d2;throw new Error(_0x136ddc[_0x252657(0x194)]||_0x252657(0x30c)+_0x273d9c[_0x252657(0x2d8)]);});return _0x273d9c[_0x1087d2(0x16b)]();})[_0x12ecdb(0x26e)](_0x469fd6=>{const _0x5d3723=_0x12ecdb;_0x469fd6[_0x5d3723(0x340)]?checkLoginStatus():(_0x1321f0[_0x5d3723(0x25e)]=_0x5d3723(0x1ca)+(_0x469fd6[_0x5d3723(0x194)]||_0x5d3723(0x160)),_0x1321f0[_0x5d3723(0x2d0)]=_0x5d3723(0x2c3),_0x1321f0[_0x5d3723(0x179)][_0x5d3723(0x173)](_0x5d3723(0x1f7)),fetchCaptcha(),document['getElementById'](_0x5d3723(0x338))[_0x5d3723(0x30b)]='');})[_0x12ecdb(0x1f5)](_0x3cadf5=>{const _0x39562d=_0x12ecdb;_0x1321f0['textContent']='登录出错:\x20'+_0x3cadf5[_0x39562d(0x194)],_0x1321f0[_0x39562d(0x2d0)]=_0x39562d(0x2c3),_0x1321f0[_0x39562d(0x179)][_0x39562d(0x173)](_0x39562d(0x1f7)),fetchCaptcha(),document[_0x39562d(0x217)](_0x39562d(0x338))[_0x39562d(0x30b)]='';});}),document[_0x1f66a7(0x217)](_0x1f66a7(0x221))[_0x1f66a7(0x1e9)](_0x1f66a7(0x206),function(_0x35474b){const _0x37526e=_0x1f66a7;_0x35474b[_0x37526e(0x153)]();const _0x4d670a=document[_0x37526e(0x217)](_0x37526e(0x1ed))[_0x37526e(0x30b)],_0x4fe69b=document[_0x37526e(0x217)](_0x37526e(0x2c7))[_0x37526e(0x30b)],_0x3f4422=document[_0x37526e(0x217)]('regEmail')[_0x37526e(0x30b)],_0x1ba742=document[_0x37526e(0x217)](_0x37526e(0x1be))['value'],_0x276c31=document[_0x37526e(0x217)]('registerStatus');_0x276c31[_0x37526e(0x2d0)]=_0x37526e(0x329),fetch(_0x37526e(0x2e2),{'method':_0x37526e(0x2c8),'headers':{'Content-Type':_0x37526e(0x1bf)},'body':JSON[_0x37526e(0x15b)]({'username':_0x4d670a,'password':_0x4fe69b,'email':_0x3f4422,'chinese_alias':_0x1ba742})})[_0x37526e(0x26e)](_0x313049=>{const _0x22951f=_0x37526e;if(!_0x313049['ok'])return _0x313049[_0x22951f(0x16b)]()[_0x22951f(0x26e)](_0x20d129=>{const _0x38cfc3=_0x22951f;throw new Error(_0x20d129[_0x38cfc3(0x194)]||_0x38cfc3(0x30c)+_0x313049['status']);});return _0x313049['json']();})[_0x37526e(0x26e)](_0x2725eb=>{const _0x8c7a9e=_0x37526e;_0x2725eb[_0x8c7a9e(0x340)]?(_0x276c31[_0x8c7a9e(0x25e)]=_0x8c7a9e(0x1b3),_0x276c31[_0x8c7a9e(0x2d0)]=_0x8c7a9e(0x31e),_0x276c31[_0x8c7a9e(0x179)][_0x8c7a9e(0x173)](_0x8c7a9e(0x1f7)),setTimeout(()=>{const _0x128728=_0x8c7a9e;document[_0x128728(0x217)]('registerSection')[_0x128728(0x179)][_0x128728(0x175)](_0x128728(0x1f7)),document[_0x128728(0x217)](_0x128728(0x27c))[_0x128728(0x179)]['remove'](_0x128728(0x1f7)),document['getElementById'](_0x128728(0x189))[_0x128728(0x30b)]=_0x4d670a,document[_0x128728(0x217)]('password')[_0x128728(0x1e6)]();},0x5dc)):(_0x276c31['textContent']='注册失败:\x20'+(_0x2725eb[_0x8c7a9e(0x194)]||_0x8c7a9e(0x160)),_0x276c31[_0x8c7a9e(0x2d0)]=_0x8c7a9e(0x2c3),_0x276c31[_0x8c7a9e(0x179)][_0x8c7a9e(0x173)](_0x8c7a9e(0x1f7)));})['catch'](_0x24d0f8=>{const _0x1d8366=_0x37526e;_0x276c31[_0x1d8366(0x25e)]=_0x1d8366(0x295)+_0x24d0f8[_0x1d8366(0x194)],_0x276c31[_0x1d8366(0x2d0)]='status-message\x20error',_0x276c31['classList'][_0x1d8366(0x173)](_0x1d8366(0x1f7));});}),document[_0x1f66a7(0x217)](_0x1f66a7(0x18a))['addEventListener']('click',openPersonalSettingsModal),document[_0x1f66a7(0x217)](_0x1f66a7(0x15c))['addEventListener'](_0x1f66a7(0x206),function(_0x56f840){const _0x54fa3e=_0x1f66a7;_0x56f840[_0x54fa3e(0x153)](),savePersonalSettings();}),document[_0x1f66a7(0x217)](_0x1f66a7(0x347))[_0x1f66a7(0x1e9)]('click',closePersonalSettingsModal),window[_0x1f66a7(0x1e9)](_0x1f66a7(0x2ce),function(_0x5cfe3e){const _0x41fce1=_0x1f66a7,_0x4b3ddb=document[_0x41fce1(0x217)](_0x41fce1(0x1a6));_0x5cfe3e[_0x41fce1(0x1c6)]===_0x4b3ddb&&closePersonalSettingsModal();}),document[_0x1f66a7(0x217)](_0x1f66a7(0x2ed))[_0x1f66a7(0x1e9)](_0x1f66a7(0x2ce),function(){showRegisterSection();}),document[_0x1f66a7(0x217)](_0x1f66a7(0x320))[_0x1f66a7(0x1e9)](_0x1f66a7(0x2ce),function(){showLoginSection();}),document[_0x1f66a7(0x217)]('logoutBtn')['addEventListener'](_0x1f66a7(0x2ce),function(){const _0x1a3e85=_0x1f66a7;fetch(_0x1a3e85(0x330),{'method':_0x1a3e85(0x2c8)})['then'](_0x3da9f2=>_0x3da9f2['json']())['then'](_0x556df6=>{const _0x1b0bcd=_0x1a3e85;_0x556df6[_0x1b0bcd(0x340)]&&(sessionStorage[_0x1b0bcd(0x1ac)](_0x1b0bcd(0x2ac)),showLoginSection());})['catch'](_0x1863a6=>{console['error']('退出登录失败:',_0x1863a6);});});function loadUserList(){const _0xc504d9=_0x1f66a7;console[_0xc504d9(0x19a)](_0xc504d9(0x2bf)),fetch('/users')[_0xc504d9(0x26e)](_0x1db288=>{const _0x25845f=_0xc504d9;if(!_0x1db288['ok']){if(_0x1db288['status']===0x193){console['log'](_0x25845f(0x26f));return;}throw new Error('获取用户列表失败');}return _0x1db288[_0x25845f(0x16b)]();})['then'](_0x1ad68a=>{const _0x3b1a76=_0xc504d9;console['log'](_0x3b1a76(0x15f),_0x1ad68a),_0x1ad68a[_0x3b1a76(0x247)]&&updateUserList(_0x1ad68a[_0x3b1a76(0x247)]);})[_0xc504d9(0x1f5)](_0x4e3cc0=>{const _0x275d4e=_0xc504d9;console['error'](_0x275d4e(0x2d6),_0x4e3cc0);});}function updateUserList(_0x5d0856){const _0x37a51e=_0x1f66a7,_0x261321=document['getElementById'](_0x37a51e(0x20c));_0x261321[_0x37a51e(0x186)]='';if(_0x5d0856[_0x37a51e(0x31c)]===0x0){const _0x4dea6b=document[_0x37a51e(0x224)]('tr'),_0x2692b4=document[_0x37a51e(0x224)]('td');_0x2692b4[_0x37a51e(0x25d)]=0x6,_0x2692b4[_0x37a51e(0x25e)]='暂无用户',_0x2692b4[_0x37a51e(0x279)][_0x37a51e(0x2f0)]=_0x37a51e(0x275),_0x2692b4[_0x37a51e(0x279)][_0x37a51e(0x227)]=_0x37a51e(0x245),_0x4dea6b[_0x37a51e(0x1e7)](_0x2692b4),_0x261321[_0x37a51e(0x1e7)](_0x4dea6b);return;}const _0x66dfb8=sessionStorage[_0x37a51e(0x20e)]('userGroup')||_0x37a51e(0x284),_0x556635=sessionStorage[_0x37a51e(0x20e)]('user_id');console[_0x37a51e(0x19a)](_0x37a51e(0x1d4),_0x66dfb8),console['log'](_0x37a51e(0x299),_0x556635),_0x5d0856['forEach'](_0x484682=>{const _0x3d421f=_0x37a51e,_0x597008=document['createElement']('tr'),_0x6aa623=document['createElement']('td');_0x66dfb8!==_0x3d421f(0x273)&&_0x484682[_0x3d421f(0x192)]==='root2'?_0x6aa623['textContent']=_0x3d421f(0x2f4):_0x6aa623['textContent']=_0x484682[_0x3d421f(0x189)];_0x597008['appendChild'](_0x6aa623);const _0x490cb8=document[_0x3d421f(0x224)]('td');_0x66dfb8!==_0x3d421f(0x273)&&_0x484682[_0x3d421f(0x192)]==='root2'?_0x490cb8[_0x3d421f(0x25e)]=_0x3d421f(0x2f4):_0x490cb8[_0x3d421f(0x25e)]=_0x484682['chinese_alias']||'未设置';_0x597008[_0x3d421f(0x1e7)](_0x490cb8);const _0x574f08=document[_0x3d421f(0x224)]('td');_0x66dfb8!==_0x3d421f(0x273)&&_0x484682[_0x3d421f(0x192)]===_0x3d421f(0x273)?_0x574f08['textContent']=_0x3d421f(0x2f4):_0x574f08[_0x3d421f(0x25e)]=_0x484682[_0x3d421f(0x27e)]||_0x3d421f(0x2cd);_0x597008['appendChild'](_0x574f08);const _0x56fc73=document[_0x3d421f(0x224)]('td'),_0x101575=document[_0x3d421f(0x224)](_0x3d421f(0x1fc)),_0x88ac8f={'root2':_0x3d421f(0x2e1),'root':'管理员','competition':_0x3d421f(0x29d),'other':_0x3d421f(0x166)};_0x101575['textContent']=_0x88ac8f[_0x484682[_0x3d421f(0x192)]]||_0x484682['user_group'],_0x101575[_0x3d421f(0x2d0)]=_0x3d421f(0x156)+_0x484682[_0x3d421f(0x192)],_0x56fc73[_0x3d421f(0x1e7)](_0x101575),_0x597008[_0x3d421f(0x1e7)](_0x56fc73);const _0x51ca9f=document[_0x3d421f(0x224)]('td');_0x51ca9f[_0x3d421f(0x25e)]=_0x484682[_0x3d421f(0x17a)],_0x597008[_0x3d421f(0x1e7)](_0x51ca9f);const _0x106bd2=document['createElement']('td'),_0x4c9187=document[_0x3d421f(0x224)](_0x3d421f(0x23b));_0x4c9187[_0x3d421f(0x2d0)]=_0x3d421f(0x257);if(_0x66dfb8===_0x3d421f(0x273)){const _0x27d57a=document[_0x3d421f(0x224)](_0x3d421f(0x1cc));_0x27d57a[_0x3d421f(0x25e)]=_0x3d421f(0x1ab),_0x27d57a[_0x3d421f(0x2d0)]=_0x3d421f(0x20b),_0x27d57a['addEventListener'](_0x3d421f(0x2ce),()=>{const _0x338c99=_0x3d421f;console['log'](_0x338c99(0x2ec),_0x484682['id'],_0x484682[_0x338c99(0x189)]),openEditUserGroupModal(_0x484682['id'],_0x484682[_0x338c99(0x192)]);}),_0x4c9187[_0x3d421f(0x1e7)](_0x27d57a);const _0x44d393=document[_0x3d421f(0x224)]('button');_0x44d393['textContent']='编辑别名',_0x44d393[_0x3d421f(0x2d0)]=_0x3d421f(0x20b),_0x44d393[_0x3d421f(0x279)][_0x3d421f(0x270)]=_0x3d421f(0x26d),_0x44d393[_0x3d421f(0x1e9)]('click',()=>{openEditChineseAliasModal(_0x484682['id'],_0x484682['chinese_alias']||'');}),_0x4c9187[_0x3d421f(0x1e7)](_0x44d393);}else{if(_0x66dfb8===_0x3d421f(0x2c5)&&_0x484682[_0x3d421f(0x192)]!==_0x3d421f(0x273)){const _0x7a61b3=document[_0x3d421f(0x224)](_0x3d421f(0x1cc));_0x7a61b3[_0x3d421f(0x25e)]=_0x3d421f(0x1ab),_0x7a61b3[_0x3d421f(0x2d0)]=_0x3d421f(0x20b),_0x7a61b3[_0x3d421f(0x1e9)](_0x3d421f(0x2ce),()=>{const _0x163fa9=_0x3d421f;console[_0x163fa9(0x19a)](_0x163fa9(0x2ec),_0x484682['id'],_0x484682['username']),openEditUserGroupModal(_0x484682['id'],_0x484682[_0x163fa9(0x192)]);}),_0x4c9187[_0x3d421f(0x1e7)](_0x7a61b3);}}if(_0x66dfb8==='root2'&&_0x484682['id'][_0x3d421f(0x174)]()!==_0x556635&&_0x484682[_0x3d421f(0x192)]!==_0x3d421f(0x273)){const _0x354fbf=document[_0x3d421f(0x224)](_0x3d421f(0x1cc));_0x354fbf['textContent']=_0x3d421f(0x2e8),_0x354fbf[_0x3d421f(0x2d0)]=_0x3d421f(0x233),_0x354fbf[_0x3d421f(0x279)]['background']=_0x3d421f(0x309),_0x354fbf['addEventListener'](_0x3d421f(0x2ce),()=>{const _0x4eb140=_0x3d421f;deleteUser(_0x484682['id'],_0x484682[_0x4eb140(0x189)]);}),_0x4c9187[_0x3d421f(0x1e7)](_0x354fbf);}_0x106bd2[_0x3d421f(0x1e7)](_0x4c9187),_0x597008[_0x3d421f(0x1e7)](_0x106bd2),_0x261321[_0x3d421f(0x1e7)](_0x597008);});}function deleteUser(_0x144400,_0x2c698d){const _0x2cdfe3=_0x1f66a7;if(!confirm(_0x2cdfe3(0x2d2)+_0x2c698d+_0x2cdfe3(0x17e)))return;const _0x4c8d15=prompt(_0x2cdfe3(0x1c2)+_0x2c698d+_0x2cdfe3(0x20d));if(_0x4c8d15!==_0x2c698d){showMessage(_0x2cdfe3(0x1b6),_0x2cdfe3(0x22f));return;}fetch(_0x2cdfe3(0x200)+_0x144400,{'method':_0x2cdfe3(0x2fb),'headers':{'Content-Type':_0x2cdfe3(0x1bf)}})[_0x2cdfe3(0x26e)](_0x4c84f0=>{const _0x474128=_0x2cdfe3;if(!_0x4c84f0['ok'])return _0x4c84f0[_0x474128(0x16b)]()[_0x474128(0x26e)](_0x16a04c=>{throw new Error(JSON['stringify'](_0x16a04c));});return _0x4c84f0['json']();})[_0x2cdfe3(0x26e)](_0x5d1b2c=>{const _0x58ff12=_0x2cdfe3;_0x5d1b2c[_0x58ff12(0x340)]?(showMessage('用户删除成功',_0x58ff12(0x340)),loadUserList()):showMessage(_0x58ff12(0x2b6)+(_0x5d1b2c[_0x58ff12(0x22f)]||_0x58ff12(0x160)),'error');})['catch'](_0x2a9ed7=>{const _0x2de209=_0x2cdfe3;try{const _0x1ad588=JSON['parse'](_0x2a9ed7['message']);_0x1ad588['details']?showMessage(_0x2de209(0x1c4)+_0x1ad588[_0x2de209(0x22f)]+'\x20(文件:\x20'+(_0x1ad588[_0x2de209(0x241)][_0x2de209(0x24b)]||0x0)+_0x2de209(0x2dc)+(_0x1ad588['details']['folder_count']||0x0)+_0x2de209(0x1b2)+(_0x1ad588[_0x2de209(0x241)][_0x2de209(0x228)]||0x0)+')',_0x2de209(0x22f)):showMessage('用户删除出错:\x20'+_0x1ad588[_0x2de209(0x22f)],_0x2de209(0x22f));}catch{showMessage('用户删除出错:\x20'+_0x2a9ed7[_0x2de209(0x194)],_0x2de209(0x22f));}});}function openEditChineseAliasModal(_0x158440,_0x3641aa){const _0x21ab5b=_0x1f66a7;currentEditingUserId=_0x158440;const _0x108620=document[_0x21ab5b(0x217)](_0x21ab5b(0x261));_0x108620[_0x21ab5b(0x30b)]=_0x3641aa,document['getElementById'](_0x21ab5b(0x27f))[_0x21ab5b(0x279)][_0x21ab5b(0x22c)]=_0x21ab5b(0x289);}function closeEditChineseAliasModal(){const _0x1b2329=_0x1f66a7;document[_0x1b2329(0x217)](_0x1b2329(0x27f))[_0x1b2329(0x279)][_0x1b2329(0x22c)]=_0x1b2329(0x1ba),currentEditingUserId=null;}function saveChineseAlias(){const _0x12c9b9=_0x1f66a7;if(!currentEditingUserId)return;const _0x324970=document[_0x12c9b9(0x217)](_0x12c9b9(0x261))[_0x12c9b9(0x30b)];fetch('/users/'+currentEditingUserId+_0x12c9b9(0x230),{'method':_0x12c9b9(0x1c3),'headers':{'Content-Type':'application/json'},'body':JSON[_0x12c9b9(0x15b)]({'chinese_alias':_0x324970})})['then'](_0x52fb72=>{const _0x419ccf=_0x12c9b9;if(!_0x52fb72['ok'])return _0x52fb72[_0x419ccf(0x16b)]()['then'](_0x1d01fe=>{const _0x379ef5=_0x419ccf;throw new Error(_0x1d01fe[_0x379ef5(0x22f)]||_0x379ef5(0x256));});return _0x52fb72[_0x419ccf(0x16b)]();})['then'](_0xfd9c6c=>{const _0x4dab49=_0x12c9b9;if(_0xfd9c6c[_0x4dab49(0x340)]){showMessage(_0x4dab49(0x181),_0x4dab49(0x340)),closeEditChineseAliasModal(),loadUserList();const _0x4c21fe=sessionStorage['getItem']('user_id');currentEditingUserId[_0x4dab49(0x174)]()===_0x4c21fe&&(updateCurrentUserDisplay(currentUserProfile[_0x4dab49(0x189)],_0x324970),loadUserProfile());}else showMessage('中文别名更新失败:\x20'+(_0xfd9c6c['error']||_0x4dab49(0x160)),'error');})[_0x12c9b9(0x1f5)](_0x46f085=>{const _0x55bfe9=_0x12c9b9;showMessage(_0x55bfe9(0x31b)+_0x46f085[_0x55bfe9(0x194)],_0x55bfe9(0x22f));});}function openEditUserGroupModal(_0x199392,_0x42f1bf){const _0xea4740=_0x1f66a7;currentEditingUserId=_0x199392;const _0x45d6a1=document[_0xea4740(0x217)](_0xea4740(0x265)),_0x3ccedd=sessionStorage[_0xea4740(0x20e)](_0xea4740(0x2ac))||_0xea4740(0x284);_0x45d6a1[_0xea4740(0x30b)]=_0x42f1bf;if(_0x3ccedd===_0xea4740(0x2c5)){const _0x3f9c71=_0x45d6a1['querySelector'](_0xea4740(0x2ca));_0x3f9c71&&(_0x3f9c71['disabled']=!![]);}document[_0xea4740(0x217)](_0xea4740(0x30a))[_0xea4740(0x279)][_0xea4740(0x22c)]=_0xea4740(0x289);}function closeEditUserGroupModal(){const _0x4dd29a=_0x1f66a7;document[_0x4dd29a(0x217)](_0x4dd29a(0x30a))[_0x4dd29a(0x279)][_0x4dd29a(0x22c)]='none',currentEditingUserId=null;const _0x4d5bd5=document[_0x4dd29a(0x217)](_0x4dd29a(0x265)),_0x11d474=_0x4d5bd5[_0x4dd29a(0x21b)](_0x4dd29a(0x188));_0x11d474[_0x4dd29a(0x25f)](_0x9c1ddf=>{const _0x5f2567=_0x4dd29a;_0x9c1ddf[_0x5f2567(0x246)]=![];});}function saveUserGroup(){const _0x4a9069=_0x1f66a7;if(!currentEditingUserId)return;const _0x17e55e=document[_0x4a9069(0x217)](_0x4a9069(0x265))[_0x4a9069(0x30b)];fetch(_0x4a9069(0x200)+currentEditingUserId,{'method':_0x4a9069(0x1c3),'headers':{'Content-Type':'application/json'},'body':JSON[_0x4a9069(0x15b)]({'user_group':_0x17e55e})})['then'](_0x1390e4=>{const _0x15102f=_0x4a9069;if(!_0x1390e4['ok'])return _0x1390e4['json']()[_0x15102f(0x26e)](_0x81515b=>{const _0x207664=_0x15102f;throw new Error(_0x81515b[_0x207664(0x22f)]||_0x207664(0x256));});return _0x1390e4[_0x15102f(0x16b)]();})[_0x4a9069(0x26e)](_0x43468a=>{const _0x59ffaf=_0x4a9069;_0x43468a[_0x59ffaf(0x340)]?(showMessage(_0x59ffaf(0x2ef),_0x59ffaf(0x340)),closeEditUserGroupModal(),loadUserList()):showMessage(_0x59ffaf(0x1ae)+(_0x43468a['error']||'未知错误'),_0x59ffaf(0x22f));})[_0x4a9069(0x1f5)](_0x4a0bc3=>{const _0x5f24f5=_0x4a9069;showMessage('用户组更新出错:\x20'+_0x4a0bc3[_0x5f24f5(0x194)],_0x5f24f5(0x22f));});}function openRenameFileModal(_0x18c75a,_0x1c0885){const _0x59c663=_0x1f66a7;currentRenamingFile=_0x18c75a,document[_0x59c663(0x217)](_0x59c663(0x1bd))[_0x59c663(0x30b)]=_0x1c0885,document[_0x59c663(0x217)]('renameFileModal')[_0x59c663(0x279)]['display']=_0x59c663(0x289);}function closeRenameFileModal(){const _0x3c3264=_0x1f66a7;document[_0x3c3264(0x217)](_0x3c3264(0x191))[_0x3c3264(0x279)][_0x3c3264(0x22c)]=_0x3c3264(0x1ba),currentRenamingFile=null,document[_0x3c3264(0x217)](_0x3c3264(0x1bd))[_0x3c3264(0x30b)]='';}function saveRenameFile(){const _0x4e27ba=_0x1f66a7;if(!currentRenamingFile)return;const _0x5e45b0=document[_0x4e27ba(0x217)]('newFilename')[_0x4e27ba(0x30b)][_0x4e27ba(0x214)]();if(!_0x5e45b0){showMessage('新文件名不能为空',_0x4e27ba(0x22f));return;}fetch(_0x4e27ba(0x32b)+currentRenamingFile,{'method':_0x4e27ba(0x1c3),'headers':{'Content-Type':_0x4e27ba(0x1bf)},'body':JSON['stringify']({'new_filename':_0x5e45b0})})[_0x4e27ba(0x26e)](_0x2981eb=>{const _0x25f494=_0x4e27ba;if(!_0x2981eb['ok'])return _0x2981eb[_0x25f494(0x16b)]()[_0x25f494(0x26e)](_0x3952b2=>{const _0x2fa629=_0x25f494;throw new Error(_0x3952b2['error']||_0x2fa629(0x25b));});return _0x2981eb[_0x25f494(0x16b)]();})['then'](_0x1b84b2=>{const _0x929978=_0x4e27ba;if(_0x1b84b2['success']){showMessage('文件重命名成功','success'),closeRenameFileModal();if(currentViewingFolderId)loadFolderFiles(currentViewingFolderId);else{const _0x5ca42a=document[_0x929978(0x217)](_0x929978(0x1d1))['value'],_0x37b71c=document[_0x929978(0x217)](_0x929978(0x2e0))[_0x929978(0x30b)];fetchFiles(_0x5ca42a,_0x37b71c);}}else showMessage(_0x929978(0x243)+(_0x1b84b2[_0x929978(0x22f)]||'未知错误'),_0x929978(0x22f));})[_0x4e27ba(0x1f5)](_0x215fd8=>{const _0x2ac946=_0x4e27ba;showMessage(_0x2ac946(0x163)+_0x215fd8[_0x2ac946(0x194)],'error');});}function openChangeSubcategoryModal(_0x1b48c7,_0x3692d2){const _0x5bd23c=_0x1f66a7;currentChangingSubcategoryFile=_0x1b48c7,document['getElementById'](_0x5bd23c(0x183))[_0x5bd23c(0x30b)]=_0x3692d2,document[_0x5bd23c(0x217)](_0x5bd23c(0x1ef))[_0x5bd23c(0x279)][_0x5bd23c(0x22c)]=_0x5bd23c(0x289);}function closeChangeSubcategoryModal(){const _0x47d21d=_0x1f66a7;document[_0x47d21d(0x217)](_0x47d21d(0x1ef))[_0x47d21d(0x279)][_0x47d21d(0x22c)]=_0x47d21d(0x1ba),currentChangingSubcategoryFile=null;}function saveChangeSubcategory(){const _0x2d023a=_0x1f66a7;if(!currentChangingSubcategoryFile)return;const _0x9427bd=document[_0x2d023a(0x217)](_0x2d023a(0x183))[_0x2d023a(0x30b)];fetch(_0x2d023a(0x21e)+currentChangingSubcategoryFile,{'method':'PUT','headers':{'Content-Type':_0x2d023a(0x1bf)},'body':JSON[_0x2d023a(0x15b)]({'subcategory':_0x9427bd})})[_0x2d023a(0x26e)](_0x3788d5=>{const _0x444bfa=_0x2d023a;if(!_0x3788d5['ok'])return _0x3788d5[_0x444bfa(0x16b)]()['then'](_0xded130=>{const _0x1ce480=_0x444bfa;throw new Error(_0xded130['error']||_0x1ce480(0x15e));});return _0x3788d5[_0x444bfa(0x16b)]();})['then'](_0x383b3f=>{const _0x61c268=_0x2d023a;if(_0x383b3f['success']){showMessage(_0x61c268(0x31d),_0x61c268(0x340)),closeChangeSubcategoryModal();if(currentViewingFolderId)loadFolderFiles(currentViewingFolderId);else{const _0x4e4479=document[_0x61c268(0x217)](_0x61c268(0x1d1))['value'],_0x32cccb=document[_0x61c268(0x217)](_0x61c268(0x2e0))['value'];fetchFiles(_0x4e4479,_0x32cccb);}}else showMessage(_0x61c268(0x321)+(_0x383b3f[_0x61c268(0x22f)]||'未知错误'),_0x61c268(0x22f));})[_0x2d023a(0x1f5)](_0x23f344=>{const _0x42feeb=_0x2d023a;showMessage(_0x42feeb(0x2ae)+_0x23f344['message'],_0x42feeb(0x22f));});}document[_0x1f66a7(0x217)](_0x1f66a7(0x2e9))['addEventListener'](_0x1f66a7(0x2ce),closeEditUserGroupModal),document['getElementById'](_0x1f66a7(0x322))[_0x1f66a7(0x1e9)](_0x1f66a7(0x2ce),saveUserGroup),document[_0x1f66a7(0x217)](_0x1f66a7(0x332))[_0x1f66a7(0x1e9)]('click',closeRenameFileModal),document[_0x1f66a7(0x217)]('saveRenameFile')[_0x1f66a7(0x1e9)]('click',saveRenameFile),document[_0x1f66a7(0x217)](_0x1f66a7(0x262))[_0x1f66a7(0x1e9)]('click',closeChangeSubcategoryModal),document[_0x1f66a7(0x217)](_0x1f66a7(0x211))[_0x1f66a7(0x1e9)](_0x1f66a7(0x2ce),saveChangeSubcategory),window[_0x1f66a7(0x1e9)](_0x1f66a7(0x2ce),function(_0x5cd03e){const _0x864035=_0x1f66a7,_0x42d5ab=['editUserGroupModal',_0x864035(0x191),'changeSubcategoryModal','createFolderModal','editFolderPermissionsModal'];_0x42d5ab[_0x864035(0x25f)](_0xd285eb=>{const _0x427464=_0x864035,_0x4bc161=document['getElementById'](_0xd285eb);if(_0x5cd03e[_0x427464(0x1c6)]===_0x4bc161){if(_0xd285eb==='editUserGroupModal')closeEditUserGroupModal();if(_0xd285eb==='renameFileModal')closeRenameFileModal();if(_0xd285eb===_0x427464(0x1ef))closeChangeSubcategoryModal();if(_0xd285eb===_0x427464(0x343))closeCreateFolderModal();if(_0xd285eb===_0x427464(0x215))closeEditFolderPermissionsModal();}});});function fetchFiles(_0x3207d7='',_0x395d8a=''){const _0x45db17=_0x1f66a7;let _0x28e9be=_0x45db17(0x1f0);const _0x34309d=new URLSearchParams();if(_0x3207d7)_0x34309d[_0x45db17(0x254)](_0x45db17(0x27a),_0x3207d7);if(_0x395d8a)_0x34309d[_0x45db17(0x254)]('subcategory',_0x395d8a);_0x28e9be+=_0x34309d[_0x45db17(0x174)](),fetch(_0x28e9be)['then'](_0x6b3bc9=>{const _0x51d4ff=_0x45db17;if(!_0x6b3bc9['ok'])throw new Error(_0x51d4ff(0x17b));return _0x6b3bc9[_0x51d4ff(0x16b)]();})[_0x45db17(0x26e)](_0xd76d42=>{const _0x352c65=_0x45db17;if(_0xd76d42[_0x352c65(0x242)])updateFileList(_0xd76d42['files']);else _0xd76d42[_0x352c65(0x22f)]&&showMessage(_0x352c65(0x27d)+_0xd76d42['error'],_0x352c65(0x22f));})[_0x45db17(0x1f5)](_0x2c0668=>{const _0x44bf86=_0x45db17;console[_0x44bf86(0x22f)](_0x44bf86(0x203),_0x2c0668),showMessage('获取文件列表失败','error');});}document[_0x1f66a7(0x217)](_0x1f66a7(0x1d1))[_0x1f66a7(0x1e9)]('change',function(){const _0x592b10=_0x1f66a7,_0x1de47f=document['getElementById'](_0x592b10(0x2e0))[_0x592b10(0x30b)];fetchFiles(this[_0x592b10(0x30b)],_0x1de47f);}),document[_0x1f66a7(0x217)]('subcategoryFilter')[_0x1f66a7(0x1e9)](_0x1f66a7(0x1f8),function(){const _0x3fc5cd=_0x1f66a7,_0x579d1b=document[_0x3fc5cd(0x217)](_0x3fc5cd(0x1d1))[_0x3fc5cd(0x30b)];fetchFiles(_0x579d1b,this['value']);});function updateFileList(_0x5b0d08){const _0x431891=_0x1f66a7,_0x45a17f=document[_0x431891(0x217)](_0x431891(0x19b));_0x45a17f[_0x431891(0x186)]='';if(_0x5b0d08[_0x431891(0x31c)]===0x0){const _0x2a68b8=document[_0x431891(0x224)]('tr'),_0x7fe517=document[_0x431891(0x224)]('td');_0x7fe517[_0x431891(0x25d)]=0x8,_0x7fe517[_0x431891(0x25e)]='暂无文件',_0x7fe517[_0x431891(0x279)][_0x431891(0x2f0)]=_0x431891(0x275),_0x7fe517[_0x431891(0x279)]['padding']=_0x431891(0x245),_0x2a68b8[_0x431891(0x1e7)](_0x7fe517),_0x45a17f[_0x431891(0x1e7)](_0x2a68b8);return;}_0x5b0d08[_0x431891(0x25f)](_0x3c95e1=>{const _0xef84be=_0x431891,_0x4efeef=document[_0xef84be(0x224)]('tr'),_0x104916=document[_0xef84be(0x224)]('td');_0x104916[_0xef84be(0x25e)]=_0x3c95e1[_0xef84be(0x283)],_0x104916[_0xef84be(0x218)]=_0x3c95e1[_0xef84be(0x283)],_0x4efeef[_0xef84be(0x1e7)](_0x104916);const _0x5f3c16=document[_0xef84be(0x224)]('td');_0x5f3c16[_0xef84be(0x25e)]=formatFileSize(_0x3c95e1[_0xef84be(0x263)]),_0x5f3c16[_0xef84be(0x279)][_0xef84be(0x2f0)]=_0xef84be(0x23c),_0x4efeef[_0xef84be(0x1e7)](_0x5f3c16);const _0x9dcf00=document['createElement']('td');_0x9dcf00[_0xef84be(0x25e)]=_0x3c95e1[_0xef84be(0x18f)],_0x4efeef[_0xef84be(0x1e7)](_0x9dcf00);const _0x16f513=document[_0xef84be(0x224)]('td');_0x16f513[_0xef84be(0x25e)]=_0x3c95e1['upload_username']||'未知',_0x4efeef[_0xef84be(0x1e7)](_0x16f513);const _0x30fa6e=document[_0xef84be(0x224)]('td'),_0x459e70=document[_0xef84be(0x224)]('span');_0x459e70[_0xef84be(0x25e)]=_0x3c95e1[_0xef84be(0x24d)]===_0xef84be(0x1a1)?_0xef84be(0x310):'比赛文件',_0x459e70[_0xef84be(0x2d0)]=_0xef84be(0x23d)+_0x3c95e1[_0xef84be(0x24d)],_0x30fa6e['appendChild'](_0x459e70),_0x4efeef['appendChild'](_0x30fa6e);const _0x50245f=document[_0xef84be(0x224)]('td'),_0x410b20={'mirror':_0xef84be(0x293),'image':_0xef84be(0x271),'document':'文档文件','video':_0xef84be(0x204),'other':'其他文件'};_0x50245f[_0xef84be(0x25e)]=_0x410b20[_0x3c95e1[_0xef84be(0x349)]]||_0x3c95e1[_0xef84be(0x349)],_0x4efeef['appendChild'](_0x50245f);const _0x11cf90=document[_0xef84be(0x224)]('td');_0x11cf90[_0xef84be(0x25e)]=_0x3c95e1[_0xef84be(0x228)]||0x0,_0x11cf90[_0xef84be(0x279)][_0xef84be(0x2f0)]=_0xef84be(0x275),_0x4efeef[_0xef84be(0x1e7)](_0x11cf90);const _0x4a88bb=document[_0xef84be(0x224)]('td'),_0x45f1fe=document[_0xef84be(0x224)](_0xef84be(0x23b));_0x45f1fe[_0xef84be(0x2d0)]='action-buttons';const _0x30c910=document[_0xef84be(0x224)](_0xef84be(0x23b));_0x30c910[_0xef84be(0x2d0)]=_0xef84be(0x294);if(currentUserPermissions[_0xef84be(0x29e)](_0xef84be(0x2a5))){const _0x44dd98=document[_0xef84be(0x224)]('button');_0x44dd98[_0xef84be(0x25e)]='下载',_0x44dd98['className']=_0xef84be(0x253),_0x44dd98[_0xef84be(0x1e9)](_0xef84be(0x2ce),()=>downloadFile(_0x3c95e1[_0xef84be(0x23a)],_0x3c95e1[_0xef84be(0x283)],_0x3c95e1[_0xef84be(0x263)])),_0x30c910['appendChild'](_0x44dd98);}if(currentUserPermissions[_0xef84be(0x29e)](_0xef84be(0x1b5))){const _0x42b05c=document[_0xef84be(0x224)]('button');_0x42b05c['textContent']=_0xef84be(0x300),_0x42b05c[_0xef84be(0x2d0)]=_0xef84be(0x323),_0x42b05c[_0xef84be(0x1e9)](_0xef84be(0x2ce),()=>openRenameFileModal(_0x3c95e1[_0xef84be(0x23a)],_0x3c95e1[_0xef84be(0x283)])),_0x30c910[_0xef84be(0x1e7)](_0x42b05c);}if(currentUserPermissions[_0xef84be(0x29e)](_0xef84be(0x1a4))){const _0x457d53=document[_0xef84be(0x224)](_0xef84be(0x1cc));_0x457d53[_0xef84be(0x25e)]=_0xef84be(0x1b0),_0x457d53['className']='action-btn\x20change-subcategory-btn',_0x457d53['addEventListener'](_0xef84be(0x2ce),()=>openChangeSubcategoryModal(_0x3c95e1[_0xef84be(0x23a)],_0x3c95e1[_0xef84be(0x349)])),_0x30c910['appendChild'](_0x457d53);}const _0x36fe85=document[_0xef84be(0x224)](_0xef84be(0x23b));_0x36fe85[_0xef84be(0x2d0)]='action-row';if(currentUserPermissions['includes'](_0xef84be(0x2c0))){const _0x5348ae=document[_0xef84be(0x224)]('button');_0x5348ae['textContent']=_0x3c95e1['file_category']===_0xef84be(0x1a1)?_0xef84be(0x167):'设为公用',_0x5348ae['className']='action-btn\x20toggle-category-btn',_0x5348ae[_0xef84be(0x1e9)](_0xef84be(0x2ce),()=>toggleFileCategory(_0x3c95e1[_0xef84be(0x23a)],_0x3c95e1['file_category'])),_0x36fe85[_0xef84be(0x1e7)](_0x5348ae);}if(currentUserPermissions[_0xef84be(0x29e)]('delete')){const _0x348d79=document[_0xef84be(0x224)](_0xef84be(0x1cc));_0x348d79['textContent']='删除',_0x348d79[_0xef84be(0x2d0)]='action-btn\x20delete-btn',_0x348d79[_0xef84be(0x1e9)](_0xef84be(0x2ce),()=>deleteFile(_0x3c95e1[_0xef84be(0x23a)])),_0x36fe85[_0xef84be(0x1e7)](_0x348d79);}_0x45f1fe[_0xef84be(0x1e7)](_0x30c910),_0x45f1fe['appendChild'](_0x36fe85),_0x4a88bb['appendChild'](_0x45f1fe),_0x4efeef['appendChild'](_0x4a88bb),_0x45a17f[_0xef84be(0x1e7)](_0x4efeef);});}function formatFileSize(_0x92ef15){const _0x57dbb8=_0x1f66a7;if(_0x92ef15===0x0)return _0x57dbb8(0x305);const _0x5ed183=0x400,_0x3a2349=[_0x57dbb8(0x2f7),'KB','MB','GB','TB'],_0x150daf=Math['floor'](Math[_0x57dbb8(0x19a)](_0x92ef15)/Math[_0x57dbb8(0x19a)](_0x5ed183));return parseFloat((_0x92ef15/Math[_0x57dbb8(0x25c)](_0x5ed183,_0x150daf))['toFixed'](0x2))+'\x20'+_0x3a2349[_0x150daf];}function showMessage(_0x3c78ed,_0x2e40fc){const _0x247f9e=_0x1f66a7,_0x110b82=document['getElementById'](_0x247f9e(0x346));_0x110b82[_0x247f9e(0x25e)]=_0x3c78ed,_0x110b82['className']=_0x247f9e(0x26c)+_0x2e40fc,_0x110b82[_0x247f9e(0x179)][_0x247f9e(0x173)](_0x247f9e(0x1f7)),setTimeout(()=>{const _0x126070=_0x247f9e;_0x110b82['classList'][_0x126070(0x175)](_0x126070(0x1f7));},0x1388);}document[_0x1f66a7(0x217)](_0x1f66a7(0x2df))[_0x1f66a7(0x1e9)](_0x1f66a7(0x2ce),closeCreateFolderModal),document['getElementById'](_0x1f66a7(0x32f))[_0x1f66a7(0x1e9)]('click',closeEditFolderPermissionsModal),document[_0x1f66a7(0x217)](_0x1f66a7(0x213))[_0x1f66a7(0x1e9)]('click',closeEditChineseAliasModal),document[_0x1f66a7(0x217)](_0x1f66a7(0x29b))[_0x1f66a7(0x1e9)](_0x1f66a7(0x2ce),saveChineseAlias),window[_0x1f66a7(0x1e9)](_0x1f66a7(0x2ce),function(_0x3945a4){const _0x416785=_0x1f66a7,_0x15e788=document[_0x416785(0x217)]('editChineseAliasModal');_0x3945a4[_0x416785(0x1c6)]===_0x15e788&&closeEditChineseAliasModal();});function toggleFileCategory(_0x35ffcf,_0x41405e){const _0x5317ff=_0x1f66a7,_0x1938b6=_0x41405e===_0x5317ff(0x1a1)?_0x5317ff(0x1d0):'everyone';if(!confirm('确定要将文件分类改为'+(_0x1938b6===_0x5317ff(0x1a1)?_0x5317ff(0x310):'比赛文件')+'吗？'))return;fetch(_0x5317ff(0x2ad)+_0x35ffcf,{'method':_0x5317ff(0x1c3),'headers':{'Content-Type':_0x5317ff(0x1bf)},'body':JSON['stringify']({'category':_0x1938b6})})[_0x5317ff(0x26e)](_0x2dc19c=>{const _0x15277b=_0x5317ff;if(!_0x2dc19c['ok'])return _0x2dc19c[_0x15277b(0x16b)]()[_0x15277b(0x26e)](_0x2215d1=>{const _0x43f951=_0x15277b;throw new Error(_0x2215d1['error']||_0x43f951(0x1ea));});return _0x2dc19c[_0x15277b(0x16b)]();})[_0x5317ff(0x26e)](_0x377801=>{const _0x5811dd=_0x5317ff;if(_0x377801['success']){showMessage(_0x5811dd(0x2f3),_0x5811dd(0x340));if(currentViewingFolderId)loadFolderFiles(currentViewingFolderId);else{const _0x45591a=document[_0x5811dd(0x217)](_0x5811dd(0x1d1))[_0x5811dd(0x30b)],_0x414060=document[_0x5811dd(0x217)](_0x5811dd(0x2e0))[_0x5811dd(0x30b)];fetchFiles(_0x45591a,_0x414060);}}else showMessage(_0x5811dd(0x276)+(_0x377801[_0x5811dd(0x22f)]||'未知错误'),'error');})[_0x5317ff(0x1f5)](_0x21dec0=>{const _0x4d18bb=_0x5317ff;showMessage(_0x4d18bb(0x168)+_0x21dec0[_0x4d18bb(0x194)],_0x4d18bb(0x22f));});}document['getElementById']('uploadForm')[_0x1f66a7(0x1e9)](_0x1f66a7(0x206),function(_0x197587){const _0x273e05=_0x1f66a7;_0x197587[_0x273e05(0x153)]();const _0x447abb=document['getElementById'](_0x273e05(0x1f6)),_0x1599b2=_0x447abb[_0x273e05(0x242)],_0x25aa94=document[_0x273e05(0x217)](_0x273e05(0x260)),_0x21319b=document[_0x273e05(0x217)]('progress'),_0x3703be=document[_0x273e05(0x217)](_0x273e05(0x184))['checked'],_0x29ca48=document['getElementById']('fileCategory')['value'],_0x258073=document['getElementById'](_0x273e05(0x2bb))[_0x273e05(0x30b)];if(_0x1599b2[_0x273e05(0x31c)]===0x0){showMessage('请选择要上传的文件',_0x273e05(0x22f));return;}_0x25aa94['style'][_0x273e05(0x22c)]=_0x273e05(0x289),_0x21319b[_0x273e05(0x279)][_0x273e05(0x1cd)]='0%',_0x21319b[_0x273e05(0x25e)]='0%',Array[_0x273e05(0x318)](_0x1599b2)[_0x273e05(0x25f)]((_0x54c1de,_0x2651a9)=>{const _0x281cb0=_0x273e05;_0x3703be&&_0x54c1de['size']>0x64*0x400*0x400?uploadFileInChunks(_0x54c1de,_0x25aa94,_0x21319b,_0x1599b2['length'],_0x2651a9,_0x29ca48,_0x258073):uploadFileDirectly(_0x54c1de,_0x25aa94,_0x21319b,_0x1599b2[_0x281cb0(0x31c)],_0x2651a9,_0x29ca48,_0x258073);});});function uploadFileDirectly(_0x190da5,_0xa2cd29,_0x450657,_0x2e7bd5,_0x2b2fc1,_0x4afd1f,_0x5849aa){const _0x9176b3=_0x1f66a7,_0x1844e0=new FormData();_0x1844e0['append'](_0x9176b3(0x21c),_0x190da5),_0x1844e0['append']('category',_0x4afd1f),_0x1844e0['append'](_0x9176b3(0x16c),document[_0x9176b3(0x217)](_0x9176b3(0x20a))[_0x9176b3(0x30b)]);_0x5849aa&&_0x1844e0[_0x9176b3(0x254)](_0x9176b3(0x2a2),_0x5849aa);const _0x20e2f3=new XMLHttpRequest();_0x20e2f3[_0x9176b3(0x34a)][_0x9176b3(0x1e9)](_0x9176b3(0x22b),function(_0x2fbb91){const _0x2937e5=_0x9176b3;if(_0x2fbb91[_0x2937e5(0x16e)]){const _0x2da4c8=_0x2fbb91[_0x2937e5(0x32a)]/_0x2fbb91['total']*0x64,_0x1f7b81=(_0x2b2fc1*0x64+_0x2da4c8)/_0x2e7bd5;_0x450657[_0x2937e5(0x279)][_0x2937e5(0x1cd)]=_0x1f7b81+'%',_0x450657[_0x2937e5(0x25e)]=Math[_0x2937e5(0x1e1)](_0x1f7b81)+'%';}}),_0x20e2f3[_0x9176b3(0x1e9)]('load',function(){const _0x178e3b=_0x9176b3;if(_0x20e2f3[_0x178e3b(0x2d8)]===0xc8)try{const _0x31e29e=JSON[_0x178e3b(0x19f)](_0x20e2f3['responseText']);if(_0x31e29e['success']){showMessage(_0x178e3b(0x1fa),'success'),document['getElementById']('fileInput')['value']='';if(currentViewingFolderId)loadFolderFiles(currentViewingFolderId);else{const _0x225aba=document[_0x178e3b(0x217)](_0x178e3b(0x1d1))['value'],_0x7f564a=document[_0x178e3b(0x217)](_0x178e3b(0x2e0))[_0x178e3b(0x30b)];fetchFiles(_0x225aba,_0x7f564a);}}else showMessage(_0x178e3b(0x1f3)+(_0x31e29e[_0x178e3b(0x22f)]||_0x178e3b(0x160)),'error');}catch(_0x2f0bc7){showMessage(_0x178e3b(0x2f6),'error');}else{if(_0x20e2f3[_0x178e3b(0x2d8)]===0x191)showMessage(_0x178e3b(0x18e),_0x178e3b(0x22f)),showLoginSection();else{if(_0x20e2f3[_0x178e3b(0x2d8)]===0x193)showMessage(_0x178e3b(0x2d5),_0x178e3b(0x22f));else try{const _0xdab976=JSON[_0x178e3b(0x19f)](_0x20e2f3['responseText']);showMessage(_0x178e3b(0x1f3)+(_0xdab976['error']||_0x20e2f3[_0x178e3b(0x169)]),_0x178e3b(0x22f));}catch(_0x457191){showMessage(_0x178e3b(0x1f3)+_0x20e2f3[_0x178e3b(0x169)],_0x178e3b(0x22f));}}}_0x2b2fc1===_0x2e7bd5-0x1&&setTimeout(()=>{const _0x446ac7=_0x178e3b;_0xa2cd29['style'][_0x446ac7(0x22c)]=_0x446ac7(0x1ba);},0x3e8);}),_0x20e2f3[_0x9176b3(0x1e9)](_0x9176b3(0x22f),function(){const _0x539b59=_0x9176b3;showMessage(_0x539b59(0x2e6),_0x539b59(0x22f)),_0x2b2fc1===_0x2e7bd5-0x1&&(_0xa2cd29[_0x539b59(0x279)]['display']=_0x539b59(0x1ba));}),_0x20e2f3[_0x9176b3(0x290)](_0x9176b3(0x2c8),_0x9176b3(0x2d1),!![]),_0x20e2f3[_0x9176b3(0x29c)](_0x1844e0);}function uploadFileInChunks(_0x5654b6,_0x493fee,_0x53d550,_0x29525b,_0xcee1af,_0x475327,_0x3b78b9){const _0xe6ef12=_0x1f66a7,_0x199621=0x64*0x400*0x400,_0x2962d3=Math['ceil'](_0x5654b6[_0xe6ef12(0x2cb)]/_0x199621),_0x4234dd=Math['random']()[_0xe6ef12(0x174)](0x24)[_0xe6ef12(0x333)](0x2)+Date[_0xe6ef12(0x234)]()[_0xe6ef12(0x174)](0x24);let _0x2b6b0f=0x0;for(let _0x44fe54=0x1;_0x44fe54<=_0x2962d3;_0x44fe54++){const _0x4f11ad=(_0x44fe54-0x1)*_0x199621,_0x38b976=Math[_0xe6ef12(0x1e2)](_0x4f11ad+_0x199621,_0x5654b6[_0xe6ef12(0x2cb)]),_0xae5641=_0x5654b6[_0xe6ef12(0x344)](_0x4f11ad,_0x38b976),_0x4715ac=new FormData();_0x4715ac[_0xe6ef12(0x254)](_0xe6ef12(0x33a),_0xae5641),_0x4715ac['append'](_0xe6ef12(0x308),_0x44fe54),_0x4715ac[_0xe6ef12(0x254)]('totalChunks',_0x2962d3),_0x4715ac[_0xe6ef12(0x254)](_0xe6ef12(0x283),_0x5654b6[_0xe6ef12(0x23f)]),_0x4715ac[_0xe6ef12(0x254)](_0xe6ef12(0x287),_0x4234dd),_0x4715ac['append'](_0xe6ef12(0x27a),_0x475327),_0x4715ac[_0xe6ef12(0x254)](_0xe6ef12(0x16c),document[_0xe6ef12(0x217)](_0xe6ef12(0x20a))[_0xe6ef12(0x30b)]);_0x3b78b9&&_0x4715ac[_0xe6ef12(0x254)](_0xe6ef12(0x2a2),_0x3b78b9);const _0x3656c6=new XMLHttpRequest();_0x3656c6[_0xe6ef12(0x1e9)](_0xe6ef12(0x22a),function(){const _0x555e7a=_0xe6ef12;_0x2b6b0f++;if(_0x3656c6[_0x555e7a(0x2d8)]===0xc8){const _0x1834b8=_0x2b6b0f/_0x2962d3*0x64,_0x4906c0=(_0xcee1af*0x64+_0x1834b8)/_0x29525b;_0x53d550[_0x555e7a(0x279)][_0x555e7a(0x1cd)]=_0x4906c0+'%',_0x53d550[_0x555e7a(0x25e)]=Math[_0x555e7a(0x1e1)](_0x4906c0)+'%',_0x2b6b0f===_0x2962d3&&mergeChunks(_0x5654b6[_0x555e7a(0x23f)],_0x4234dd,_0x2962d3,_0x493fee,_0x29525b,_0xcee1af,_0x475327,_0x3b78b9);}else{if(_0x3656c6[_0x555e7a(0x2d8)]===0x193)showMessage('权限不足：没有上传权限',_0x555e7a(0x22f));else try{const _0x3a483c=JSON[_0x555e7a(0x19f)](_0x3656c6[_0x555e7a(0x169)]);showMessage(_0x555e7a(0x235)+(_0x3a483c[_0x555e7a(0x22f)]||_0x3656c6[_0x555e7a(0x169)]),_0x555e7a(0x22f));}catch(_0xe7150){showMessage(_0x555e7a(0x235)+_0x3656c6['responseText'],_0x555e7a(0x22f));}}}),_0x3656c6[_0xe6ef12(0x1e9)](_0xe6ef12(0x22f),function(){const _0x950fce=_0xe6ef12;showMessage(_0x950fce(0x220),_0x950fce(0x22f));}),_0x3656c6['open'](_0xe6ef12(0x2c8),_0xe6ef12(0x324),!![]),_0x3656c6[_0xe6ef12(0x29c)](_0x4715ac);}}function mergeChunks(_0x3b31ac,_0x350ed5,_0x253271,_0x374ea7,_0x48e865,_0x43026e,_0x3c6e2b,_0x3ed314){const _0x319642=_0x1f66a7,_0x13377b=new FormData();_0x13377b[_0x319642(0x254)](_0x319642(0x283),_0x3b31ac),_0x13377b[_0x319642(0x254)](_0x319642(0x287),_0x350ed5),_0x13377b['append'](_0x319642(0x31f),_0x253271),_0x13377b[_0x319642(0x254)](_0x319642(0x27a),_0x3c6e2b),_0x13377b[_0x319642(0x254)](_0x319642(0x16c),document[_0x319642(0x217)](_0x319642(0x20a))[_0x319642(0x30b)]),_0x3ed314&&_0x13377b[_0x319642(0x254)](_0x319642(0x2a2),_0x3ed314),fetch('/merge_chunks',{'method':_0x319642(0x2c8),'body':_0x13377b})[_0x319642(0x26e)](_0x363dec=>{const _0x2a35c8=_0x319642;if(!_0x363dec['ok']){if(_0x363dec['status']===0x193)throw new Error(_0x2a35c8(0x2d5));return _0x363dec['json']()[_0x2a35c8(0x26e)](_0x4a6cb5=>{const _0x3c93da=_0x2a35c8;throw new Error(_0x4a6cb5[_0x3c93da(0x22f)]||_0x3c93da(0x298));});}return _0x363dec[_0x2a35c8(0x16b)]();})['then'](_0x2e2361=>{const _0x43fdaa=_0x319642;if(_0x2e2361[_0x43fdaa(0x340)]){showMessage('文件上传成功:\x20'+_0x3b31ac,_0x43fdaa(0x340)),document[_0x43fdaa(0x217)](_0x43fdaa(0x1f6))[_0x43fdaa(0x30b)]='';if(currentViewingFolderId)loadFolderFiles(currentViewingFolderId);else{const _0x1b8157=document[_0x43fdaa(0x217)](_0x43fdaa(0x1d1))[_0x43fdaa(0x30b)],_0x4964a4=document[_0x43fdaa(0x217)](_0x43fdaa(0x2e0))[_0x43fdaa(0x30b)];fetchFiles(_0x1b8157,_0x4964a4);}}else showMessage(_0x43fdaa(0x2d7)+(_0x2e2361['error']||_0x43fdaa(0x160)),_0x43fdaa(0x22f));_0x43026e===_0x48e865-0x1&&setTimeout(()=>{const _0x2ecb9f=_0x43fdaa;_0x374ea7[_0x2ecb9f(0x279)][_0x2ecb9f(0x22c)]=_0x2ecb9f(0x1ba);},0x3e8);})[_0x319642(0x1f5)](_0x57849f=>{const _0x15d5e9=_0x319642;showMessage(_0x15d5e9(0x2c6)+_0x57849f[_0x15d5e9(0x194)],_0x15d5e9(0x22f)),_0x43026e===_0x48e865-0x1&&(_0x374ea7[_0x15d5e9(0x279)][_0x15d5e9(0x22c)]=_0x15d5e9(0x1ba));});}function downloadFile(_0xf1c689,_0x3a2ce7=null,_0x27d2a1=0x0){const _0x3fe409=_0x1f66a7;console[_0x3fe409(0x19a)](_0x3fe409(0x1d7)+_0xf1c689+_0x3fe409(0x1dd)+formatFileSize(_0x27d2a1));if(_0x27d2a1>0xa*0x400*0x400*0x400)downloadHugeFileWithProgress(_0xf1c689,_0x3a2ce7||_0xf1c689,_0x27d2a1);else _0x27d2a1>0x64*0x400*0x400?downloadLargeFileWithProgress(_0xf1c689,_0x3a2ce7||_0xf1c689,_0x27d2a1):downloadSmallFile(_0xf1c689,_0x3a2ce7||_0xf1c689);}function downloadLargeFileWithProgress(_0x47e7ee,_0x37ef7a,_0x267329){const _0x1f021a=_0x1f66a7;console[_0x1f021a(0x19a)](_0x1f021a(0x339)+_0x37ef7a+_0x1f021a(0x1dd)+formatFileSize(_0x267329)),showDownloadProgressWithBar(_0x37ef7a,_0x267329),updateDebugInfo(_0x1f021a(0x1a5)+formatFileSize(_0x267329)+')');const _0x50fc22=0x3;let _0x31998d=0x0,_0x325aae=0x0;function _0x328bdf(){const _0x11edb0=_0x1f021a;updateDebugInfo(_0x11edb0(0x337)+(_0x31998d+0x1)+'/'+_0x50fc22);const _0x34e87a=new XMLHttpRequest();currentDownloadController=_0x34e87a,window[_0x11edb0(0x27b)]=Date['now']();let _0x172966=0x0,_0x1cc9dc=window[_0x11edb0(0x27b)];const _0x39d31a=0x1e*0x3c*0x3e8;let _0x5d313e=setTimeout(()=>{const _0x1353d7=_0x11edb0;updateDebugInfo(_0x1353d7(0x196)),_0x34e87a['abort'](),_0x23fbe1();},_0x39d31a);_0x34e87a[_0x11edb0(0x290)]('GET',_0x11edb0(0x303)+_0x47e7ee,!![]),_0x34e87a['responseType']='blob',_0x34e87a[_0x11edb0(0x1e9)](_0x11edb0(0x22b),function(_0x1c07e0){const _0x34dc0f=_0x11edb0;clearTimeout(_0x5d313e),_0x5d313e=setTimeout(()=>{const _0x5798e7=_0x32e0;updateDebugInfo(_0x5798e7(0x19e)),_0x34e87a['abort'](),_0x23fbe1();},0xea60);if(_0x1c07e0[_0x34dc0f(0x16e)]&&_0x1c07e0[_0x34dc0f(0x22e)]>0x0){const _0x47e5ce=_0x1c07e0[_0x34dc0f(0x32a)],_0xad3172=_0x1c07e0['total'],_0x2fdc5b=(_0x47e5ce/_0xad3172*0x64)['toFixed'](0x1);updateDownloadProgress(_0x47e5ce,_0xad3172);const _0x3e55cb=Date['now'](),_0x4e6b00=(_0x3e55cb-_0x1cc9dc)/0x3e8;if(_0x4e6b00>=0x1){const _0x1c36d6=_0x47e5ce-_0x172966,_0x4332be=_0x1c36d6/_0x4e6b00;updateSpeedInfo(_0x4332be,_0x47e5ce,_0xad3172),_0x172966=_0x47e5ce,_0x1cc9dc=_0x3e55cb;}updateDebugInfo(_0x34dc0f(0x259)+_0x2fdc5b+'%\x20-\x20'+formatFileSize(_0x47e5ce)+'/'+formatFileSize(_0xad3172));}}),_0x34e87a['addEventListener']('load',function(){const _0x22fb45=_0x11edb0;clearTimeout(_0x5d313e);if(_0x34e87a[_0x22fb45(0x2d8)]===0xc8){const _0x1892f9=_0x34e87a[_0x22fb45(0x1bb)];if(_0x1892f9&&_0x1892f9['size']>0x0){updateDebugInfo(_0x22fb45(0x238));const _0x5c9fa4=window[_0x22fb45(0x32d)][_0x22fb45(0x2c4)](_0x1892f9);setTimeout(()=>{triggerDownload(_0x5c9fa4,_0x37ef7a),updateDebugInfo('下载完成！'),setTimeout(()=>{const _0x10aeb5=_0x32e0;window['URL'][_0x10aeb5(0x1c7)](_0x5c9fa4),hideDownloadProgress(),showMessage(_0x10aeb5(0x2bc),_0x10aeb5(0x340)),refreshFileListAfterDownload();},0x7d0);},0x64);}else updateDebugInfo(_0x22fb45(0x1fd)),showMessage(_0x22fb45(0x1c0),'error'),hideDownloadProgress();}else updateDebugInfo(_0x22fb45(0x30c)+_0x34e87a['status']+_0x22fb45(0x1d2)+_0x34e87a[_0x22fb45(0x2a1)]),_0x23fbe1();}),_0x34e87a[_0x11edb0(0x1e9)](_0x11edb0(0x22f),function(){const _0x1830ed=_0x11edb0;clearTimeout(_0x5d313e),updateDebugInfo(_0x1830ed(0x1c9)),_0x23fbe1();}),_0x34e87a[_0x11edb0(0x1e9)](_0x11edb0(0x336),function(){const _0x45aa52=_0x11edb0;clearTimeout(_0x5d313e),_0x31998d<_0x50fc22&&updateDebugInfo(_0x45aa52(0x2ff));}),updateDebugInfo(_0x11edb0(0x2ab)),_0x34e87a[_0x11edb0(0x29c)]();function _0x23fbe1(){const _0x10ad88=_0x11edb0;_0x31998d++,_0x31998d<_0x50fc22?(updateDebugInfo(_0x10ad88(0x255)+_0x31998d+'/'+_0x50fc22+')'),setTimeout(_0x328bdf,0xbb8)):(updateDebugInfo(_0x10ad88(0x317)),showMessage(_0x10ad88(0x171),_0x10ad88(0x22f)),hideDownloadProgress());}}_0x328bdf();}function downloadHugeFileWithProgress(_0x154b45,_0x43e5e7,_0x28e964){const _0x4728d9=_0x1f66a7;console[_0x4728d9(0x19a)](_0x4728d9(0x15d)+_0x43e5e7+_0x4728d9(0x1dd)+formatFileSize(_0x28e964)),showHugeFileDownloadProgress(_0x43e5e7,_0x28e964),updateHugeDebugInfo(_0x4728d9(0x237)+formatFileSize(_0x28e964)+')');const _0x84c55=0x20*0x400*0x400,_0x2a8132=Math['ceil'](_0x28e964/_0x84c55);let _0x52128f=0x0,_0x1d3045=![],_0x1b3c7b=0x0;const _0xc90d6d=_0x4728d9(0x1bc)+_0x154b45,_0x4eb948=localStorage[_0x4728d9(0x20e)](_0xc90d6d);if(_0x4eb948){const _0x22ab86=JSON[_0x4728d9(0x19f)](_0x4eb948);_0x1b3c7b=_0x22ab86[_0x4728d9(0x30f)]||0x0,_0x52128f=_0x22ab86[_0x4728d9(0x2cc)]||0x0,updateHugeDebugInfo(_0x4728d9(0x281)+_0x52128f+'/'+_0x2a8132+'\x20分块');}function _0x81e64a(_0x584f1f){const _0x2499dd=_0x4728d9;if(_0x1d3045||_0x584f1f>=_0x2a8132)return;const _0x20aab6=_0x584f1f*_0x84c55,_0x1f693c=Math['min'](_0x20aab6+_0x84c55-0x1,_0x28e964-0x1);updateHugeDebugInfo(_0x2499dd(0x250)+(_0x584f1f+0x1)+'/'+_0x2a8132);const _0x385c29=new XMLHttpRequest();currentDownloadController=_0x385c29,_0x385c29[_0x2499dd(0x290)](_0x2499dd(0x219),_0x2499dd(0x32e)+_0x154b45,!![]),_0x385c29[_0x2499dd(0x348)]('Range',_0x2499dd(0x268)+_0x20aab6+'-'+_0x1f693c),_0x385c29['responseType']='blob',_0x385c29[_0x2499dd(0x1e9)]('load',function(){const _0x28cd82=_0x2499dd;if(_0x385c29[_0x28cd82(0x2d8)]===0xc8||_0x385c29[_0x28cd82(0x2d8)]===0xce){const _0x3530e4=_0x385c29['response'];_0x110fef(_0x584f1f,_0x3530e4)[_0x28cd82(0x26e)](()=>{const _0x6c32a6=_0x28cd82;_0x52128f++,_0x1b3c7b=_0x584f1f+0x1;const _0x226976=_0x52128f*_0x84c55;updateHugeDownloadProgress(_0x226976,_0x28e964),localStorage[_0x6c32a6(0x1c8)](_0xc90d6d,JSON[_0x6c32a6(0x15b)]({'currentChunk':_0x1b3c7b,'downloadedChunks':_0x52128f}));if(_0x1b3c7b<_0x2a8132&&!_0x1d3045)_0x81e64a(_0x1b3c7b);else _0x52128f===_0x2a8132&&(updateHugeDebugInfo(_0x6c32a6(0x269)),_0x7974d5());})[_0x28cd82(0x1f5)](_0x1cc848=>{const _0x574062=_0x28cd82;updateHugeDebugInfo(_0x574062(0x2a9)+_0x1cc848[_0x574062(0x194)]),setTimeout(()=>_0x81e64a(_0x584f1f),0xbb8);});}else updateHugeDebugInfo(_0x28cd82(0x1cb)+_0x385c29[_0x28cd82(0x2d8)]),setTimeout(()=>_0x81e64a(_0x584f1f),0xbb8);}),_0x385c29['addEventListener']('error',function(){const _0x5c6c69=_0x2499dd;updateHugeDebugInfo(_0x5c6c69(0x225)),setTimeout(()=>_0x81e64a(_0x584f1f),0xbb8);}),_0x385c29[_0x2499dd(0x29c)]();}function _0x110fef(_0x3bed66,_0x101f91){return new Promise((_0x5f4d85,_0xb761a6)=>{const _0x58fea3=_0x32e0;try{const _0x34ae35=new FileReader();_0x34ae35[_0x58fea3(0x319)]=function(){const _0x27e515=_0x58fea3,_0x584187=_0x27e515(0x15a)+_0x154b45+'_'+_0x3bed66;localStorage[_0x27e515(0x1c8)](_0x584187,_0x34ae35[_0x27e515(0x2a7)]),_0x5f4d85();},_0x34ae35['onerror']=_0xb761a6,_0x34ae35['readAsDataURL'](_0x101f91);}catch(_0x331d09){_0xb761a6(_0x331d09);}});}function _0x7974d5(){const _0x2340e2=_0x4728d9;updateHugeDebugInfo(_0x2340e2(0x33f));try{const _0x3f131b=[];let _0x48d927=0x0;for(let _0x8c516a=0x0;_0x8c516a<_0x2a8132;_0x8c516a++){const _0x137e69=_0x2340e2(0x15a)+_0x154b45+'_'+_0x8c516a,_0x23cc1e=localStorage[_0x2340e2(0x20e)](_0x137e69);if(!_0x23cc1e)throw new Error('分块\x20'+_0x8c516a+_0x2340e2(0x2eb));const _0x128aa6=atob(_0x23cc1e[_0x2340e2(0x17f)](',')[0x1]),_0xd65fb0=new Uint8Array(_0x128aa6[_0x2340e2(0x31c)]);for(let _0x59f1d6=0x0;_0x59f1d6<_0x128aa6['length'];_0x59f1d6++){_0xd65fb0[_0x59f1d6]=_0x128aa6[_0x2340e2(0x2fe)](_0x59f1d6);}_0x3f131b['push'](_0xd65fb0),_0x48d927+=_0xd65fb0[_0x2340e2(0x31c)];}const _0xaa3240=new Uint8Array(_0x48d927);let _0x5d51eb=0x0;_0x3f131b[_0x2340e2(0x25f)](_0x15a1dd=>{const _0x885bc2=_0x2340e2;_0xaa3240[_0x885bc2(0x2b8)](_0x15a1dd,_0x5d51eb),_0x5d51eb+=_0x15a1dd[_0x885bc2(0x31c)];});const _0x212bb5=new Blob([_0xaa3240],{'type':_0x2340e2(0x2aa)}),_0x618dcd=URL[_0x2340e2(0x2c4)](_0x212bb5);triggerDownload(_0x618dcd,_0x43e5e7),_0x317972(),localStorage['removeItem'](_0xc90d6d),updateHugeDebugInfo(_0x2340e2(0x19c)),setTimeout(()=>{const _0x36506f=_0x2340e2;hideHugeDownloadProgress(),showMessage(_0x36506f(0x176),_0x36506f(0x340)),refreshFileListAfterDownload();},0x7d0);}catch(_0x127280){updateHugeDebugInfo(_0x2340e2(0x208)+_0x127280[_0x2340e2(0x194)]),showMessage(_0x2340e2(0x1d8),_0x2340e2(0x22f));}}function _0x317972(){const _0x36e785=_0x4728d9;for(let _0x4ce065=0x0;_0x4ce065<_0x2a8132;_0x4ce065++){const _0x1f8c64=_0x36e785(0x15a)+_0x154b45+'_'+_0x4ce065;localStorage[_0x36e785(0x1ac)](_0x1f8c64);}}function _0x356e31(){const _0x2d0aca=_0x4728d9;_0x1d3045=!![],currentDownloadController&&(currentDownloadController['abort'](),currentDownloadController=null),updateHugeDebugInfo(_0x2d0aca(0x248));}function _0x340fbe(){const _0x23f2af=_0x4728d9;_0x1d3045&&(_0x1d3045=![],updateHugeDebugInfo(_0x23f2af(0x2f2)),_0x81e64a(_0x1b3c7b));}function _0x32c372(){const _0x125d11=_0x4728d9;_0x356e31(),_0x317972(),localStorage[_0x125d11(0x1ac)](_0xc90d6d),hideHugeDownloadProgress(),showMessage(_0x125d11(0x2b5),_0x125d11(0x162));}window[_0x4728d9(0x2fa)]=_0x356e31,window[_0x4728d9(0x1d9)]=_0x340fbe,window[_0x4728d9(0x301)]=_0x32c372,_0x81e64a(_0x1b3c7b);}function updateDownloadProgress(_0x554483,_0x5ee51b){const _0xef6c54=_0x1f66a7;let _0x54b838=0x0,_0x336b5b='0%';_0x5ee51b>0x0?(_0x54b838=_0x554483/_0x5ee51b*0x64,_0x336b5b=formatFileSize(_0x554483)+_0xef6c54(0x209)+formatFileSize(_0x5ee51b)+'\x20('+_0x54b838['toFixed'](0x1)+'%)'):_0x336b5b=formatFileSize(_0x554483)+_0xef6c54(0x1cf);const _0x1c0da2=document[_0xef6c54(0x217)](_0xef6c54(0x264)),_0x20b264=document[_0xef6c54(0x217)](_0xef6c54(0x22d));if(_0x1c0da2){_0x1c0da2[_0xef6c54(0x279)]['width']=_0x54b838+'%';if(_0x54b838<0x1e)_0x1c0da2[_0xef6c54(0x279)][_0xef6c54(0x270)]=_0xef6c54(0x29f);else _0x54b838<0x46?_0x1c0da2[_0xef6c54(0x279)][_0xef6c54(0x270)]=_0xef6c54(0x1a3):_0x1c0da2[_0xef6c54(0x279)][_0xef6c54(0x270)]=_0xef6c54(0x212);}_0x20b264&&(_0x20b264[_0xef6c54(0x25e)]=_0x336b5b),console[_0xef6c54(0x19a)]('[DEBUG]\x20进度更新:\x20'+_0x336b5b);}function _0x5a28(){const _0x2f6ec5=['large-file-progress','renameFileModal','user_group','比赛文件','message','permissions','下载超时，正在重试...','push','<span\x20class=\x22permission-tag\x22\x20style=\x22background:\x20#e3f2fd;\x20color:\x20#1976d2;\x20margin:\x202px;\x20padding:\x202px\x206px;\x20border-radius:\x2010px;\x20font-size:\x2012px;\x20display:\x20inline-block;\x22>','permissionRoot','log','fileList','文件合并完成！','fileListSection','传输停滞，正在重试...','parse','文件夹为空','everyone','/folder_files/','linear-gradient(90deg,\x20#e67e22,\x20#f1c40f)','change_subcategory','开始下载大文件\x20(','personalSettingsModal','HTTP\x20error!\x20status:\x20','文件夹权限更新出错:\x20','管理员','folderName','编辑用户组','removeItem','验证码响应状态:','用户组更新失败:\x20','floor','改分类','translate(-50%,\x20-50%)\x20scale(0.8)',',\x20下载记录:\x20','注册成功，请登录','#3498db','rename_files','用户名不匹配，删除操作已取消','其他文件','password','linear-gradient(90deg,\x20#f1c40f,\x20#2ecc71)','none','response','resume_','newFilename','regChineseAlias','application/json','下载的文件为空','pageX','请输入要删除的用户名\x20\x22','PUT','无法删除用户:\x20','保存中...','target','revokeObjectURL','setItem','网络错误，正在重试...','登录失败:\x20','分块下载失败:\x20','button','width','toFixed','\x20/\x20计算中...','competition','categoryFilter','\x20-\x20','创建失败','当前用户组:','loginForm','creator_name','下载文件:\x20','文件合并失败，请重新下载','resumeHugeDownload','hugeDebugStatus','文件夹删除出错:\x20','9095328WkahXy',',\x20大小:\x20','</div>\x0a\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20</div>\x0a\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20</div>\x0a\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20\x0a\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20<div\x20class=\x22progress-container\x22\x20style=\x22margin:\x2015px\x200;\x22>\x0a\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20<div\x20class=\x22progress-bar\x22\x20style=\x22\x0a\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20width:\x20100%;\x0a\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20height:\x2025px;\x0a\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20background:\x20#e9ecef;\x0a\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20border-radius:\x2012px;\x0a\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20overflow:\x20hidden;\x0a\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20position:\x20relative;\x0a\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20border:\x201px\x20solid\x20#dee2e6;\x0a\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20\x22>\x0a\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20<div\x20id=\x22downloadProgressBar\x22\x20class=\x22progress-fill\x22\x20style=\x22\x0a\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20width:\x200%;\x0a\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20height:\x20100%;\x0a\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20background:\x20linear-gradient(90deg,\x20#007cba,\x20#00a8ff);\x0a\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20transition:\x20width\x200.5s\x20ease;\x0a\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20border-radius:\x2012px;\x0a\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20display:\x20flex;\x0a\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20align-items:\x20center;\x0a\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20justify-content:\x20center;\x0a\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20\x22>\x0a\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20<div\x20id=\x22downloadProgressText\x22\x20style=\x22\x0a\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20color:\x20white;\x0a\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20font-size:\x2012px;\x0a\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20font-weight:\x20bold;\x0a\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20text-shadow:\x201px\x201px\x202px\x20rgba(0,0,0,0.5);\x0a\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20\x22>0%</div>\x0a\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20</div>\x0a\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20</div>\x0a\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20</div>\x0a\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20\x0a\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20<div\x20class=\x22download-info\x22\x20style=\x22\x0a\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20display:\x20grid;\x0a\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20grid-template-columns:\x201fr\x201fr;\x0a\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20gap:\x2010px;\x0a\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20margin:\x2015px\x200;\x0a\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20font-size:\x2013px;\x0a\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20\x22>\x0a\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20<div\x20style=\x22text-align:\x20left;\x22>\x0a\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20<strong>📊\x20实时状态</strong>\x0a\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20</div>\x0a\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20<div\x20style=\x22text-align:\x20right;\x22>\x0a\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20<strong>⏱️\x20预计时间</strong>\x0a\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20</div>\x0a\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20<div\x20id=\x22downloadSpeedText\x22\x20style=\x22text-align:\x20left;\x22>\x0a\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20速度:\x20计算中...\x0a\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20</div>\x0a\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20<div\x20id=\x22downloadTimeText\x22\x20style=\x22text-align:\x20right;\x22>\x0a\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20剩余:\x20计算中...\x0a\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20</div>\x0a\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20</div>\x0a\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20\x0a\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20<div\x20class=\x22debug-info\x22\x20style=\x22\x0a\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20margin:\x2015px\x200;\x0a\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20padding:\x2010px;\x0a\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20background:\x20#f1f3f4;\x0a\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20border-radius:\x204px;\x0a\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20font-size:\x2011px;\x0a\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20color:\x20#5f6368;\x0a\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20text-align:\x20left;\x0a\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20max-height:\x2080px;\x0a\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20overflow-y:\x20auto;\x0a\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20font-family:\x20\x27Consolas\x27,\x20\x27Monaco\x27,\x20monospace;\x0a\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20border:\x201px\x20solid\x20#dadce0;\x0a\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20\x22>\x0a\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20<div\x20style=\x22font-weight:\x20bold;\x20margin-bottom:\x205px;\x20color:\x20#007cba;\x22>🔍\x20下载日志:</div>\x0a\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20<div\x20id=\x22debugStatus\x22\x20style=\x22white-space:\x20pre-wrap;\x20line-height:\x201.4;\x22>初始化下载组件...</div>\x0a\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20</div>\x0a\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20\x0a\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20<button\x20onclick=\x22cancelDownload()\x22\x20style=\x22\x0a\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20margin-top:\x2010px;\x0a\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20padding:\x2010px\x2024px;\x0a\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20background:\x20#dc3545;\x0a\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20color:\x20white;\x0a\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20border:\x20none;\x0a\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20border-radius:\x206px;\x0a\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20cursor:\x20pointer;\x0a\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20font-size:\x2014px;\x0a\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20font-weight:\x20bold;\x0a\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20transition:\x20all\x200.3s;\x0a\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20box-shadow:\x200\x202px\x204px\x20rgba(0,0,0,0.2);\x0a\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20\x22\x20onmouseover=\x22this.style.background=\x27#c82333\x27;\x20this.style.transform=\x27translateY(-1px)\x27\x22\x20\x0a\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20onmouseout=\x22this.style.background=\x27#dc3545\x27;\x20this.style.transform=\x27translateY(0)\x27\x22>\x0a\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20❌\x20取消下载\x0a\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20</button>\x0a\x20\x20\x20\x20\x20\x20\x20\x20</div>\x0a\x20\x20\x20\x20','0.8','refreshCaptcha','round','min','body','获取文件夹文件列表失败:\x20','删除文件','focus','appendChild','linear-gradient(90deg,\x20#e67e22,\x20#f39c12)','addEventListener','分类更新失败','个人信息更新出错:\x20','\x0a\x09\x09\x09\x09\x09position:\x20fixed;\x0a\x09\x09\x09\x09\x09top:\x2050%;\x0a\x09\x09\x09\x09\x09left:\x2050%;\x0a\x09\x09\x09\x09\x09transform:\x20translate(-50%,\x20-50%);\x0a\x09\x09\x09\x09\x09background:\x20linear-gradient(135deg,\x20#667eea\x200%,\x20#764ba2\x20100%);\x0a\x09\x09\x09\x09\x09color:\x20white;\x0a\x09\x09\x09\x09\x09padding:\x2030px;\x0a\x09\x09\x09\x09\x09border-radius:\x2015px;\x0a\x09\x09\x09\x09\x09text-align:\x20center;\x0a\x09\x09\x09\x09\x09z-index:\x2010000;\x0a\x09\x09\x09\x09\x09box-shadow:\x200\x2010px\x2030px\x20rgba(0,0,0,0.3);\x0a\x09\x09\x09\x09\x09min-width:\x20300px;\x0a\x09\x09\x09\x09\x09font-family:\x20\x27Arial\x27,\x20sans-serif;\x0a\x09\x09\x09\x09','regUsername','currentUser','changeSubcategoryModal','/files?','#000','页面加载完成，初始化验证码...','文件上传失败:\x20','⏸️\x20暂停','catch','fileInput','hidden','change','5828877micTYB','文件上传成功','\x0a\x09\x09\x09\x09\x09<h2\x20style=\x22margin-bottom:\x2020px;\x20font-size:\x2024px;\x22>🎉\x20恭喜发现彩蛋！</h2>\x0a\x09\x09\x09\x09\x09<p\x20style=\x22margin-bottom:\x2015px;\x20font-size:\x2016px;\x22>您找到了隐藏的惊喜！</p>\x0a\x09\x09\x09\x09\x09<p\x20style=\x22margin-bottom:\x2020px;\x20font-size:\x2014px;\x20opacity:\x200.9;\x22>愿您的每一天都充满惊喜和快乐！</p>\x0a\x09\x09\x09\x09\x09<button\x20onclick=\x22this.parentElement.remove()\x22\x20style=\x22\x0a\x09\x09\x09\x09\x09\x09background:\x20rgba(255,255,255,0.2);\x0a\x09\x09\x09\x09\x09\x09color:\x20white;\x0a\x09\x09\x09\x09\x09\x09border:\x202px\x20solid\x20white;\x0a\x09\x09\x09\x09\x09\x09padding:\x2010px\x2020px;\x0a\x09\x09\x09\x09\x09\x09border-radius:\x2025px;\x0a\x09\x09\x09\x09\x09\x09cursor:\x20pointer;\x0a\x09\x09\x09\x09\x09\x09font-size:\x2014px;\x0a\x09\x09\x09\x09\x09\x09transition:\x20all\x200.3s;\x0a\x09\x09\x09\x09\x09\x22\x20onmouseover=\x22this.style.background=\x27rgba(255,255,255,0.3)\x27\x22\x20\x0a\x09\x09\x09\x09\x09onmouseout=\x22this.style.background=\x27rgba(255,255,255,0.2)\x27\x22>\x0a\x09\x09\x09\x09\x09\x09关闭彩蛋\x0a\x09\x09\x09\x09\x09</button>\x0a\x09\x09\x09\x09','span','错误:\x20下载的文件为空','currentPermissions','settingsPassword','/users/','editIsVisibleToAll','selectstart','获取文件列表失败:','视频文件','5673493xNWFRa','submit','permissionCompetition','合并失败:\x20','\x20/\x20','fileSubcategory','user-action-btn\x20edit-group-btn','userList','\x22\x20以确认删除操作：','getItem','permissionOther','created_by','saveChangeSubcategory','linear-gradient(90deg,\x20#27ae60,\x20#2ecc71)','cancelEditChineseAlias','trim','editFolderPermissionsModal','blob','getElementById','title','GET','ceil','querySelectorAll','file','获取用户权限失败:','/update_subcategory/','user_id','分块上传出错','registerForm','上传文件','mousemove','createElement','分块下载网络错误','两次输入的密码不一致','padding','download_count','boxShadow','load','progress','display','downloadProgressText','total','error','/chinese_alias','点击刷新','/check_login','user-action-btn\x20delete-btn','now','分块上传失败:\x20','222HHHUmJ','开始下载超大文件\x20(','下载完成，正在创建文件...','[HUGE_DEBUG]\x20','stored_filename','div','right','category-tag\x20category-','112815AvCZfD','name','文件夹创建出错:\x20','details','files','文件重命名失败:\x20','权限不足：没有下载权限','20px','disabled','users','下载已暂停','linear-gradient(90deg,\x20#2ecc71,\x20#27ae60)','预计剩余:\x20','file_count','folders','file_category','用户名至少需要2个字符','upload_username','下载分块\x20','请输入验证码','is_visible_to_all','action-btn\x20download-btn','append','等待\x203\x20秒后重试\x20(','更新失败','action-buttons','createFolderBtn','下载中:\x20','\x0a\x20\x20\x20\x20\x20\x20\x20\x20position:\x20fixed;\x0a\x20\x20\x20\x20\x20\x20\x20\x20top:\x2050%;\x0a\x20\x20\x20\x20\x20\x20\x20\x20left:\x2050%;\x0a\x20\x20\x20\x20\x20\x20\x20\x20transform:\x20translate(-50%,\x20-50%);\x0a\x20\x20\x20\x20\x20\x20\x20\x20z-index:\x2010000;\x0a\x20\x20\x20\x20','重命名失败','pow','colSpan','textContent','forEach','progressBar','chineseAliasInput','cancelChangeSubcategory','file_size','downloadProgressBar','userGroupSelect','0\x206px\x2020px\x20rgba(0,0,0,0.3)','hugeDownloadProgressBar','bytes=','所有分块下载完成，开始合并...','个人信息更新成功','folderFileListSection','status-message\x20','#9c27b0','then','没有权限访问用户管理功能','background','图片文件','加载中...','root2','opacity','center','文件分类更新失败:\x20','下载失败','/user/permissions','style','category','downloadStartTime','loginSection','获取文件列表失败:\x20','email','editChineseAliasModal','cssText','恢复下载:\x20已下载\x20','pointer','filename','other','cursor','文件大小:\x20','identifier','检查登录状态失败:','block','1234','取消大文件下载','下载出错:\x20','\x0a\x20\x20\x20\x20\x20\x20\x20\x20position:\x20fixed;\x0a\x20\x20\x20\x20\x20\x20\x20\x20top:\x2020px;\x0a\x20\x20\x20\x20\x20\x20\x20\x20right:\x2020px;\x0a\x20\x20\x20\x20\x20\x20\x20\x20z-index:\x2010000;\x0a\x20\x20\x20\x20\x20\x20\x20\x20box-shadow:\x200\x202px\x208px\x20rgba(0,0,0,0.2);\x0a\x20\x20\x20\x20','<strong>用户组:\x20</strong><span\x20class=\x22user-group-tag\x20group-','saveCreateFolder','open','mousedown','permissionRoot2','镜像文件','action-row','注册出错:\x20','/user/profile','settingsUsername','合并失败','当前用户ID:','获取文件夹列表失败:','saveChineseAlias','send','比赛用户','includes','linear-gradient(90deg,\x20#e74c3c,\x20#e67e22)','文件夹创建成功','statusText','folder_id','folderFilesTitle','simple-download-prompt','download','</div>\x0a\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20<div><strong>总大小:</strong>\x20','result','editPermissionRoot2','分块保存失败:\x20','application/octet-stream','开始传输数据...','userGroup','/update_category/','文件子分类更新出错:\x20','loginStatus','刷新中...','\x0a\x20\x20\x20\x20\x20\x20\x20\x20<div\x20style=\x22\x0a\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20background:\x20white;\x0a\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20padding:\x2015px;\x0a\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20border:\x202px\x20solid\x20#28a745;\x0a\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20border-radius:\x208px;\x0a\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20text-align:\x20center;\x0a\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20min-width:\x20250px;\x0a\x20\x20\x20\x20\x20\x20\x20\x20\x22>\x0a\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20<p\x20style=\x22margin:\x200;\x20color:\x20#28a745;\x22>文件下载中...</p>\x0a\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20<p\x20style=\x22margin:\x205px\x200\x200\x200;\x20font-size:\x2012px;\x20color:\x20#666;\x22>请查看浏览器下载管理器</p>\x0a\x20\x20\x20\x20\x20\x20\x20\x20</div>\x0a\x20\x20\x20\x20','开始下载超大文件:\x20','密码至少需要6个字符','文件夹名称不能为空','下载已取消','用户删除失败:\x20','checked','set','captchaText','getComputedStyle','folderSelect','文件下载完成','/folders','验证码获取重试次数超过限制','开始加载用户列表...','delete','settingsConfirmPassword','href','status-message\x20error','createObjectURL','root','文件合并出错:\x20','regPassword','POST','DOMContentLoaded','option[value=\x22root2\x22]','size','downloadedChunks','未设置','click','registerSection','className','/upload','确定要删除用户\x20\x22','获取文件夹文件列表失败:','当前用户:\x20','权限不足：没有上传权限','获取用户列表失败:','文件合并失败:\x20','status','shift','appSection','editPermissionRoot',',\x20文件夹:\x20','手动刷新验证码','获取文件夹列表失败','cancelCreateFolder','subcategoryFilter','超级管理员','/register','个人信息更新失败:\x20','hugeDownloadSpeedText','left','文件上传出错:\x20网络错误或服务器无响应','debugStatus','删除用户','cancelEditUserGroup','fontWeight','\x20数据丢失','编辑用户:','showRegisterBtn','created_username','用户组更新成功','textAlign','editPermissionCompetition','恢复下载','文件分类更新成功','******','文件夹删除成功','文件上传响应解析失败','Bytes','文件删除成功','未找到可拖拽元素','pauseHugeDownload','DELETE','获取文件夹选项失败:','编辑权限','charCodeAt','下载被中止，正在重试...','重命名','cancelHugeDownload','获取验证码出错:','/download_large/','开始获取验证码...','0\x20Bytes','获取文件夹文件列表失败','文件夹权限更新成功','chunkNumber','#e74c3c','editUserGroupModal','value','服务器错误:\x20','52vAvhdB','mouseup','currentChunk','公用文件','color','chinese_alias','等待服务器响应...','action-btn\x20delete-btn','92440ChkfmD','folderManagementSection','下载失败:\x20超过最大重试次数','from','onload','</div>\x0a\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20<div><strong>开始时间:</strong>\x20','中文别名更新出错:\x20','length','文件子分类更新成功','status-message\x20success','totalChunks','backToLoginBtn','文件子分类更新失败:\x20','saveUserGroup','action-btn\x20rename-btn','/upload_chunk','folder-action-btn\x20edit-folder-btn','文件夹:\x20','权限不足：没有删除权限','filter','status-message\x20hidden','loaded','/rename_file/','392272nNmuGd','URL','/download_chunk/','cancelEditFolderPermissions','/logout','toLocaleTimeString','cancelRenameFile','substring','.tudong','huge-file-progress','abort','下载尝试\x20','captcha','[LARGE_FILE]\x20开始下载大文件:\x20','chunk','pageY','saveEditFolderPermissions','allowed_groups','没有权限访问文件夹管理功能','开始合并所有分块...','success','#27ae60','hugeDownloadETA','createFolderModal','slice','can_manage_users','statusMessage','cancelPersonalSettings','setRequestHeader','file_subcategory','upload','uploadSection','\x0a\x20\x20\x20\x20\x20\x20\x20\x20<div\x20class=\x22download-progress-container\x22\x20style=\x22\x0a\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20background:\x20white;\x0a\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20padding:\x2020px;\x0a\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20border:\x202px\x20solid\x20#007cba;\x0a\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20border-radius:\x208px;\x0a\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20text-align:\x20center;\x0a\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20min-width:\x20500px;\x0a\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20max-width:\x2090vw;\x0a\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20box-shadow:\x200\x204px\x2020px\x20rgba(0,0,0,0.3);\x0a\x20\x20\x20\x20\x20\x20\x20\x20\x22>\x0a\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20<h4\x20style=\x22margin:\x200\x200\x2015px\x200;\x20color:\x20#007cba;\x22>\x0a\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20📥\x20大文件下载中...\x0a\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20</h4>\x0a\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20\x0a\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20<div\x20style=\x22text-align:\x20left;\x20margin-bottom:\x2015px;\x20padding:\x2010px;\x20background:\x20#f8f9fa;\x20border-radius:\x204px;\x22>\x0a\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20<div\x20style=\x22font-size:\x2014px;\x20font-weight:\x20bold;\x20margin-bottom:\x205px;\x22>📄\x20文件信息</div>\x0a\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20<div\x20style=\x22font-size:\x2012px;\x20color:\x20#666;\x22>\x0a\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20<div><strong>文件名:</strong>\x20','preventDefault','userGroupBadge','平均速度:\x20','user-group-tag\x20group-','removeChild','暂无文件夹','/delete/','chunk_','stringify','personalSettingsForm','[HUGE_FILE]\x20开始下载超大文件:\x20','子分类更新失败','获取到的用户数据:','未知错误','文档文件','info','文件重命名出错:\x20','ABCD','parentElement','普通用户','设为比赛','文件分类更新出错:\x20','responseText','join','json','subcategory','action-btn\x20toggle-category-btn','lengthComputable','重命名文件','folder-action-btn\x20delete-folder-btn','下载失败:\x20网络不稳定，请稍后重试','1015712ZbHqRN','remove','toString','add','超大文件下载完成！','<strong>权限列表:</strong><br>','userManagementSection','classList','created_at','获取文件列表失败','isVisibleToAll','剩余:\x20','\x22\x20吗？此操作不可撤销！','split','用户名不能为空','中文别名更新成功','文件删除出错:\x20','newSubcategory','chunkedUpload','/folders/','innerHTML','验证码响应数据:','option','username','personalSettingsBtn','删除失败','hugeDownloadTimeText','top','会话已过期，请重新登录','upload_time'];_0x5a28=function(){return _0x2f6ec5;};return _0x5a28();}function updateHugeDownloadProgress(_0x558b59,_0x5f09d6){const _0x38f9df=_0x1f66a7;let _0x5c03e7=0x0,_0x520d68='0%';_0x5f09d6>0x0?(_0x5c03e7=_0x558b59/_0x5f09d6*0x64,_0x520d68=formatFileSize(_0x558b59)+_0x38f9df(0x209)+formatFileSize(_0x5f09d6)+'\x20('+_0x5c03e7[_0x38f9df(0x1ce)](0x2)+'%)'):_0x520d68=formatFileSize(_0x558b59)+_0x38f9df(0x1cf);const _0x1dcd6e=document[_0x38f9df(0x217)](_0x38f9df(0x267)),_0x3e1bb7=document[_0x38f9df(0x217)]('hugeDownloadProgressText');if(_0x1dcd6e){_0x1dcd6e['style'][_0x38f9df(0x1cd)]=_0x5c03e7+'%';if(_0x5c03e7<0xa)_0x1dcd6e[_0x38f9df(0x279)]['background']=_0x38f9df(0x29f);else{if(_0x5c03e7<0x1e)_0x1dcd6e[_0x38f9df(0x279)][_0x38f9df(0x270)]=_0x38f9df(0x1e8);else{if(_0x5c03e7<0x3c)_0x1dcd6e['style']['background']='linear-gradient(90deg,\x20#f39c12,\x20#f1c40f)';else _0x5c03e7<0x5a?_0x1dcd6e[_0x38f9df(0x279)][_0x38f9df(0x270)]=_0x38f9df(0x1b9):_0x1dcd6e[_0x38f9df(0x279)][_0x38f9df(0x270)]=_0x38f9df(0x249);}}}_0x3e1bb7&&(_0x3e1bb7[_0x38f9df(0x25e)]=_0x520d68);}function updateSpeedInfo(_0x5301ae,_0x82fbd3,_0x48ac18){const _0x366071=_0x1f66a7,_0x30fa8b=document[_0x366071(0x217)]('downloadSpeedText'),_0x2b8e96=document['getElementById']('downloadTimeText');_0x30fa8b&&(_0x30fa8b[_0x366071(0x25e)]='速度:\x20'+formatFileSize(_0x5301ae)+'/s');if(_0x2b8e96&&_0x5301ae>0x0){const _0x39f64f=(_0x48ac18-_0x82fbd3)/_0x5301ae;_0x2b8e96['textContent']=_0x366071(0x17d)+formatTime(_0x39f64f);}}function updateHugeSpeedInfo(_0x2f2b08,_0x2d8d22,_0xc9acc5){const _0x1f8e53=_0x1f66a7,_0xae4c81=document[_0x1f8e53(0x217)](_0x1f8e53(0x2e4)),_0x214b7e=document[_0x1f8e53(0x217)](_0x1f8e53(0x18c)),_0x4d012f=document[_0x1f8e53(0x217)](_0x1f8e53(0x342));_0xae4c81&&(_0xae4c81[_0x1f8e53(0x25e)]=_0x1f8e53(0x155)+formatFileSize(_0x2f2b08)+'/s');if(_0x214b7e&&_0x2f2b08>0x0){const _0x24521d=(_0xc9acc5-_0x2d8d22)/_0x2f2b08;_0x214b7e[_0x1f8e53(0x25e)]=_0x1f8e53(0x24a)+formatTime(_0x24521d);}if(_0x4d012f&&_0x2f2b08>0x0){const _0x7ae087=(_0xc9acc5-_0x2d8d22)/_0x2f2b08,_0x132d73=new Date(Date[_0x1f8e53(0x234)]()+_0x7ae087*0x3e8);_0x4d012f[_0x1f8e53(0x25e)]='预计完成:\x20'+_0x132d73[_0x1f8e53(0x331)]();}}function updateDebugInfo(_0x38c1bc){const _0x521041=_0x1f66a7,_0x32534f=document['getElementById'](_0x521041(0x2e7));if(_0x32534f){const _0x3e3a08=new Date()[_0x521041(0x331)](),_0x38f834=_0x3e3a08+_0x521041(0x1d2)+_0x38c1bc,_0x5090a5=_0x32534f[_0x521041(0x25e)],_0x56e481=_0x5090a5[_0x521041(0x17f)]('\x0a')[_0x521041(0x328)](_0x286b9b=>_0x286b9b[_0x521041(0x214)]());_0x56e481[_0x521041(0x197)](_0x38f834),_0x56e481['length']>0x5&&_0x56e481[_0x521041(0x2d9)](),_0x32534f['textContent']=_0x56e481[_0x521041(0x16a)]('\x0a');}console[_0x521041(0x19a)]('[DEBUG]\x20'+_0x38c1bc);}function updateHugeDebugInfo(_0x3e235c){const _0x13d5f1=_0x1f66a7,_0x55b49c=document[_0x13d5f1(0x217)](_0x13d5f1(0x1da));if(_0x55b49c){const _0x346332=new Date()[_0x13d5f1(0x331)](),_0x33fa52=_0x346332+_0x13d5f1(0x1d2)+_0x3e235c,_0x15084e=_0x55b49c['textContent'],_0x23cdd0=_0x15084e[_0x13d5f1(0x17f)]('\x0a')[_0x13d5f1(0x328)](_0x3add57=>_0x3add57[_0x13d5f1(0x214)]());_0x23cdd0[_0x13d5f1(0x197)](_0x33fa52),_0x23cdd0[_0x13d5f1(0x31c)]>0xa&&_0x23cdd0[_0x13d5f1(0x2d9)](),_0x55b49c['textContent']=_0x23cdd0['join']('\x0a');}console[_0x13d5f1(0x19a)](_0x13d5f1(0x239)+_0x3e235c);}function showDownloadProgressWithBar(_0x26faaf,_0x3549d5){const _0x254cab=_0x1f66a7;hideDownloadProgress(),window[_0x254cab(0x27b)]=Date[_0x254cab(0x234)]();const _0x3ba33c=document[_0x254cab(0x224)](_0x254cab(0x23b));_0x3ba33c['id']=_0x254cab(0x190),_0x3ba33c[_0x254cab(0x186)]=_0x254cab(0x152)+_0x26faaf+'</div>\x0a\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20<div><strong>总大小:</strong>\x20'+formatFileSize(_0x3549d5)+_0x254cab(0x31a)+new Date()[_0x254cab(0x331)]()+_0x254cab(0x1de),_0x3ba33c['style'][_0x254cab(0x280)]=_0x254cab(0x25a),document[_0x254cab(0x1e3)][_0x254cab(0x1e7)](_0x3ba33c),updateDebugInfo('开始下载:\x20'+_0x26faaf),updateDebugInfo(_0x254cab(0x286)+formatFileSize(_0x3549d5)),updateDebugInfo(_0x254cab(0x313));}function showHugeFileDownloadProgress(_0x15ab66,_0x1384ff){const _0x4254cf=_0x1f66a7;hideHugeDownloadProgress(),window['downloadStartTime']=Date[_0x4254cf(0x234)]();const _0x414139=document[_0x4254cf(0x224)](_0x4254cf(0x23b));_0x414139['id']=_0x4254cf(0x335),_0x414139[_0x4254cf(0x186)]='\x0a\x20\x20\x20\x20\x20\x20\x20\x20<div\x20class=\x22huge-download-progress-container\x22\x20style=\x22\x0a\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20background:\x20white;\x0a\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20padding:\x2025px;\x0a\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20border:\x203px\x20solid\x20#8e44ad;\x0a\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20border-radius:\x2012px;\x0a\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20text-align:\x20center;\x0a\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20min-width:\x20600px;\x0a\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20max-width:\x2095vw;\x0a\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20box-shadow:\x200\x206px\x2025px\x20rgba(0,0,0,0.3);\x0a\x20\x20\x20\x20\x20\x20\x20\x20\x22>\x0a\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20<h4\x20style=\x22margin:\x200\x200\x2020px\x200;\x20color:\x20#8e44ad;\x20font-size:\x2018px;\x22>\x0a\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20🚀\x20超大文件下载中\x20(10GB+)...\x0a\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20</h4>\x0a\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20\x0a\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20<div\x20style=\x22text-align:\x20left;\x20margin-bottom:\x2020px;\x20padding:\x2015px;\x20background:\x20#f8f9fa;\x20border-radius:\x206px;\x22>\x0a\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20<div\x20style=\x22font-size:\x2015px;\x20font-weight:\x20bold;\x20margin-bottom:\x208px;\x20color:\x20#8e44ad;\x22>📦\x20文件信息</div>\x0a\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20<div\x20style=\x22font-size:\x2013px;\x20color:\x20#666;\x22>\x0a\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20<div><strong>文件名:</strong>\x20'+_0x15ab66+_0x4254cf(0x2a6)+formatFileSize(_0x1384ff)+_0x4254cf(0x31a)+new Date()[_0x4254cf(0x331)]()+'</div>\x0a\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20<div><strong>下载类型:</strong>\x20超大文件优化模式</div>\x0a\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20</div>\x0a\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20</div>\x0a\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20\x0a\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20<div\x20class=\x22progress-container\x22\x20style=\x22margin:\x2020px\x200;\x22>\x0a\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20<div\x20class=\x22progress-bar\x22\x20style=\x22\x0a\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20width:\x20100%;\x0a\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20height:\x2030px;\x0a\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20background:\x20#e9ecef;\x0a\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20border-radius:\x2015px;\x0a\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20overflow:\x20hidden;\x0a\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20position:\x20relative;\x0a\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20border:\x202px\x20solid\x20#dee2e6;\x0a\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20\x22>\x0a\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20<div\x20id=\x22hugeDownloadProgressBar\x22\x20class=\x22progress-fill\x22\x20style=\x22\x0a\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20width:\x200%;\x0a\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20height:\x20100%;\x0a\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20background:\x20linear-gradient(90deg,\x20#8e44ad,\x20#9b59b6);\x0a\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20transition:\x20width\x200.8s\x20ease;\x0a\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20border-radius:\x2015px;\x0a\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20display:\x20flex;\x0a\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20align-items:\x20center;\x0a\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20justify-content:\x20center;\x0a\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20\x22>\x0a\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20<div\x20id=\x22hugeDownloadProgressText\x22\x20style=\x22\x0a\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20color:\x20white;\x0a\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20font-size:\x2013px;\x0a\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20font-weight:\x20bold;\x0a\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20text-shadow:\x201px\x201px\x203px\x20rgba(0,0,0,0.5);\x0a\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20\x22>0%</div>\x0a\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20</div>\x0a\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20</div>\x0a\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20</div>\x0a\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20\x0a\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20<div\x20class=\x22download-info\x22\x20style=\x22\x0a\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20display:\x20grid;\x0a\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20grid-template-columns:\x201fr\x201fr;\x0a\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20gap:\x2015px;\x0a\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20margin:\x2020px\x200;\x0a\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20font-size:\x2014px;\x0a\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20\x22>\x0a\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20<div\x20style=\x22text-align:\x20left;\x22>\x0a\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20<strong>📊\x20传输状态</strong>\x0a\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20</div>\x0a\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20<div\x20style=\x22text-align:\x20right;\x22>\x0a\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20<strong>⏱️\x20时间预估</strong>\x0a\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20</div>\x0a\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20<div\x20id=\x22hugeDownloadSpeedText\x22\x20style=\x22text-align:\x20left;\x22>\x0a\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20平均速度:\x20计算中...\x0a\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20</div>\x0a\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20<div\x20id=\x22hugeDownloadTimeText\x22\x20style=\x22text-align:\x20right;\x22>\x0a\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20预计剩余:\x20计算中...\x0a\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20</div>\x0a\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20<div\x20style=\x22text-align:\x20left;\x20color:\x20#666;\x20font-size:\x2012px;\x22>\x0a\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20优化模式:\x2032MB块传输\x0a\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20</div>\x0a\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20<div\x20id=\x22hugeDownloadETA\x22\x20style=\x22text-align:\x20right;\x20color:\x20#666;\x20font-size:\x2012px;\x22>\x0a\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20预计完成:\x20计算中...\x0a\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20</div>\x0a\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20</div>\x0a\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20\x0a\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20<div\x20class=\x22debug-info\x22\x20style=\x22\x0a\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20margin:\x2020px\x200;\x0a\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20padding:\x2012px;\x0a\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20background:\x20#f1f3f4;\x0a\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20border-radius:\x206px;\x0a\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20font-size:\x2011px;\x0a\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20color:\x20#5f6368;\x0a\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20text-align:\x20left;\x0a\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20max-height:\x20120px;\x0a\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20overflow-y:\x20auto;\x0a\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20font-family:\x20\x27Consolas\x27,\x20\x27Monaco\x27,\x20monospace;\x0a\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20border:\x201px\x20solid\x20#dadce0;\x0a\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20\x22>\x0a\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20<div\x20style=\x22font-weight:\x20bold;\x20margin-bottom:\x206px;\x20color:\x20#8e44ad;\x22>🔍\x20超大文件传输日志:</div>\x0a\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20<div\x20id=\x22hugeDebugStatus\x22\x20style=\x22white-space:\x20pre-wrap;\x20line-height:\x201.4;\x20font-size:\x2010px;\x22>初始化超大文件下载组件...</div>\x0a\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20</div>\x0a\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20\x0a\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20<div\x20style=\x22display:\x20flex;\x20gap:\x2010px;\x20justify-content:\x20center;\x22>\x0a\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20<button\x20onclick=\x22pauseResumeHugeDownload()\x22\x20id=\x22pauseResumeBtn\x22\x20style=\x22\x0a\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20padding:\x2010px\x2020px;\x0a\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20background:\x20#3498db;\x0a\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20color:\x20white;\x0a\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20border:\x20none;\x0a\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20border-radius:\x206px;\x0a\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20cursor:\x20pointer;\x0a\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20font-size:\x2014px;\x0a\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20font-weight:\x20bold;\x0a\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20transition:\x20all\x200.3s;\x0a\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20\x22>⏸️\x20暂停</button>\x0a\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20\x0a\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20<button\x20onclick=\x22cancelHugeDownload()\x22\x20style=\x22\x0a\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20padding:\x2010px\x2020px;\x0a\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20background:\x20#e74c3c;\x0a\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20color:\x20white;\x0a\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20border:\x20none;\x0a\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20border-radius:\x206px;\x0a\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20cursor:\x20pointer;\x0a\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20font-size:\x2014px;\x0a\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20font-weight:\x20bold;\x0a\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20transition:\x20all\x200.3s;\x0a\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20\x22>❌\x20取消下载</button>\x0a\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20</div>\x0a\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20\x0a\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20<div\x20style=\x22margin-top:\x2015px;\x20padding:\x2010px;\x20background:\x20#fff3cd;\x20border-radius:\x204px;\x20border:\x201px\x20solid\x20#ffeaa7;\x22>\x0a\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20<div\x20style=\x22font-size:\x2012px;\x20color:\x20#856404;\x22>\x0a\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20💡\x20<strong>提示:</strong>\x20超大文件下载可能需要较长时间，请保持网络稳定，不要关闭此窗口。\x0a\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20</div>\x0a\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20</div>\x0a\x20\x20\x20\x20\x20\x20\x20\x20</div>\x0a\x20\x20\x20\x20',_0x414139[_0x4254cf(0x279)][_0x4254cf(0x280)]='\x0a\x20\x20\x20\x20\x20\x20\x20\x20position:\x20fixed;\x0a\x20\x20\x20\x20\x20\x20\x20\x20top:\x2050%;\x0a\x20\x20\x20\x20\x20\x20\x20\x20left:\x2050%;\x0a\x20\x20\x20\x20\x20\x20\x20\x20transform:\x20translate(-50%,\x20-50%);\x0a\x20\x20\x20\x20\x20\x20\x20\x20z-index:\x2010001;\x0a\x20\x20\x20\x20',document[_0x4254cf(0x1e3)][_0x4254cf(0x1e7)](_0x414139),updateHugeDebugInfo(_0x4254cf(0x2b2)+_0x15ab66),updateHugeDebugInfo(_0x4254cf(0x286)+formatFileSize(_0x1384ff)),updateHugeDebugInfo('使用优化传输模式\x20(32MB块)'),updateHugeDebugInfo(_0x4254cf(0x313));}function hideDownloadProgress(){const _0x4faf27=_0x1f66a7,_0x5c072e=document[_0x4faf27(0x217)](_0x4faf27(0x190));_0x5c072e&&document[_0x4faf27(0x1e3)]['removeChild'](_0x5c072e),window[_0x4faf27(0x27b)]=null,currentDownloadController=null;}function hideHugeDownloadProgress(){const _0x315ab7=_0x1f66a7,_0x3a5a9a=document[_0x315ab7(0x217)](_0x315ab7(0x335));_0x3a5a9a&&document[_0x315ab7(0x1e3)][_0x315ab7(0x157)](_0x3a5a9a),window['downloadStartTime']=null,currentDownloadController=null;}function pauseResumeHugeDownload(){const _0x1a958d=_0x1f66a7,_0x593806=document['getElementById']('pauseResumeBtn');_0x593806[_0x1a958d(0x25e)]['includes']('暂停')?(_0x593806[_0x1a958d(0x25e)]='▶️\x20继续',_0x593806[_0x1a958d(0x279)][_0x1a958d(0x270)]=_0x1a958d(0x341),window[_0x1a958d(0x2fa)]()):(_0x593806[_0x1a958d(0x25e)]=_0x1a958d(0x1f4),_0x593806[_0x1a958d(0x279)]['background']=_0x1a958d(0x1b4),window[_0x1a958d(0x1d9)]());}function cancelDownload(){const _0x3d9982=_0x1f66a7;console[_0x3d9982(0x19a)](_0x3d9982(0x28b)),currentDownloadController&&(currentDownloadController[_0x3d9982(0x336)](),currentDownloadController=null),hideDownloadProgress(),showMessage(_0x3d9982(0x2b5),_0x3d9982(0x162));}function cancelHugeDownload(){const _0x288467=_0x1f66a7;console[_0x288467(0x19a)]('取消超大文件下载'),window[_0x288467(0x301)]();}function triggerDownload(_0x26cf57,_0x2ff459){const _0x477e98=_0x1f66a7,_0x389229=document[_0x477e98(0x224)]('a');_0x389229[_0x477e98(0x279)][_0x477e98(0x22c)]=_0x477e98(0x1ba),_0x389229[_0x477e98(0x2c2)]=_0x26cf57,_0x389229[_0x477e98(0x2a5)]=_0x2ff459,document['body'][_0x477e98(0x1e7)](_0x389229),_0x389229['click'](),setTimeout(()=>{const _0x12f720=_0x477e98;window[_0x12f720(0x32d)][_0x12f720(0x1c7)](_0x26cf57),document[_0x12f720(0x1e3)]['removeChild'](_0x389229);},0x64);}function formatTime(_0x14b0ac){const _0x5ac73a=_0x1f66a7;if(_0x14b0ac<0x3c)return Math[_0x5ac73a(0x21a)](_0x14b0ac)+'秒';else{if(_0x14b0ac<0xe10)return Math[_0x5ac73a(0x1af)](_0x14b0ac/0x3c)+'分'+Math[_0x5ac73a(0x21a)](_0x14b0ac%0x3c)+'秒';else{const _0x3cca6c=Math[_0x5ac73a(0x1af)](_0x14b0ac/0xe10),_0x46ac34=Math[_0x5ac73a(0x1af)](_0x14b0ac%0xe10/0x3c);return _0x3cca6c+'时'+_0x46ac34+'分';}}}function downloadSmallFile(_0x195988,_0x1b0f20){const _0x55b3b0=_0x1f66a7;showSimpleDownloadPrompt(),fetch('/download/'+_0x195988)['then'](_0x6ec2e0=>{const _0x1a3dcb=_0x32e0;if(_0x6ec2e0[_0x1a3dcb(0x2d8)]===0x193){showMessage(_0x1a3dcb(0x244),_0x1a3dcb(0x22f));return;}if(!_0x6ec2e0['ok'])return _0x6ec2e0['json']()[_0x1a3dcb(0x26e)](_0xca9bf5=>{const _0x2ea1de=_0x1a3dcb;throw new Error(_0xca9bf5['error']||_0x2ea1de(0x277));});return _0x6ec2e0[_0x1a3dcb(0x216)]();})[_0x55b3b0(0x26e)](_0x242247=>{const _0x57c56b=_0x55b3b0;if(_0x242247){const _0x2718e8=window[_0x57c56b(0x32d)][_0x57c56b(0x2c4)](_0x242247);triggerDownload(_0x2718e8,_0x1b0f20),hideSimpleDownloadPrompt(),refreshFileListAfterDownload();}})[_0x55b3b0(0x1f5)](_0x471a12=>{const _0x4459dd=_0x55b3b0;hideSimpleDownloadPrompt(),_0x471a12[_0x4459dd(0x194)]!==_0x4459dd(0x244)&&showMessage(_0x4459dd(0x28c)+_0x471a12['message'],'error');});}function showSimpleDownloadPrompt(){const _0x51ae8f=_0x1f66a7,_0x4d4c05=document[_0x51ae8f(0x224)](_0x51ae8f(0x23b));_0x4d4c05['id']=_0x51ae8f(0x2a4),_0x4d4c05[_0x51ae8f(0x186)]=_0x51ae8f(0x2b1),_0x4d4c05[_0x51ae8f(0x279)]['cssText']=_0x51ae8f(0x28d),document[_0x51ae8f(0x1e3)][_0x51ae8f(0x1e7)](_0x4d4c05),setTimeout(hideSimpleDownloadPrompt,0xbb8);}function hideSimpleDownloadPrompt(){const _0x353dc5=_0x1f66a7,_0x586690=document['getElementById'](_0x353dc5(0x2a4));_0x586690&&document[_0x353dc5(0x1e3)][_0x353dc5(0x157)](_0x586690);}function refreshFileListAfterDownload(){setTimeout(()=>{const _0x560d5a=_0x32e0;if(currentViewingFolderId)loadFolderFiles(currentViewingFolderId);else{const _0x304a94=document[_0x560d5a(0x217)]('categoryFilter')[_0x560d5a(0x30b)],_0x558721=document[_0x560d5a(0x217)](_0x560d5a(0x2e0))[_0x560d5a(0x30b)];fetchFiles(_0x304a94,_0x558721);}},0x3e8);}function deleteFile(_0x1cbf2f){const _0x2596a4=_0x1f66a7;if(!confirm('确定要删除此文件吗？'))return;fetch(_0x2596a4(0x159)+_0x1cbf2f,{'method':_0x2596a4(0x2fb)})['then'](_0x329b31=>{const _0x1caacb=_0x2596a4;if(_0x329b31[_0x1caacb(0x2d8)]===0x193){showMessage(_0x1caacb(0x327),_0x1caacb(0x22f));return;}if(!_0x329b31['ok'])return _0x329b31['json']()['then'](_0x1d6227=>{const _0x527fc9=_0x1caacb;throw new Error(_0x1d6227['error']||_0x527fc9(0x18b));});return _0x329b31[_0x1caacb(0x16b)]();})[_0x2596a4(0x26e)](_0x28ff7b=>{const _0x3f29f8=_0x2596a4;if(_0x28ff7b&&_0x28ff7b[_0x3f29f8(0x340)]){showMessage(_0x3f29f8(0x2f8),'success');if(currentViewingFolderId)loadFolderFiles(currentViewingFolderId);else{const _0xe7e6d3=document[_0x3f29f8(0x217)](_0x3f29f8(0x1d1))[_0x3f29f8(0x30b)],_0x3653b5=document[_0x3f29f8(0x217)](_0x3f29f8(0x2e0))[_0x3f29f8(0x30b)];fetchFiles(_0xe7e6d3,_0x3653b5);}}})[_0x2596a4(0x1f5)](_0x3f2cd7=>{const _0x19d4dc=_0x2596a4;_0x3f2cd7[_0x19d4dc(0x194)]!==_0x19d4dc(0x327)&&showMessage(_0x19d4dc(0x182)+_0x3f2cd7[_0x19d4dc(0x194)],_0x19d4dc(0x22f));});}function loadFolders(){const _0x52f7fd=_0x1f66a7;fetch(_0x52f7fd(0x2bd))[_0x52f7fd(0x26e)](_0x31f8d6=>{const _0x6a5a58=_0x52f7fd;if(!_0x31f8d6['ok']){if(_0x31f8d6[_0x6a5a58(0x2d8)]===0x193){console[_0x6a5a58(0x19a)](_0x6a5a58(0x33e));return;}throw new Error(_0x6a5a58(0x2de));}return _0x31f8d6[_0x6a5a58(0x16b)]();})[_0x52f7fd(0x26e)](_0x17f742=>{const _0x1bfd07=_0x52f7fd;_0x17f742[_0x1bfd07(0x24c)]&&updateFolderList(_0x17f742[_0x1bfd07(0x24c)]);})['catch'](_0x1e725b=>{const _0x26cc83=_0x52f7fd;console[_0x26cc83(0x22f)](_0x26cc83(0x29a),_0x1e725b);});}function updateFolderList(_0x5d9a4a){const _0x5d22e0=_0x1f66a7,_0x23fc81=document[_0x5d22e0(0x217)]('folderList');_0x23fc81[_0x5d22e0(0x186)]='';if(_0x5d9a4a[_0x5d22e0(0x31c)]===0x0){const _0x3e1b5a=document[_0x5d22e0(0x224)]('tr'),_0x406530=document[_0x5d22e0(0x224)]('td');_0x406530[_0x5d22e0(0x25d)]=0x6,_0x406530['textContent']=_0x5d22e0(0x158),_0x406530[_0x5d22e0(0x279)]['textAlign']=_0x5d22e0(0x275),_0x406530[_0x5d22e0(0x279)][_0x5d22e0(0x227)]='20px',_0x3e1b5a[_0x5d22e0(0x1e7)](_0x406530),_0x23fc81[_0x5d22e0(0x1e7)](_0x3e1b5a);return;}const _0x20436f=sessionStorage['getItem'](_0x5d22e0(0x2ac))||_0x5d22e0(0x284),_0x3e3d87=sessionStorage[_0x5d22e0(0x20e)]('user_id');_0x5d9a4a[_0x5d22e0(0x25f)](_0xdcf770=>{const _0x19398e=_0x5d22e0,_0x3dada4=document[_0x19398e(0x224)]('tr'),_0x1e5071=document[_0x19398e(0x224)]('td');_0x1e5071[_0x19398e(0x25e)]=_0xdcf770[_0x19398e(0x23f)],_0x1e5071['title']=_0xdcf770[_0x19398e(0x23f)],_0x3dada4['appendChild'](_0x1e5071);const _0x2d2a85=document[_0x19398e(0x224)]('td');_0x2d2a85['textContent']=_0xdcf770[_0x19398e(0x1d6)]||_0xdcf770[_0x19398e(0x2ee)],_0x3dada4[_0x19398e(0x1e7)](_0x2d2a85);const _0x4e6dea=document[_0x19398e(0x224)]('td');_0x4e6dea[_0x19398e(0x25e)]=_0xdcf770[_0x19398e(0x17a)],_0x3dada4['appendChild'](_0x4e6dea);const _0x5dd8c2=document[_0x19398e(0x224)]('td'),_0x446c30=JSON[_0x19398e(0x19f)](_0xdcf770[_0x19398e(0x33d)]||'[]');_0x446c30['forEach'](_0x510aeb=>{const _0x47c26b=_0x19398e,_0x14211a=document[_0x47c26b(0x224)]('span'),_0x18ef1e={'root2':_0x47c26b(0x2e1),'root':_0x47c26b(0x1a9),'competition':_0x47c26b(0x29d),'other':_0x47c26b(0x166)};_0x14211a[_0x47c26b(0x25e)]=_0x18ef1e[_0x510aeb]||_0x510aeb,_0x14211a['className']='permission-tag\x20permission-'+_0x510aeb,_0x5dd8c2[_0x47c26b(0x1e7)](_0x14211a);});_0x446c30['length']===0x0&&(_0x5dd8c2[_0x19398e(0x25e)]='无');_0x3dada4[_0x19398e(0x1e7)](_0x5dd8c2);const _0x5c91b4=document[_0x19398e(0x224)]('td');_0x5c91b4[_0x19398e(0x25e)]=_0xdcf770['is_visible_to_all']?'是':'否',_0x3dada4[_0x19398e(0x1e7)](_0x5c91b4);const _0x12cb7e=document['createElement']('td'),_0x57da0a=document['createElement'](_0x19398e(0x23b));_0x57da0a['className']=_0x19398e(0x257);const _0x30d84a=document[_0x19398e(0x224)]('button');_0x30d84a['textContent']='查看',_0x30d84a[_0x19398e(0x2d0)]='folder-action-btn\x20view-folder-btn',_0x30d84a['addEventListener'](_0x19398e(0x2ce),()=>viewFolderFiles(_0xdcf770['id'],_0xdcf770['name'])),_0x57da0a[_0x19398e(0x1e7)](_0x30d84a);if(_0x20436f===_0x19398e(0x273)){const _0x3b3398=document[_0x19398e(0x224)](_0x19398e(0x1cc));_0x3b3398[_0x19398e(0x25e)]=_0x19398e(0x2fd),_0x3b3398['className']=_0x19398e(0x325),_0x3b3398[_0x19398e(0x1e9)](_0x19398e(0x2ce),()=>openEditFolderPermissionsModal(_0xdcf770['id'],_0xdcf770[_0x19398e(0x33d)],_0xdcf770[_0x19398e(0x252)])),_0x57da0a[_0x19398e(0x1e7)](_0x3b3398);}if(_0xdcf770[_0x19398e(0x210)]==_0x3e3d87||_0x20436f===_0x19398e(0x273)){const _0x187d3a=document['createElement']('button');_0x187d3a[_0x19398e(0x25e)]='删除',_0x187d3a[_0x19398e(0x2d0)]=_0x19398e(0x170),_0x187d3a[_0x19398e(0x1e9)](_0x19398e(0x2ce),()=>deleteFolder(_0xdcf770['id'])),_0x57da0a[_0x19398e(0x1e7)](_0x187d3a);}_0x12cb7e[_0x19398e(0x1e7)](_0x57da0a),_0x3dada4[_0x19398e(0x1e7)](_0x12cb7e),_0x23fc81[_0x19398e(0x1e7)](_0x3dada4);});}function loadFolderOptions(){const _0xb9d085=_0x1f66a7;fetch(_0xb9d085(0x2bd))[_0xb9d085(0x26e)](_0x5afe8a=>{const _0xc31085=_0xb9d085;if(!_0x5afe8a['ok'])return;return _0x5afe8a[_0xc31085(0x16b)]();})[_0xb9d085(0x26e)](_0x3cb200=>{const _0x2ce165=_0xb9d085;_0x3cb200[_0x2ce165(0x24c)]&&updateFolderOptions(_0x3cb200[_0x2ce165(0x24c)]);})[_0xb9d085(0x1f5)](_0x5d70f5=>{const _0x324301=_0xb9d085;console[_0x324301(0x22f)](_0x324301(0x2fc),_0x5d70f5);});}function updateFolderOptions(_0x4f5ccf){const _0x4a067e=_0x1f66a7,_0xf95377=document['getElementById'](_0x4a067e(0x2bb));while(_0xf95377['options'][_0x4a067e(0x31c)]>0x1){_0xf95377['remove'](0x1);}_0x4f5ccf[_0x4a067e(0x25f)](_0x542fe8=>{const _0xbcb761=_0x4a067e,_0x59bf32=document['createElement']('option');_0x59bf32[_0xbcb761(0x30b)]=_0x542fe8['id'],_0x59bf32[_0xbcb761(0x25e)]=_0x542fe8['name'],_0xf95377[_0xbcb761(0x1e7)](_0x59bf32);});}function viewFolderFiles(_0x4c9251,_0x133252){const _0x73abf2=_0x1f66a7;currentViewingFolderId=_0x4c9251,document[_0x73abf2(0x217)](_0x73abf2(0x2a3))['textContent']=_0x73abf2(0x326)+_0x133252,document[_0x73abf2(0x217)]('fileListSection')[_0x73abf2(0x279)]['display']=_0x73abf2(0x1ba),document[_0x73abf2(0x217)]('folderFileListSection')[_0x73abf2(0x279)][_0x73abf2(0x22c)]=_0x73abf2(0x289),loadFolderFiles(_0x4c9251);}function loadFolderFiles(_0x51f224){const _0x5ce480=_0x1f66a7;fetch(_0x5ce480(0x1a2)+_0x51f224)[_0x5ce480(0x26e)](_0x9bda03=>{const _0x302a5e=_0x5ce480;if(!_0x9bda03['ok']){if(_0x9bda03['status']===0x193){showMessage('没有权限访问此文件夹',_0x302a5e(0x22f));return;}throw new Error(_0x302a5e(0x306));}return _0x9bda03[_0x302a5e(0x16b)]();})['then'](_0x445241=>{const _0x10b443=_0x5ce480;if(_0x445241[_0x10b443(0x242)])updateFolderFileList(_0x445241[_0x10b443(0x242)]);else _0x445241[_0x10b443(0x22f)]&&showMessage(_0x10b443(0x1e4)+_0x445241[_0x10b443(0x22f)],_0x10b443(0x22f));})[_0x5ce480(0x1f5)](_0x2ebf4=>{const _0x2bb2d8=_0x5ce480;console[_0x2bb2d8(0x22f)](_0x2bb2d8(0x2d3),_0x2ebf4),showMessage(_0x2bb2d8(0x306),'error');});}function _0x32e0(_0x2f3fef,_0x2f00ca){const _0x5a28e0=_0x5a28();return _0x32e0=function(_0x32e022,_0x2ba7a8){_0x32e022=_0x32e022-0x151;let _0x3f2c57=_0x5a28e0[_0x32e022];return _0x3f2c57;},_0x32e0(_0x2f3fef,_0x2f00ca);}function updateFolderFileList(_0x16487f){const _0x1ae4fc=_0x1f66a7,_0x1bea4c=document[_0x1ae4fc(0x217)]('folderFileList');_0x1bea4c[_0x1ae4fc(0x186)]='';if(_0x16487f[_0x1ae4fc(0x31c)]===0x0){const _0x3a9953=document[_0x1ae4fc(0x224)]('tr'),_0x2eea67=document[_0x1ae4fc(0x224)]('td');_0x2eea67[_0x1ae4fc(0x25d)]=0x8,_0x2eea67[_0x1ae4fc(0x25e)]=_0x1ae4fc(0x1a0),_0x2eea67[_0x1ae4fc(0x279)]['textAlign']=_0x1ae4fc(0x275),_0x2eea67[_0x1ae4fc(0x279)]['padding']='20px',_0x3a9953[_0x1ae4fc(0x1e7)](_0x2eea67),_0x1bea4c[_0x1ae4fc(0x1e7)](_0x3a9953);return;}_0x16487f[_0x1ae4fc(0x25f)](_0x3931a5=>{const _0x5b18b5=_0x1ae4fc,_0x23f3cf=document[_0x5b18b5(0x224)]('tr'),_0x3f1f55=document[_0x5b18b5(0x224)]('td');_0x3f1f55[_0x5b18b5(0x25e)]=_0x3931a5['filename'],_0x3f1f55[_0x5b18b5(0x218)]=_0x3931a5[_0x5b18b5(0x283)],_0x23f3cf[_0x5b18b5(0x1e7)](_0x3f1f55);const _0x2ad0e1=document[_0x5b18b5(0x224)]('td');_0x2ad0e1[_0x5b18b5(0x25e)]=formatFileSize(_0x3931a5[_0x5b18b5(0x263)]),_0x2ad0e1[_0x5b18b5(0x279)][_0x5b18b5(0x2f0)]='right',_0x23f3cf['appendChild'](_0x2ad0e1);const _0x4ae253=document[_0x5b18b5(0x224)]('td');_0x4ae253[_0x5b18b5(0x25e)]=_0x3931a5[_0x5b18b5(0x18f)],_0x23f3cf[_0x5b18b5(0x1e7)](_0x4ae253);const _0x9731c5=document['createElement']('td');_0x9731c5[_0x5b18b5(0x25e)]=_0x3931a5[_0x5b18b5(0x24f)]||'未知',_0x23f3cf[_0x5b18b5(0x1e7)](_0x9731c5);const _0x34215a=document[_0x5b18b5(0x224)]('td'),_0x1aebb0=document[_0x5b18b5(0x224)](_0x5b18b5(0x1fc));_0x1aebb0[_0x5b18b5(0x25e)]=_0x3931a5[_0x5b18b5(0x24d)]===_0x5b18b5(0x1a1)?'公用文件':_0x5b18b5(0x193),_0x1aebb0[_0x5b18b5(0x2d0)]=_0x5b18b5(0x23d)+_0x3931a5[_0x5b18b5(0x24d)],_0x34215a[_0x5b18b5(0x1e7)](_0x1aebb0),_0x23f3cf[_0x5b18b5(0x1e7)](_0x34215a);const _0x20331c=document[_0x5b18b5(0x224)]('td'),_0x3cf51f={'mirror':'镜像文件','image':_0x5b18b5(0x271),'document':_0x5b18b5(0x161),'video':_0x5b18b5(0x204),'other':_0x5b18b5(0x1b7)};_0x20331c[_0x5b18b5(0x25e)]=_0x3cf51f[_0x3931a5[_0x5b18b5(0x349)]]||_0x3931a5['file_subcategory'],_0x23f3cf['appendChild'](_0x20331c);const _0x43247d=document[_0x5b18b5(0x224)]('td');_0x43247d[_0x5b18b5(0x25e)]=_0x3931a5[_0x5b18b5(0x228)]||0x0,_0x43247d[_0x5b18b5(0x279)]['textAlign']=_0x5b18b5(0x275),_0x23f3cf[_0x5b18b5(0x1e7)](_0x43247d);const _0x4415f3=document[_0x5b18b5(0x224)]('td'),_0x486625=document['createElement'](_0x5b18b5(0x23b));_0x486625[_0x5b18b5(0x2d0)]=_0x5b18b5(0x257);const _0x1461f4=document[_0x5b18b5(0x224)]('div');_0x1461f4['className']=_0x5b18b5(0x294);if(currentUserPermissions['includes']('download')){const _0xd31dd8=document[_0x5b18b5(0x224)](_0x5b18b5(0x1cc));_0xd31dd8[_0x5b18b5(0x25e)]='下载',_0xd31dd8[_0x5b18b5(0x2d0)]=_0x5b18b5(0x253),_0xd31dd8[_0x5b18b5(0x1e9)](_0x5b18b5(0x2ce),()=>downloadFile(_0x3931a5[_0x5b18b5(0x23a)],_0x3931a5[_0x5b18b5(0x283)],_0x3931a5[_0x5b18b5(0x263)])),_0x1461f4[_0x5b18b5(0x1e7)](_0xd31dd8);}if(currentUserPermissions[_0x5b18b5(0x29e)](_0x5b18b5(0x1b5))){const _0x4e51ec=document[_0x5b18b5(0x224)](_0x5b18b5(0x1cc));_0x4e51ec[_0x5b18b5(0x25e)]=_0x5b18b5(0x300),_0x4e51ec[_0x5b18b5(0x2d0)]=_0x5b18b5(0x323),_0x4e51ec[_0x5b18b5(0x1e9)](_0x5b18b5(0x2ce),()=>openRenameFileModal(_0x3931a5[_0x5b18b5(0x23a)],_0x3931a5[_0x5b18b5(0x283)])),_0x1461f4['appendChild'](_0x4e51ec);}if(currentUserPermissions[_0x5b18b5(0x29e)](_0x5b18b5(0x1a4))){const _0x234c92=document['createElement'](_0x5b18b5(0x1cc));_0x234c92[_0x5b18b5(0x25e)]=_0x5b18b5(0x1b0),_0x234c92[_0x5b18b5(0x2d0)]='action-btn\x20change-subcategory-btn',_0x234c92[_0x5b18b5(0x1e9)](_0x5b18b5(0x2ce),()=>openChangeSubcategoryModal(_0x3931a5['stored_filename'],_0x3931a5[_0x5b18b5(0x349)])),_0x1461f4[_0x5b18b5(0x1e7)](_0x234c92);}const _0x19357c=document[_0x5b18b5(0x224)]('div');_0x19357c[_0x5b18b5(0x2d0)]='action-row';if(currentUserPermissions[_0x5b18b5(0x29e)](_0x5b18b5(0x2c0))){const _0x38a9f4=document[_0x5b18b5(0x224)](_0x5b18b5(0x1cc));_0x38a9f4[_0x5b18b5(0x25e)]=_0x3931a5['file_category']===_0x5b18b5(0x1a1)?_0x5b18b5(0x167):'设为公用',_0x38a9f4['className']=_0x5b18b5(0x16d),_0x38a9f4[_0x5b18b5(0x1e9)](_0x5b18b5(0x2ce),()=>toggleFileCategory(_0x3931a5[_0x5b18b5(0x23a)],_0x3931a5[_0x5b18b5(0x24d)])),_0x19357c[_0x5b18b5(0x1e7)](_0x38a9f4);}if(currentUserPermissions['includes']('delete')){const _0x1fb88b=document[_0x5b18b5(0x224)]('button');_0x1fb88b[_0x5b18b5(0x25e)]='删除',_0x1fb88b[_0x5b18b5(0x2d0)]=_0x5b18b5(0x314),_0x1fb88b[_0x5b18b5(0x1e9)](_0x5b18b5(0x2ce),()=>deleteFile(_0x3931a5[_0x5b18b5(0x23a)])),_0x19357c[_0x5b18b5(0x1e7)](_0x1fb88b);}_0x486625[_0x5b18b5(0x1e7)](_0x1461f4),_0x486625[_0x5b18b5(0x1e7)](_0x19357c),_0x4415f3[_0x5b18b5(0x1e7)](_0x486625),_0x23f3cf[_0x5b18b5(0x1e7)](_0x4415f3),_0x1bea4c[_0x5b18b5(0x1e7)](_0x23f3cf);});}document[_0x1f66a7(0x217)]('backToAllFiles')[_0x1f66a7(0x1e9)](_0x1f66a7(0x2ce),function(){const _0x5c684c=_0x1f66a7;currentViewingFolderId=null,document['getElementById'](_0x5c684c(0x26b))['style'][_0x5c684c(0x22c)]=_0x5c684c(0x1ba),document[_0x5c684c(0x217)]('fileListSection')['style'][_0x5c684c(0x22c)]=_0x5c684c(0x289),fetchFiles();}),document['getElementById'](_0x1f66a7(0x258))[_0x1f66a7(0x1e9)]('click',function(){const _0x500c04=_0x1f66a7;document[_0x500c04(0x217)]('createFolderModal')[_0x500c04(0x279)][_0x500c04(0x22c)]='block';});function closeCreateFolderModal(){const _0x322090=_0x1f66a7;document[_0x322090(0x217)](_0x322090(0x343))[_0x322090(0x279)][_0x322090(0x22c)]=_0x322090(0x1ba),document['getElementById'](_0x322090(0x1aa))[_0x322090(0x30b)]='',document['getElementById'](_0x322090(0x292))['checked']=![],document[_0x322090(0x217)]('permissionRoot')['checked']=!![],document[_0x322090(0x217)](_0x322090(0x207))['checked']=![],document[_0x322090(0x217)](_0x322090(0x20f))[_0x322090(0x2b7)]=![],document['getElementById']('isVisibleToAll')[_0x322090(0x2b7)]=![];}document[_0x1f66a7(0x217)](_0x1f66a7(0x28f))[_0x1f66a7(0x1e9)]('click',function(){const _0x35c2e5=_0x1f66a7,_0x5ed65d=document[_0x35c2e5(0x217)](_0x35c2e5(0x1aa))[_0x35c2e5(0x30b)][_0x35c2e5(0x214)]();if(!_0x5ed65d){showMessage(_0x35c2e5(0x2b4),_0x35c2e5(0x22f));return;}const _0x2c22a3=[];if(document['getElementById'](_0x35c2e5(0x292))[_0x35c2e5(0x2b7)])_0x2c22a3[_0x35c2e5(0x197)]('root2');if(document[_0x35c2e5(0x217)](_0x35c2e5(0x199))[_0x35c2e5(0x2b7)])_0x2c22a3[_0x35c2e5(0x197)](_0x35c2e5(0x2c5));if(document[_0x35c2e5(0x217)](_0x35c2e5(0x207))[_0x35c2e5(0x2b7)])_0x2c22a3[_0x35c2e5(0x197)](_0x35c2e5(0x1d0));if(document[_0x35c2e5(0x217)]('permissionOther')[_0x35c2e5(0x2b7)])_0x2c22a3[_0x35c2e5(0x197)](_0x35c2e5(0x284));const _0x3a0734=document[_0x35c2e5(0x217)](_0x35c2e5(0x17c))[_0x35c2e5(0x2b7)];fetch(_0x35c2e5(0x2bd),{'method':'POST','headers':{'Content-Type':_0x35c2e5(0x1bf)},'body':JSON['stringify']({'name':_0x5ed65d,'allowed_groups':_0x2c22a3,'is_visible_to_all':_0x3a0734})})[_0x35c2e5(0x26e)](_0x3b56c0=>{const _0x246f19=_0x35c2e5;if(!_0x3b56c0['ok'])return _0x3b56c0['json']()['then'](_0x25c862=>{const _0x4692f3=_0x32e0;throw new Error(_0x25c862[_0x4692f3(0x22f)]||_0x4692f3(0x1d3));});return _0x3b56c0[_0x246f19(0x16b)]();})[_0x35c2e5(0x26e)](_0x23ade1=>{const _0x9681fa=_0x35c2e5;_0x23ade1[_0x9681fa(0x340)]?(showMessage(_0x9681fa(0x2a0),_0x9681fa(0x340)),closeCreateFolderModal(),loadFolders(),loadFolderOptions()):showMessage('文件夹创建失败:\x20'+(_0x23ade1['error']||_0x9681fa(0x160)),_0x9681fa(0x22f));})['catch'](_0x3e69ef=>{const _0x5528bb=_0x35c2e5;showMessage(_0x5528bb(0x240)+_0x3e69ef[_0x5528bb(0x194)],_0x5528bb(0x22f));});});function openEditFolderPermissionsModal(_0x17ff80,_0xe01878,_0x2e5515){const _0x533e3c=_0x1f66a7;currentEditingFolderId=_0x17ff80;const _0x476a40=JSON[_0x533e3c(0x19f)](_0xe01878||'[]');document['getElementById'](_0x533e3c(0x2a8))[_0x533e3c(0x2b7)]=_0x476a40[_0x533e3c(0x29e)]('root2'),document[_0x533e3c(0x217)](_0x533e3c(0x2db))[_0x533e3c(0x2b7)]=_0x476a40[_0x533e3c(0x29e)](_0x533e3c(0x2c5)),document[_0x533e3c(0x217)](_0x533e3c(0x2f1))[_0x533e3c(0x2b7)]=_0x476a40[_0x533e3c(0x29e)](_0x533e3c(0x1d0)),document[_0x533e3c(0x217)]('editPermissionOther')[_0x533e3c(0x2b7)]=_0x476a40[_0x533e3c(0x29e)](_0x533e3c(0x284)),document[_0x533e3c(0x217)](_0x533e3c(0x201))[_0x533e3c(0x2b7)]=_0x2e5515,document[_0x533e3c(0x217)](_0x533e3c(0x215))[_0x533e3c(0x279)]['display']=_0x533e3c(0x289);}function closeEditFolderPermissionsModal(){const _0x1755be=_0x1f66a7;document[_0x1755be(0x217)](_0x1755be(0x215))[_0x1755be(0x279)]['display']=_0x1755be(0x1ba),currentEditingFolderId=null;}document[_0x1f66a7(0x217)](_0x1f66a7(0x33c))[_0x1f66a7(0x1e9)](_0x1f66a7(0x2ce),function(){const _0x2ceca9=_0x1f66a7;if(!currentEditingFolderId)return;const _0x5348a4=[];if(document[_0x2ceca9(0x217)](_0x2ceca9(0x2a8))['checked'])_0x5348a4[_0x2ceca9(0x197)](_0x2ceca9(0x273));if(document[_0x2ceca9(0x217)]('editPermissionRoot')[_0x2ceca9(0x2b7)])_0x5348a4[_0x2ceca9(0x197)](_0x2ceca9(0x2c5));if(document[_0x2ceca9(0x217)]('editPermissionCompetition')[_0x2ceca9(0x2b7)])_0x5348a4['push'](_0x2ceca9(0x1d0));if(document[_0x2ceca9(0x217)]('editPermissionOther')[_0x2ceca9(0x2b7)])_0x5348a4['push'](_0x2ceca9(0x284));const _0x11b014=document[_0x2ceca9(0x217)]('editIsVisibleToAll')[_0x2ceca9(0x2b7)];fetch(_0x2ceca9(0x185)+currentEditingFolderId,{'method':_0x2ceca9(0x1c3),'headers':{'Content-Type':_0x2ceca9(0x1bf)},'body':JSON['stringify']({'allowed_groups':_0x5348a4,'is_visible_to_all':_0x11b014})})['then'](_0xf94ac2=>{const _0x6eedf9=_0x2ceca9;if(!_0xf94ac2['ok'])return _0xf94ac2['json']()[_0x6eedf9(0x26e)](_0x223e31=>{throw new Error(_0x223e31['error']||'权限更新失败');});return _0xf94ac2[_0x6eedf9(0x16b)]();})[_0x2ceca9(0x26e)](_0x23f831=>{const _0x52b17c=_0x2ceca9;_0x23f831[_0x52b17c(0x340)]?(showMessage(_0x52b17c(0x307),_0x52b17c(0x340)),closeEditFolderPermissionsModal(),loadFolders(),loadFolderOptions()):showMessage('文件夹权限更新失败:\x20'+(_0x23f831[_0x52b17c(0x22f)]||_0x52b17c(0x160)),'error');})[_0x2ceca9(0x1f5)](_0x457e8f=>{const _0x761b41=_0x2ceca9;showMessage(_0x761b41(0x1a8)+_0x457e8f['message'],'error');});});function deleteFolder(_0x4651af){const _0x24be28=_0x1f66a7;if(!confirm('确定要删除此文件夹吗？文件夹必须为空才能删除。'))return;fetch(_0x24be28(0x185)+_0x4651af,{'method':_0x24be28(0x2fb)})[_0x24be28(0x26e)](_0x49ca5c=>{const _0x48f51b=_0x24be28;if(!_0x49ca5c['ok'])return _0x49ca5c['json']()[_0x48f51b(0x26e)](_0x534217=>{const _0x305056=_0x48f51b;throw new Error(_0x534217[_0x305056(0x22f)]||_0x305056(0x18b));});return _0x49ca5c[_0x48f51b(0x16b)]();})[_0x24be28(0x26e)](_0x171653=>{const _0x57e908=_0x24be28;_0x171653[_0x57e908(0x340)]?(showMessage(_0x57e908(0x2f5),_0x57e908(0x340)),loadFolders(),loadFolderOptions(),currentViewingFolderId===_0x4651af&&(currentViewingFolderId=null,document[_0x57e908(0x217)](_0x57e908(0x26b))['style'][_0x57e908(0x22c)]='none',document[_0x57e908(0x217)](_0x57e908(0x19d))[_0x57e908(0x279)][_0x57e908(0x22c)]=_0x57e908(0x289))):showMessage('文件夹删除失败:\x20'+(_0x171653[_0x57e908(0x22f)]||_0x57e908(0x160)),_0x57e908(0x22f));})[_0x24be28(0x1f5)](_0x5213de=>{const _0x29b8ab=_0x24be28;showMessage(_0x29b8ab(0x1db)+_0x5213de[_0x29b8ab(0x194)],'error');});}document[_0x1f66a7(0x1e9)](_0x1f66a7(0x2c9),function(){const _0x36966c=_0x1f66a7;initDraggableElement(),console[_0x36966c(0x19a)](_0x36966c(0x1f2)),checkLoginStatus(),setTimeout(()=>{fetchCaptcha();},0x1f4);});function initDraggableElement(){const _0x5f2308=_0x1f66a7;var _0xa11803,_0x3c6489,_0x592245,_0x65bd18,_0x53b96a,_0x19ef52,_0x2aabcf,_0x45485b,_0x93ebf0=![],_0x4cdc43=document['querySelector'](_0x5f2308(0x334));if(!_0x4cdc43){console['log'](_0x5f2308(0x2f9));return;}_0x4cdc43[_0x5f2308(0x1e9)](_0x5f2308(0x2ce),function(_0x34f591){!_0x93ebf0&&showEasterEgg();}),_0x4cdc43[_0x5f2308(0x1e9)](_0x5f2308(0x291),function(_0x45d502){const _0x51d9d6=_0x5f2308;_0xa11803=_0x45d502[_0x51d9d6(0x1c1)],_0x3c6489=_0x45d502[_0x51d9d6(0x33b)];var _0x2d6048=window[_0x51d9d6(0x2ba)](_0x4cdc43);_0x592245=parseInt(_0x2d6048[_0x51d9d6(0x2e5)])||0x0,_0x65bd18=parseInt(_0x2d6048['top'])||0x0,_0x93ebf0=!![],_0x4cdc43['style'][_0x51d9d6(0x274)]=_0x51d9d6(0x1df),_0x4cdc43[_0x51d9d6(0x279)]['boxShadow']=_0x51d9d6(0x266);}),_0x4cdc43[_0x5f2308(0x1e9)](_0x5f2308(0x30e),function(){const _0x4d4746=_0x5f2308;_0x93ebf0=![],_0x4cdc43['style'][_0x4d4746(0x274)]='1',_0x4cdc43[_0x4d4746(0x279)][_0x4d4746(0x229)]='0\x204px\x2012px\x20rgba(0,0,0,0.2)';}),document[_0x5f2308(0x1e9)](_0x5f2308(0x223),function(_0x179fb6){const _0x522343=_0x5f2308;_0x93ebf0===!![]&&(_0x53b96a=_0x179fb6[_0x522343(0x1c1)],_0x19ef52=_0x179fb6[_0x522343(0x33b)],_0x2aabcf=_0xa11803-_0x53b96a,_0x45485b=_0x3c6489-_0x19ef52,_0x4cdc43[_0x522343(0x279)]['left']=_0x592245-_0x2aabcf+'px',_0x4cdc43[_0x522343(0x279)][_0x522343(0x18d)]=_0x65bd18-_0x45485b+'px');}),document['addEventListener'](_0x5f2308(0x202),function(_0x3e1539){const _0x4111d5=_0x5f2308;_0x93ebf0&&_0x3e1539[_0x4111d5(0x153)]();});}function showEasterEgg(){const _0x49a5c6=_0x1f66a7,_0x44ac72=document['createElement'](_0x49a5c6(0x23b));_0x44ac72[_0x49a5c6(0x279)][_0x49a5c6(0x280)]=_0x49a5c6(0x1ec),_0x44ac72[_0x49a5c6(0x186)]=_0x49a5c6(0x1fb),document[_0x49a5c6(0x1e3)][_0x49a5c6(0x1e7)](_0x44ac72),_0x44ac72['animate']([{'transform':_0x49a5c6(0x1b1),'opacity':0x0},{'transform':'translate(-50%,\x20-50%)\x20scale(1)','opacity':0x1}],{'duration':0x1f4,'easing':'ease-out'}),setTimeout(()=>{const _0x34a3a9=_0x49a5c6;_0x44ac72[_0x34a3a9(0x165)]&&_0x44ac72[_0x34a3a9(0x173)]();},0x1388);}
+		</script>
+	</body>
+</html>

@@ -1,0 +1,32 @@
+#!/bin/bash
+
+echo "开始优化系统以支持超大文件下载..."
+
+# 调整网络参数
+echo "优化网络参数..."
+echo 'net.core.rmem_max = 67108864' >> /etc/sysctl.conf
+echo 'net.core.wmem_max = 67108864' >> /etc/sysctl.conf
+echo 'net.ipv4.tcp_rmem = 4096 87380 67108864' >> /etc/sysctl.conf
+echo 'net.ipv4.tcp_wmem = 4096 65536 67108864' >> /etc/sysctl.conf
+echo 'net.ipv4.tcp_window_scaling = 1' >> /etc/sysctl.conf
+echo 'net.ipv4.tcp_timestamps = 1' >> /etc/sysctl.conf
+echo 'net.ipv4.tcp_sack = 1' >> /etc/sysctl.conf
+
+# 调整文件描述符限制
+echo "调整文件描述符限制..."
+echo '* soft nofile 65536' >> /etc/security/limits.conf
+echo '* hard nofile 65536' >> /etc/security/limits.conf
+echo '* soft nproc 65536' >> /etc/security/limits.conf
+echo '* hard nproc 65536' >> /etc/security/limits.conf
+
+# 调整磁盘IO
+echo "调整磁盘IO参数..."
+echo 'vm.dirty_ratio = 10' >> /etc/sysctl.conf
+echo 'vm.dirty_background_ratio = 5' >> /etc/sysctl.conf
+echo 'vm.swappiness = 10' >> /etc/sysctl.conf
+
+# 应用配置
+sysctl -p
+
+echo "系统优化完成！"
+echo "请重启服务器以使更改生效。"

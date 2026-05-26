@@ -1,0 +1,19 @@
+[Unit]
+Description=Flask File Upload Server
+After=network.target
+
+[Service]
+User=root
+Group=root
+WorkingDirectory=/root/flask_file_upload
+Environment="PATH=/root/flask_file_upload/venv/bin"
+# 使用虚拟环境的 Python 解释器
+ExecStart=/root/flask_file_upload/venv/bin/python3 app.py
+Restart=always
+RestartSec=5
+
+# 增加文件描述符限制
+LimitNOFILE=65536
+
+[Install]
+WantedBy=multi-user.target

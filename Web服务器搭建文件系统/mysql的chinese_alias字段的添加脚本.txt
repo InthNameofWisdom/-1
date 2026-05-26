@@ -1,0 +1,66 @@
+#!/usr/bin/env python3
+# -*- coding: utf-8 -*-
+
+import pymysql
+from pymysql.cursors import DictCursor
+
+# 数据库配置
+DB_CONFIG = {
+    'host': 'localhost',
+    'user': 'root',
+    'password': 'Key-1122',
+    'db': 'file_manager',
+    'charset': 'utf8mb4',
+    'cursorclass': DictCursor
+}
+
+def add_chinese_alias_column():
+    """为users表添加chinese_alias字段"""
+    try:
+        conn = pymysql.connect(**DB_CONFIG)
+        with conn.cursor() as cursor:
+            # 检查字段是否已存在
+            cursor.execute("""
+                SELECT COUNT(*) as count 
+                FROM information_schema.COLUMNS 
+                WHERE TABLE_SCHEMA = %s 
+                AND TABLE_NAME = 'users' 
+                AND COLUMN_NAME = 'chinese_alias'
+            """, (DB_CONFIG['db'],))
+            
+            result = cursor.fetchone()
+            
+            if result['count'] == 0:
+                # 字段不存在，添加字段
+                cursor.execute("""
+                    ALTER TABLE users 
+                    ADD COLUMN chinese_alias VARCHAR(255) NULL AFTER user_group
+                """)
+                print("成功添加 chinese_alias 字段")
+                
+                # 为现有用户设置默认中文别名
+                cursor.execute("""
+                    UPDATE users 
+                    SET chinese_alias = CASE 
+                        WHEN user_group = 'root2' THEN '超级管理员'
+                        WHEN user_group = 'root' THEN '管理员' 
+                        ELSE username 
+                    END 
+                    WHERE chinese_alias IS NULL
+                """)
+                print("成功设置现有用户的中文别名")
+            else:
+                print("chinese_alias 字段已存在")
+            
+            conn.commit()
+            print("数据库迁移完成")
+            
+    except Exception as e:
+        print(f"数据库迁移失败: {str(e)}")
+        raise
+    finally:
+        if 'conn' in locals():
+            conn.close()
+
+if __name__ == '__main__':
+    add_chinese_alias_column()

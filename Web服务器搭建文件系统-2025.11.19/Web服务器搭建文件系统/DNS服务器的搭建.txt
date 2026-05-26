@@ -1,0 +1,282 @@
+# 更新系统
+sudo yum update -y
+
+# 安装BIND及相关工具
+sudo yum install bind bind-utils -y
+
+
+
+
+sudo vi /etc/named.conf
+
+
+
+options {
+    listen-on port 53 { 127.0.0.1; 10.11.2.206; };
+    listen-on-v6 port 53 { ::1; };
+    directory       "/var/named";
+    dump-file       "/var/named/data/cache_dump.db";
+    statistics-file "/var/named/data/named_stats.txt";
+    memstatistics-file "/var/named/data/named_mem_stats.txt";
+    allow-query     { localhost; 10.11.0.0/16; };
+    recursion yes;
+
+    dnssec-validation no;
+    dnssec-enable no;
+
+    /* 设置转发器 */
+    forwarders { 8.8.8.8; 114.114.114.114; };
+    forward only;
+    auth-nxdomain no;
+    version "DNS Server";
+};
+
+logging {
+    channel default_debug {
+        file "data/named.run";
+        severity dynamic;
+    };
+};
+
+zone "." IN {
+    type hint;
+    file "named.ca";
+};
+
+include "/etc/named.rfc1912.zones";
+
+
+
+
+sudo vi /etc/named.rfc1912.zones //在文件末尾添加你的区域配置
+
+
+
+zone "internal.example.com" IN {
+    type master;
+    file "internal.example.com.zone";
+    allow-update { none; };
+};
+
+zone "2.11.10.in-addr.arpa" IN {
+    type master;
+    file "10.11.2.zone";
+    allow-update { none; };
+};
+
+
+sudo vi /var/named/internal.example.com.zone
+
+$TTL 1D
+@       IN SOA  ns1.internal.example.com. admin.internal.example.com. (
+                                        2024101403 ; 序列号++
+                                        1D
+                                        1H
+                                        1W
+                                        3H )
+        IN NS   ns1.internal.example.com.
+
+; 基础记录
+ns1     IN A    10.11.2.206
+server  IN A    10.11.2.206
+
+; Web服务记录
+webapp  IN A    10.11.2.206
+app     IN A    10.11.2.206
+www     IN A    10.11.2.206
+
+; 其他内网设备
+router  IN A    10.11.1.1
+pc01    IN A    10.11.3.10
+
+
+
+$TTL 1D
+@       IN SOA  ns1.internal.example.com. admin.internal.example.com. (
+                                        2024101401 ; serial
+                                        1D         ; refresh
+                                        1H         ; retry
+                                        1W         ; expire
+                                        3H )       ; minimum
+
+        IN NS   ns1.internal.example.com.
+
+; PTR记录定义
+206     IN PTR  ns1.internal.example.com.
+206     IN PTR  server.internal.example.com.
+210     IN PTR  ftp.internal.example.com.
+
+
+
+# 更改区域文件的所有权和权限
+sudo chown root:named /var/named/internal.example.com.zone
+sudo chown root:named /var/named/10.11.2.zone
+
+sudo chmod 640 /var/named/internal.example.com.zone
+sudo chmod 640 /var/named/10.11.2.zone
+
+
+
+# 检查主配置文件
+sudo named-checkconf
+
+# 检查正向区域文件
+sudo named-checkzone internal.example.com /var/named/internal.example.com.zone
+
+# 检查反向区域文件
+sudo named-checkzone 2.11.10.in-addr.arpa /var/named/10.11.2.zone
+
+
+
+
+
+# 检查SELinux状态
+sudo sestatus
+
+# 如果SELinux是enforcing状态，需要设置正确的上下文
+sudo chcon -t named_zone_t /var/named/internal.example.com.zone
+sudo chcon -t named_zone_t /var/named/10.11.2.zone
+
+# 或者临时将SELinux设置为permissive模式进行测试
+sudo setenforce 0
+
+
+
+
+# 开放DNS服务端口
+sudo firewall-cmd --permanent --add-service=dns
+sudo firewall-cmd --reload
+
+# 检查防火墙规则
+sudo firewall-cmd --list-all
+
+
+
+# 启动named服务
+sudo systemctl start named
+
+# 设置开机自启
+sudo systemctl enable named
+
+# 检查服务状态
+sudo systemctl status named
+
+
+
+
+sudo vi /etc/resolv.conf
+
+
+nameserver 10.11.2.206
+nameserver 8.8.8.8或者是114.114.114.114
+domain internal.example.com
+search internal.example.com
+
+
+
+为了防止网络管理器覆盖此配置，可以锁定resolv.conf：
+
+sudo chattr +i /etc/resolv.conf
+
+
+
+
+
+# 查看连接名称
+nmcli con show
+
+# 设置DNS（将"连接名"替换为实际的连接名称）
+sudo nmcli con mod "连接名" ipv4.dns "10.11.2.206"
+sudo nmcli con mod "连接名" ipv4.dns-search "internal.example.com"
+sudo nmcli con down "连接名"
+sudo nmcli con up "连接名"
+
+
+
+HTML代理配置
+
+
+# 安装Nginx
+sudo yum install nginx -y
+
+# 创建反向代理配置
+sudo vi /etc/nginx/conf.d/webapp.conf
+
+
+server {
+    listen 80;
+    server_name webapp.internal.example.com app.internal.example.com www.internal.example.com;
+    
+    location / {
+        proxy_pass http://127.0.0.1:5000;
+        proxy_set_header Host $host;
+        proxy_set_header X-Real-IP $remote_addr;
+        proxy_set_header X-Forwarded-For $proxy_add_x_forwarded_for;
+        proxy_set_header X-Forwarded-Proto $scheme;
+        
+        # 可选：超时设置
+        proxy_connect_timeout 30s;
+        proxy_send_timeout 30s;
+        proxy_read_timeout 30s;
+    }
+    
+    # 可选：静态文件服务
+    location /static/ {
+        alias /path/to/your/static/files/;
+        expires 30d;
+    }
+}
+
+# 如果需要，也可以为其他域名配置
+server {
+    listen 80;
+    server_name internal.example.com;
+    
+    location / {
+        return 302 http://webapp.internal.example.com;
+    }
+}
+
+
+# 测试Nginx配置
+sudo nginx -t
+
+# 启动Nginx并设置开机自启
+sudo systemctl start nginx
+sudo systemctl enable nginx
+
+# 检查状态
+sudo systemctl status nginx
+
+
+
+# 确保DNS和HTTP服务在防火墙中允许
+sudo firewall-cmd --permanent --add-service=dns
+sudo firewall-cmd --permanent --add-service=http
+sudo firewall-cmd --permanent --add-service=https  # 如果需要HTTPS
+
+# 如果你还需要直接访问5000端口
+sudo firewall-cmd --permanent --add-port=5000/tcp
+
+# 重新加载防火墙
+sudo firewall-cmd --reload
+
+# 检查防火墙规则
+sudo firewall-cmd --list-all
+
+
+
+
+终极办法:
+# 备份当前文件
+sudo cp /etc/resolv.conf /etc/resolv.conf.backup
+
+# 创建正确的resolv.conf文件
+sudo tee /etc/resolv.conf > /dev/null << EOF
+nameserver 10.11.2.206
+domain internal.example.com
+search internal.example.com
+EOF
+
+# 验证修改
+cat /etc/resolv.conf

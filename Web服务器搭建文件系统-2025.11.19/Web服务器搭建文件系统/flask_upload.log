@@ -1,0 +1,43 @@
+2025-11-18 08:58:45,306 - __main__ - INFO - 开始初始化子分类目录
+2025-11-18 08:58:45,309 - __main__ - INFO - 创建目录: /root/flask_file_upload/uploads\everyone\mirror
+2025-11-18 08:58:45,313 - __main__ - INFO - 创建目录: /mnt/uploads\everyone\mirror
+2025-11-18 08:58:45,315 - __main__ - INFO - 创建目录: /root/flask_file_upload/uploads\everyone\image
+2025-11-18 08:58:45,315 - __main__ - INFO - 创建目录: /mnt/uploads\everyone\image
+2025-11-18 08:58:45,316 - __main__ - INFO - 创建目录: /root/flask_file_upload/uploads\everyone\document
+2025-11-18 08:58:45,316 - __main__ - INFO - 创建目录: /mnt/uploads\everyone\document
+2025-11-18 08:58:45,318 - __main__ - INFO - 创建目录: /root/flask_file_upload/uploads\everyone\video
+2025-11-18 08:58:45,319 - __main__ - INFO - 创建目录: /mnt/uploads\everyone\video
+2025-11-18 08:58:45,320 - __main__ - INFO - 创建目录: /root/flask_file_upload/uploads\everyone\other
+2025-11-18 08:58:45,320 - __main__ - INFO - 创建目录: /mnt/uploads\everyone\other
+2025-11-18 08:58:45,321 - __main__ - INFO - 创建目录: /root/flask_file_upload/uploads\competition\mirror
+2025-11-18 08:58:45,321 - __main__ - INFO - 创建目录: /mnt/uploads\competition\mirror
+2025-11-18 08:58:45,322 - __main__ - INFO - 创建目录: /root/flask_file_upload/uploads\competition\image
+2025-11-18 08:58:45,322 - __main__ - INFO - 创建目录: /mnt/uploads\competition\image
+2025-11-18 08:58:45,323 - __main__ - INFO - 创建目录: /root/flask_file_upload/uploads\competition\document
+2025-11-18 08:58:45,323 - __main__ - INFO - 创建目录: /mnt/uploads\competition\document
+2025-11-18 08:58:45,323 - __main__ - INFO - 创建目录: /root/flask_file_upload/uploads\competition\video
+2025-11-18 08:58:45,323 - __main__ - INFO - 创建目录: /mnt/uploads\competition\video
+2025-11-18 08:58:45,324 - __main__ - INFO - 创建目录: /root/flask_file_upload/uploads\competition\other
+2025-11-18 08:58:45,325 - __main__ - INFO - 创建目录: /mnt/uploads\competition\other
+2025-11-18 08:58:45,325 - __main__ - INFO - 所有目录创建成功
+2025-11-18 08:58:45,342 - __main__ - INFO - 启动Flask文件上传服务器（智能存储版本+权限管理）
+2025-11-18 08:58:45,343 - __main__ - INFO - 启动Flask文件上传服务器（优化大文件下载版本）
+2025-11-18 08:58:45,343 - __main__ - INFO - 主上传目录: /root/flask_file_upload/uploads
+2025-11-18 08:58:45,343 - __main__ - INFO - 外部上传目录: /mnt/uploads
+2025-11-18 08:58:45,343 - __main__ - INFO - 双存储阈值: 100.0 MB
+2025-11-18 08:58:45,344 - __main__ - INFO - 最小剩余空间: 1.0 GB
+2025-11-18 08:58:45,344 - __main__ - INFO - 用户组权限配置: {'root2': {'name': '超级管理员', 'permissions': ['upload', 'download', 'delete', 'user_management', 'rename_files', 'change_subcategory']}, 'root': {'name': '管理员', 'permissions': ['upload', 'download', 'delete', 'rename_files', 'change_subcategory']}, 'competition': {'name': '比赛用户', 'permissions': ['upload', 'download', 'rename_files', 'change_subcategory']}, 'other': {'name': '普通用户', 'permissions': ['download']}}
+2025-11-18 08:58:45,344 - __main__ - INFO - 启动优化版文件服务器（支持10GB+大文件下载）
+2025-11-18 08:58:45,345 - __main__ - INFO - 目录 /root/flask_file_upload/uploads\everyone 存在，权限: 777
+2025-11-18 08:58:45,345 - __main__ - INFO - 目录 /mnt/uploads\everyone 存在，权限: 777
+2025-11-18 08:58:45,346 - __main__ - INFO - 目录 /root/flask_file_upload/uploads\competition 存在，权限: 777
+2025-11-18 08:58:45,348 - __main__ - INFO - 目录 /mnt/uploads\competition 存在，权限: 777
+2025-11-18 08:58:45,476 - __main__ - ERROR - 数据库连接失败: 'cryptography' package is required for sha256_password or caching_sha2_password auth methods
+2025-11-18 08:58:45,482 - __main__ - ERROR - 获取数据库连接失败: 'cryptography' package is required for sha256_password or caching_sha2_password auth methods
+2025-11-18 08:58:45,484 - __main__ - ERROR - 数据库表结构初始化失败: 'cryptography' package is required for sha256_password or caching_sha2_password auth methods
+2025-11-18 08:58:45,484 - __main__ - ERROR - 数据库初始化失败: 'cryptography' package is required for sha256_password or caching_sha2_password auth methods
+2025-11-18 08:58:45,485 - __main__ - INFO - 开始迁移现有文件（检查两个存储位置）
+2025-11-18 08:58:45,488 - __main__ - INFO - 发现 0 个文件需要检查迁移
+2025-11-18 08:58:45,488 - __main__ - INFO - 上传目录中没有文件需要迁移
+2025-11-18 08:58:45,489 - __main__ - INFO - 服务器地址: http://localhost:5000
+2025-11-18 08:58:45,490 - __main__ - WARNING - Waitress 未安装，使用开发服务器

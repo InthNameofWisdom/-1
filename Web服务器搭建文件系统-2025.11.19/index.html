@@ -1,0 +1,1367 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+	<head>
+		<meta charset="UTF-8">
+		<meta name="viewport" content="width=device-width, initial-scale=1.0">
+		<title>文件管理系统</title>
+		<style>
+			* {
+				box-sizing: border-box;
+				margin: 0;
+				padding: 0;
+				font-family: 'Arial', sans-serif;
+			}
+
+			body {
+				background-color: #f5f5f5;
+				color: #333;
+				line-height: 1.6;
+				padding: 20px;
+			}
+
+			.container {
+				max-width: 1400px;
+				margin: 0 auto;
+				background: white;
+				padding: 25px;
+				border-radius: 8px;
+				box-shadow: 0 2px 10px rgba(0, 0, 0, 0.1);
+			}
+
+			h1 {
+				text-align: center;
+				margin-bottom: 25px;
+				color: #2c3e50;
+			}
+
+			.login-section {
+				max-width: 400px;
+				margin: 50px auto;
+				background: #f9f9f9;
+				padding: 25px;
+				border-radius: 6px;
+				border: 1px solid #ddd;
+			}
+
+			.upload-section {
+				background: #f9f9f9;
+				padding: 20px;
+				border-radius: 6px;
+				margin-bottom: 30px;
+				border: 2px dashed #ddd;
+				display: none;
+			}
+
+			.user-management-section {
+				background: #f9f9f9;
+				padding: 20px;
+				border-radius: 6px;
+				margin-bottom: 30px;
+				border: 2px dashed #ddd;
+				display: none;
+			}
+
+			.folder-management-section {
+				background: #f9f9f9;
+				padding: 20px;
+				border-radius: 6px;
+				margin-bottom: 30px;
+				border: 2px dashed #ddd;
+				display: none;
+			}
+
+			.form-group {
+				margin-bottom: 15px;
+			}
+
+			label {
+				display: block;
+				margin-bottom: 5px;
+				font-weight: bold;
+			}
+
+			input[type="text"],
+			input[type="password"],
+			input[type="email"],
+			input[type="file"],
+			select {
+				width: 100%;
+				padding: 10px;
+				border: 1px solid #ddd;
+				border-radius: 4px;
+				font-size: 16px;
+			}
+
+			button {
+				background: #3498db;
+				color: white;
+				border: none;
+				padding: 10px 15px;
+				border-radius: 4px;
+				cursor: pointer;
+				font-size: 16px;
+				transition: background 0.3s;
+			}
+
+			button:hover {
+				background: #2980b9;
+			}
+
+			.file-list {
+				margin-top: 30px;
+				display: none;
+				width: 100%;
+				overflow: visible;
+			}
+
+			.folder-list {
+				margin-top: 30px;
+				display: none;
+				width: 100%;
+				overflow: visible;
+			}
+
+			table {
+				width: 100%;
+				border-collapse: collapse;
+				table-layout: fixed;
+			}
+
+			th,
+			td {
+				padding: 12px 15px;
+				text-align: left;
+				border-bottom: 1px solid #ddd;
+				word-wrap: break-word;
+				overflow-wrap: break-word;
+			}
+
+			th {
+				background-color: #f2f2f2;
+				font-weight: bold;
+			}
+
+			tr:hover {
+				background-color: #f5f5f5;
+			}
+
+			.action-btn {
+				padding: 4px 8px;
+				margin: 1px;
+				font-size: 11px;
+				white-space: nowrap;
+				border-radius: 3px;
+				flex: 1;
+				min-width: 60px;
+				text-align: center;
+			}
+
+			.user-action-btn {
+				padding: 4px 8px;
+				margin: 2px;
+				font-size: 12px;
+				white-space: nowrap;
+			}
+
+			.folder-action-btn {
+				padding: 4px 8px;
+				margin: 2px;
+				font-size: 12px;
+				white-space: nowrap;
+			}
+
+			.download-btn {
+				background: #27ae60;
+			}
+
+			.download-btn:hover {
+				background: #219653;
+			}
+
+			.delete-btn {
+				background: #e74c3c;
+			}
+
+			.delete-btn:hover {
+				background: #c0392b;
+			}
+
+			.rename-btn {
+				background: #f39c12;
+			}
+
+			.rename-btn:hover {
+				background: #e67e22;
+			}
+
+			.change-subcategory-btn {
+				background: #9c27b0;
+			}
+
+			.change-subcategory-btn:hover {
+				background: #7b1fa2;
+			}
+
+			.create-folder-btn {
+				background: #3498db;
+			}
+
+			.create-folder-btn:hover {
+				background: #2980b9;
+			}
+
+			.edit-folder-btn {
+				background: #f39c12;
+			}
+
+			.edit-folder-btn:hover {
+				background: #e67e22;
+			}
+
+			.delete-folder-btn {
+				background: #e74c3c;
+			}
+
+			.delete-folder-btn:hover {
+				background: #c0392b;
+			}
+
+			.view-folder-btn {
+				background: #27ae60;
+			}
+
+			.view-folder-btn:hover {
+				background: #219653;
+			}
+
+			.logout-btn {
+				background: #7f8c8d;
+				float: right;
+			}
+
+			.logout-btn:hover {
+				background: #636e71;
+			}
+
+			.toggle-category-btn {
+				background: #3498db;
+			}
+
+			.toggle-category-btn:hover {
+				background: #2980b9;
+			}
+
+			.edit-group-btn {
+				background: #9c27b0;
+			}
+
+			.edit-group-btn:hover {
+				background: #7b1fa2;
+			}
+
+			.status-message {
+				padding: 10px;
+				margin: 10px 0;
+				border-radius: 4px;
+				text-align: center;
+			}
+
+			.success {
+				background: #d4edda;
+				color: #155724;
+				border: 1px solid #c3e6cb;
+			}
+
+			.error {
+				background: #f8d7da;
+				color: #721c24;
+				border: 1px solid #f5c6cb;
+			}
+
+			.progress-bar {
+				width: 100%;
+				background: #f0f0f0;
+				border-radius: 4px;
+				margin: 10px 0;
+				overflow: hidden;
+				display: none;
+			}
+
+			.progress {
+				height: 20px;
+				background: #3498db;
+				text-align: center;
+				line-height: 20px;
+				color: white;
+				width: 0%;
+				transition: width 0.3s;
+			}
+
+			.hidden {
+				display: none;
+			}
+
+			.visible {
+				display: block;
+			}
+
+			/* 优化列宽分配 */
+			th:nth-child(1),
+			td:nth-child(1) {
+				/* 文件名 */
+				width: 25%;
+			}
+
+			th:nth-child(2),
+			td:nth-child(2) {
+				/* 大小 */
+				width: 8%;
+				text-align: right;
+			}
+
+			th:nth-child(3),
+			td:nth-child(3) {
+				/* 上传时间 */
+				width: 15%;
+			}
+
+			th:nth-child(4),
+			td:nth-child(4) {
+				/* 上传者 */
+				width: 10%;
+			}
+
+			th:nth-child(5),
+			td:nth-child(5) {
+				/* 分类 */
+				width: 8%;
+			}
+
+			th:nth-child(6),
+			td:nth-child(6) {
+				/* 子分类 */
+				width: 8%;
+			}
+
+			th:nth-child(7),
+			td:nth-child(7) {
+				/* 下载次数 */
+				width: 6%;
+				text-align: center;
+			}
+
+			th:nth-child(8),
+			td:nth-child(8) {
+				/* 操作 */
+				width: 20%;
+				text-align: center;
+			}
+
+			/* 文件夹表格列宽 */
+			.folder-table th:nth-child(1),
+			.folder-table td:nth-child(1) {
+				width: 25%;
+			}
+
+			.folder-table th:nth-child(2),
+			.folder-table td:nth-child(2) {
+				width: 15%;
+			}
+
+			.folder-table th:nth-child(3),
+			.folder-table td:nth-child(3) {
+				width: 15%;
+			}
+
+			.folder-table th:nth-child(4),
+			.folder-table td:nth-child(4) {
+				width: 20%;
+			}
+
+			.folder-table th:nth-child(5),
+			.folder-table td:nth-child(5) {
+				width: 15%;
+			}
+
+			.folder-table th:nth-child(6),
+			.folder-table td:nth-child(6) {
+				width: 10%;
+				text-align: center;
+			}
+
+			/* 文件分类筛选器样式 */
+			#categoryFilter, #subcategoryFilter, #searchFile {
+				padding: 8px 12px;
+				border: 1px solid #ddd;
+				border-radius: 4px;
+				font-size: 14px;
+				background: white;
+				margin-left: 10px;
+			}
+
+            /* 搜索框样式优化 */
+            .search-container {
+                display: inline-flex;
+                align-items: center;
+                margin-left: 10px;
+            }
+
+            #searchFile {
+                width: 200px;
+            }
+
+            #searchBtn {
+                background: #2ecc71;
+                padding: 8px 12px;
+                margin-left: 5px;
+                font-size: 14px;
+            }
+
+            #searchBtn:hover {
+                background: #27ae60;
+            }
+
+			/* 分类标签样式 */
+			.category-tag {
+				padding: 3px 8px;
+				border-radius: 12px;
+				font-size: 12px;
+				font-weight: bold;
+			}
+
+			.category-competition {
+				background: #e3f2fd;
+				color: #1976d2;
+			}
+
+			.category-everyone {
+				background: #e8f5e8;
+				color: #2e7d32;
+			}
+
+			/* 用户组标签样式 */
+			.user-group-tag {
+				padding: 3px 8px;
+				border-radius: 12px;
+				font-size: 12px;
+				font-weight: bold;
+			}
+
+			.group-root2 {
+				background: #ffebee;
+				color: #c62828;
+			}
+
+			.group-root {
+				background: #fff3e0;
+				color: #ef6c00;
+			}
+
+			.group-competition {
+				background: #e8f5e8;
+				color: #2e7d32;
+			}
+
+			.group-other {
+				background: #f5f5f5;
+				color: #616161;
+			}
+
+			/* 权限标签样式 */
+			.permission-tag {
+				padding: 2px 6px;
+				border-radius: 10px;
+				font-size: 10px;
+				margin: 1px;
+				display: inline-block;
+			}
+
+			.permission-root2 {
+				background: #ffebee;
+				color: #c62828;
+			}
+
+			.permission-root {
+				background: #fff3e0;
+				color: #ef6c00;
+			}
+
+			.permission-competition {
+				background: #e8f5e8;
+				color: #2e7d32;
+			}
+
+			.permission-other {
+				background: #f5f5f5;
+				color: #616161;
+			}
+
+			/* 操作按钮容器样式优化 */
+			.action-buttons {
+				display: flex;
+				flex-direction: column;
+				gap: 3px;
+				justify-content: center;
+			}
+
+			.action-row {
+				display: flex;
+				gap: 3px;
+				justify-content: center;
+			}
+
+			/* 用户表格样式 */
+			.user-table {
+				width: 100%;
+				border-collapse: collapse;
+				margin-top: 15px;
+			}
+
+			.user-table th,
+			.user-table td {
+				padding: 10px;
+				text-align: left;
+				border-bottom: 1px solid #ddd;
+			}
+
+			.user-table th {
+				background-color: #f2f2f2;
+			}
+
+			/* 文件夹表格样式 */
+			.folder-table {
+				width: 100%;
+				border-collapse: collapse;
+				margin-top: 15px;
+			}
+
+			.folder-table th,
+			.folder-table td {
+				padding: 10px;
+				text-align: left;
+				border-bottom: 1px solid #ddd;
+			}
+
+			.folder-table th {
+				background-color: #f2f2f2;
+			}
+
+			/* ========== 模态框样式修复和优化 ========== */
+			.modal {
+				display: none;
+				position: fixed;
+				z-index: 1000;
+				left: 0;
+				top: 0;
+				width: 100%;
+				height: 100%;
+				background-color: rgba(0, 0, 0, 0.5);
+				/* 添加以下属性确保模态框在视口内 */
+				overflow: auto;
+			}
+
+			.modal-content {
+				background-color: white;
+				margin: 5% auto;
+				/* 改为5% auto 确保垂直居中 */
+				padding: 25px;
+				/* 增加内边距 */
+				border-radius: 8px;
+				width: 450px;
+				/* 稍微增加宽度 */
+				max-height: 85vh;
+				/* 限制最大高度为视口的85% */
+				overflow-y: auto;
+				/* 添加垂直滚动 */
+				position: relative;
+				/* 添加阴影和动画效果 */
+				box-shadow: 0 4px 20px rgba(0, 0, 0, 0.15);
+				animation: modalSlideIn 0.3s ease-out;
+			}
+
+			/* 添加模态框动画 */
+			@keyframes modalSlideIn {
+				from {
+					opacity: 0;
+					transform: translateY(-50px);
+				}
+
+				to {
+					opacity: 1;
+					transform: translateY(0);
+				}
+			}
+
+			/* 个人设置模态框特殊样式 */
+			#personalSettingsModal .modal-content {
+				width: 500px;
+				/* 个人设置模态框更宽一些 */
+				max-height: 90vh;
+				/* 允许更高一些 */
+			}
+
+			.modal-wide {
+				width: 600px;
+			}
+
+			.checkbox-group {
+				margin: 10px 0;
+			}
+
+			.checkbox-group label {
+				display: flex;
+				align-items: center;
+				margin-bottom: 5px;
+			}
+
+			.checkbox-group input {
+				margin-right: 8px;
+				width: auto;
+			}
+
+			/* ========== 用户管理操作按钮样式优化 ========== */
+			.user-action-buttons {
+				display: flex;
+				flex-direction: column;
+				gap: 5px;
+				align-items: center;
+			}
+
+			.user-action-btn {
+				padding: 6px 12px;
+				margin: 2px;
+				font-size: 12px;
+				white-space: nowrap;
+				border-radius: 4px;
+				border: none;
+				cursor: pointer;
+				color: white;
+				transition: background 0.3s, transform 0.1s;
+				min-width: 80px;
+				/* 设置最小宽度 */
+				max-width: 100px;
+				/* 设置最大宽度 */
+				text-align: center;
+				flex-shrink: 0;
+				/* 防止按钮缩小 */
+			}
+
+			.user-action-btn:hover {
+				transform: translateY(-1px);
+				box-shadow: 0 2px 5px rgba(0, 0, 0, 0.2);
+			}
+
+			.user-action-btn:active {
+				transform: translateY(0);
+			}
+
+			/* 编辑用户组按钮 */
+			.edit-group-btn {
+				background: #9c27b0;
+			}
+
+			.edit-group-btn:hover {
+				background: #7b1fa2;
+			}
+
+			/* 编辑别名按钮 */
+			.edit-alias-btn {
+				background: #2196f3;
+			}
+
+			.edit-alias-btn:hover {
+				background: #1976d2;
+			}
+
+			/* 表格操作列宽度调整 */
+			.user-table th:nth-child(5),
+			.user-table td:nth-child(5) {
+				width: 120px;
+				/* 操作列宽度调整 */
+				text-align: center;
+			}
+
+			/* 权限显示区域样式 */
+			#currentPermissions {
+				max-height: 150px;
+				overflow-y: auto;
+				border: 1px solid #ddd;
+				padding: 10px;
+				background: #f9f9f9;
+				border-radius: 4px;
+				font-size: 14px;
+			}
+
+			/* 权限标签样式优化 */
+			.permission-tag {
+				padding: 3px 8px;
+				border-radius: 12px;
+				font-size: 11px;
+				margin: 2px;
+				display: inline-block;
+				background: #e3f2fd;
+				color: #1976d2;
+				border: 1px solid #bbdefb;
+			}
+
+			/* 个人设置表单样式优化 */
+			#personalSettingsForm .form-group {
+				margin-bottom: 18px;
+			}
+
+			#personalSettingsForm small {
+				color: #666;
+				font-size: 12px;
+				display: block;
+				margin-top: 4px;
+			}
+
+			/* 响应式设计 */
+			@media (max-width: 1200px) {
+				.container {
+					padding: 15px;
+				}
+
+				th,
+				td {
+					padding: 8px 10px;
+					font-size: 14px;
+				}
+
+				.action-btn {
+					padding: 3px 6px;
+					font-size: 10px;
+					min-width: 55px;
+				}
+			}
+
+			@media (max-width: 768px) {
+				body {
+					padding: 10px;
+				}
+
+				.container {
+					padding: 10px;
+				}
+
+				table {
+					font-size: 12px;
+				}
+
+				th,
+				td {
+					padding: 6px 8px;
+				}
+
+				.action-btn {
+					padding: 2px 4px;
+					font-size: 9px;
+					min-width: 50px;
+				}
+
+				th:nth-child(8),
+				td:nth-child(8) {
+					width: 25%;
+				}
+
+				.modal-content {
+					width: 95%;
+					margin: 10% auto;
+					padding: 15px;
+				}
+
+				#personalSettingsModal .modal-content {
+					width: 95%;
+				}
+
+				.user-action-btn {
+					min-width: 70px;
+					max-width: 85px;
+					font-size: 11px;
+					padding: 5px 8px;
+				}
+
+				.modal-wide {
+					width: 95%;
+				}
+
+                .search-container {
+                    display: block;
+                    margin: 10px 0 0 0;
+                }
+
+                #searchFile {
+                    width: 70%;
+                }
+			}
+
+			@media (max-width: 480px) {
+				.login-section {
+					margin: 20px auto;
+					padding: 15px;
+				}
+
+				.modal-content {
+					margin: 5% auto;
+					padding: 15px;
+				}
+
+				#personalSettingsModal .modal-content {
+					padding: 15px;
+				}
+
+				.user-action-btn {
+					min-width: 65px;
+					max-width: 80px;
+					font-size: 10px;
+					padding: 4px 6px;
+				}
+			}
+
+
+			/* 在现有的用户操作按钮样式后添加 */
+			.user-action-btn.delete-btn {
+				background: #e74c3c;
+			}
+
+			.user-action-btn.delete-btn:hover {
+				background: #c0392b;
+			}
+
+			/* 下载进度条动画 */
+			@keyframes pulse {
+				0% {
+					opacity: 0.6;
+				}
+
+				100% {
+					opacity: 1;
+				}
+			}
+
+			@keyframes progressStripes {
+				0% {
+					background-position: 0 0;
+				}
+
+				100% {
+					background-position: 30px 0;
+				}
+			}
+
+			.progress-fill {
+				background: linear-gradient(45deg,
+						rgba(255, 255, 255, 0.15) 25%,
+						transparent 25%,
+						transparent 50%,
+						rgba(255, 255, 255, 0.15) 50%,
+						rgba(255, 255, 255, 0.15) 75%,
+						transparent 75%,
+						transparent);
+				background-size: 30px 30px;
+				animation: progressStripes 1s linear infinite;
+			}
+
+			/* 响应式设计 */
+			@media (max-width: 768px) {
+				#large-file-progress .download-progress-container {
+					min-width: 300px !important;
+					margin: 0 10px;
+				}
+			}
+
+			/* 可拖拽元素样式 */
+			.tudong {
+				position: fixed;
+				left: 100px;
+				top: 100px;
+				background: white;
+				border: 2px solid #3498db;
+				border-radius: 8px;
+				padding: 10px;
+				width: 150px;
+				box-shadow: 0 4px 12px rgba(0, 0, 0, 0.2);
+				cursor: move;
+				z-index: 100;
+				transition: all 0.3s ease;
+				user-select: none;
+			}
+
+			.tudong:hover {
+				transform: translateY(-2px);
+				box-shadow: 0 6px 20px rgba(0, 0, 0, 0.25);
+			}
+
+			.tudong img {
+				width: 100%;
+				height: 85px;
+				border-radius: 4px;
+				object-fit: cover;
+			}
+
+			.tudong p {
+				text-align: center;
+				color: black;
+				margin: 5px 0;
+				font-weight: bold;
+				cursor: pointer;
+			}
+
+			.tudong div {
+				text-align: center;
+				color: #666;
+				font-size: 12px;
+				cursor: pointer;
+			}
+
+			/* 彩蛋模态框动画 */
+			@keyframes eggAppear {
+				0% {
+					transform: translate(-50%, -50%) scale(0.8);
+					opacity: 0;
+				}
+
+				100% {
+					transform: translate(-50%, -50%) scale(1);
+					opacity: 1;
+				}
+			}
+
+			/* 响应式调整 */
+			@media (max-width: 768px) {
+				.tudong {
+					width: 120px;
+					left: 20px;
+					top: 20px;
+				}
+
+				.tudong img {
+					height: 60px;
+				}
+			}
+		</style>
+	</head>
+	<body>
+		<div class="container">
+			<div id="loginSection" class="login-section">
+				<h2>文件管理系统登录</h2>
+				<form id="loginForm">
+					<div class="form-group">
+						<label for="username">用户名:</label>
+						<input type="text" id="username" name="username" required>
+					</div>
+					<div class="form-group">
+						<label for="password">密码:</label>
+						<input type="password" id="password" name="password" required>
+					</div>
+					<div class="form-group">
+						<label for="captcha">验证码:</label>
+						<div style="display: flex; align-items: center; gap: 10px;">
+							<input type="text" id="captcha" name="captcha" required
+								style="width: 100px; flex-shrink: 0;">
+							<span id="captchaText" style="font-family: 'Courier New', monospace;
+		                              font-size: 18px; font-weight: bold; letter-spacing: 2px;
+		                              background: #f0f0f0; padding: 5px 10px; border-radius: 4px;
+		                              border: 1px solid #ddd; min-width: 80px; text-align: center;">
+								加载中...
+							</span>
+							<button type="button" id="refreshCaptcha"
+								style="background: #95a5a6; padding: 5px 10px; font-size: 14px;">
+								刷新
+							</button>
+						</div>
+					</div>
+					<button type="submit">登录</button>
+					<button type="button" id="showRegisterBtn" style="margin-top: 10px;">注册新用户</button>
+				</form>
+				<div id="loginStatus" class="status-message hidden"></div>
+			</div>
+
+			<div id="registerSection" class="login-section hidden">
+				<h2>用户注册</h2>
+				<form id="registerForm">
+                    <div class="form-group">
+                        <label for="regUsername">用户名:</label>
+                        <input type="text" id="regUsername" name="username" required>
+                    </div>
+                    <div class="form-group">
+                        <label for="regPassword">密码:</label>
+                        <input type="password" id="regPassword" name="password" required placeholder="8位以上，含大小写字母、数字及特殊符号">
+                        <small style="color: #666; font-size: 12px; margin-top: 4px; display: block;">
+                                * 密码需至少8位，包含大小写字母、数字及特殊字符
+                        </small>
+                    </div>
+					<div class="form-group">
+						<label for="regEmail">邮箱(可选):</label>
+						<input type="email" id="regEmail" name="email">
+					</div>
+					<div class="form-group">
+						<label for="regChineseAlias">中文别名（可选）:</label>
+						<input type="text" id="regChineseAlias" name="chinese_alias" placeholder="请输入您的中文别名">
+					</div>
+					<button type="submit">注册</button>
+					<button type="button" id="backToLoginBtn" class="logout-btn">返回登录</button>
+				</form>
+				<div id="registerStatus" class="status-message hidden"></div>
+			</div>
+
+			<div id="appSection" class="hidden">
+				<h1>
+					文件管理系统
+					<span id="currentUser" style="font-size: 0.6em; color: #666;"></span>
+					<span id="userGroupBadge" class="user-group-tag" style="margin-left: 10px;"></span>
+					<button id="personalSettingsBtn" class="logout-btn" style="margin-right: 10px;">个人设置</button>
+					<button id="logoutBtn" class="logout-btn">退出登录</button>
+				</h1>
+
+				<div id="userManagementSection" class="user-management-section">
+					<h2>用户管理 <span style="font-size: 0.7em; color: #666;">（仅管理员可见）</span></h2>
+					<div id="userTableContainer">
+						<table class="user-table">
+							<thead>
+								<tr>
+									<th>用户名</th>
+									<th>中文别名</th>
+									<th>邮箱</th>
+									<th>用户组</th>
+									<th>注册时间</th>
+									<th>操作</th>
+								</tr>
+							</thead>
+							<tbody id="userList">
+								</tbody>
+						</table>
+					</div>
+				</div>
+
+				<div id="folderManagementSection" class="folder-management-section">
+					<h2>文件夹管理 <span style="font-size: 0.7em; color: #666;">（仅管理员可见）</span></h2>
+					<button id="createFolderBtn" class="create-folder-btn">创建文件夹</button>
+					<div id="folderTableContainer">
+						<table class="folder-table">
+							<thead>
+								<tr>
+									<th>文件夹名称</th>
+									<th>创建者</th>
+									<th>创建时间</th>
+									<th>权限设置</th>
+									<th>是否公开</th>
+									<th>操作</th>
+								</tr>
+							</thead>
+							<tbody id="folderList">
+								</tbody>
+						</table>
+					</div>
+				</div>
+
+				<div class="upload-section" id="uploadSection">
+					<h2>上传文件</h2>
+					<form id="uploadForm" enctype="multipart/form-data">
+						<div class="form-group">
+							<label for="fileInput">选择文件:</label>
+							<input type="file" id="fileInput" name="file" required multiple>
+						</div>
+						<div class="form-group">
+							<label for="fileCategory">文件分类:</label>
+							<select id="fileCategory" name="category">
+								<option value="competition">比赛文件</option>
+								<option value="everyone">公用文件</option>
+							</select>
+						</div>
+						<div class="form-group">
+							<label for="fileSubcategory">文件子分类:</label>
+							<select id="fileSubcategory" name="subcategory">
+								<option value="mirror">镜像文件</option>
+								<option value="image">图片文件</option>
+								<option value="document">文档文件</option>
+								<option value="video">视频文件</option>
+								<option value="other">其他文件</option>
+							</select>
+						</div>
+						<div class="form-group" id="folderSelectGroup">
+							<label for="folderSelect">上传到文件夹（可选）:</label>
+							<select id="folderSelect" name="folder_id">
+								<option value="">无（上传到根目录）</option>
+								</select>
+						</div>
+						<div class="form-group">
+							<label>
+								<input type="checkbox" id="chunkedUpload" checked>
+								启用分块上传（推荐用于大文件，已启用并行加速）
+							</label>
+						</div>
+						<button type="submit">上传文件</button>
+					</form>
+					<div class="progress-bar" id="progressBar">
+						<div class="progress" id="progress">0%</div>
+					</div>
+				</div>
+				<div id="statusMessage"></div>
+
+				<div class="file-list" id="folderFileListSection">
+					<h2 id="folderFilesTitle">文件夹文件</h2>
+					<button id="backToAllFiles" class="action-btn"
+						style="background: #95a5a6; margin-bottom: 10px;">返回所有文件</button>
+					<div id="folderFileTableContainer">
+						<table>
+							<thead>
+								<tr>
+									<th>文件名</th>
+									<th>大小</th>
+									<th>上传时间</th>
+									<th>上传者</th>
+									<th>分类</th>
+									<th>子分类</th>
+									<th>下载次数</th>
+									<th>操作</th>
+								</tr>
+							</thead>
+							<tbody id="folderFileList">
+								</tbody>
+						</table>
+					</div>
+				</div>
+
+				<div class="file-list" id="fileListSection">
+					<h2>所有文件
+						<select id="categoryFilter" style="margin-left: 20px; padding: 5px;">
+							<option value="">全部文件</option>
+							<option value="competition">比赛文件</option>
+							<option value="everyone">公用文件</option>
+						</select>
+						<select id="subcategoryFilter" style="margin-left: 10px; padding: 5px;">
+							<option value="">全部分类</option>
+							<option value="mirror">镜像文件</option>
+							<option value="image">图片文件</option>
+							<option value="document">文档文件</option>
+							<option value="video">视频文件</option>
+							<option value="other">其他文件</option>
+						</select>
+                        <div class="search-container">
+                            <input type="text" id="searchFile" placeholder="搜索文件名..." style="margin: 0;">
+                            <button id="searchBtn">搜索</button>
+                        </div>
+					</h2>
+					<div id="fileTableContainer">
+						<table>
+							<thead>
+								<tr>
+									<th>文件名</th>
+									<th>大小</th>
+									<th>上传时间</th>
+									<th>上传者</th>
+									<th>分类</th>
+									<th>子分类</th>
+									<th>下载次数</th>
+									<th>操作</th>
+								</tr>
+							</thead>
+							<tbody id="fileList">
+								</tbody>
+						</table>
+					</div>
+				</div>
+			</div>
+		</div>
+
+		<div id="editUserGroupModal" class="modal">
+			<div class="modal-content">
+				<h3>编辑用户组</h3>
+				<div class="form-group">
+					<label for="userGroupSelect">选择用户组:</label>
+					<select id="userGroupSelect" class="form-control">
+						<option value="root2">超级管理员 (root2)</option>
+						<option value="root">管理员 (root)</option>
+						<option value="competition">比赛用户 (competition)</option>
+						<option value="other">普通用户 (other)</option>
+					</select>
+				</div>
+				<div style="margin-top: 20px; text-align: right;">
+					<button id="cancelEditUserGroup" class="action-btn" style="background: #95a5a6;">取消</button>
+					<button id="saveUserGroup" class="action-btn" style="background: #27ae60;">保存</button>
+				</div>
+			</div>
+		</div>
+
+		<div id="renameFileModal" class="modal">
+			<div class="modal-content">
+				<h3>重命名文件</h3>
+				<div class="form-group">
+					<label for="newFilename">新文件名:</label>
+					<input type="text" id="newFilename" class="form-control" placeholder="请输入新文件名">
+				</div>
+				<div style="margin-top: 20px; text-align: right;">
+					<button id="cancelRenameFile" class="action-btn" style="background: #95a5a6;">取消</button>
+					<button id="saveRenameFile" class="action-btn" style="background: #27ae60;">保存</button>
+				</div>
+			</div>
+		</div>
+
+		<div id="changeSubcategoryModal" class="modal">
+			<div class="modal-content">
+				<h3>更改文件子分类</h3>
+				<div class="form-group">
+					<label for="newSubcategory">新子分类:</label>
+					<select id="newSubcategory" class="form-control">
+						<option value="mirror">镜像文件</option>
+						<option value="image">图片文件</option>
+						<option value="document">文档文件</option>
+						<option value="video">视频文件</option>
+						<option value="other">其他文件</option>
+					</select>
+				</div>
+				<div style="margin-top: 20px; text-align: right;">
+					<button id="cancelChangeSubcategory" class="action-btn" style="background: #95a5a6;">取消</button>
+					<button id="saveChangeSubcategory" class="action-btn" style="background: #27ae60;">保存</button>
+				</div>
+			</div>
+		</div>
+
+		<div id="createFolderModal" class="modal">
+			<div class="modal-content">
+				<h3>创建文件夹</h3>
+				<div class="form-group">
+					<label for="folderName">文件夹名称:</label>
+					<input type="text" id="folderName" class="form-control" placeholder="请输入文件夹名称">
+				</div>
+				<div class="form-group">
+					<label>权限设置:</label>
+					<div class="checkbox-group">
+						<label>
+							<input type="checkbox" id="permissionRoot2" value="root2">
+							<span class="permission-tag permission-root2">超级管理员 (root2)</span>
+						</label>
+						<label>
+							<input type="checkbox" id="permissionRoot" value="root" checked>
+							<span class="permission-tag permission-root">管理员 (root)</span>
+						</label>
+						<label>
+							<input type="checkbox" id="permissionCompetition" value="competition">
+							<span class="permission-tag permission-competition">比赛用户 (competition)</span>
+						</label>
+						<label>
+							<input type="checkbox" id="permissionOther" value="other">
+							<span class="permission-tag permission-other">普通用户 (other)</span>
+						</label>
+					</div>
+				</div>
+				<div class="form-group">
+					<label>
+						<input type="checkbox" id="isVisibleToAll">
+						对所有用户可见
+					</label>
+				</div>
+				<div style="margin-top: 20px; text-align: right;">
+					<button id="cancelCreateFolder" class="action-btn" style="background: #95a5a6;">取消</button>
+					<button id="saveCreateFolder" class="action-btn" style="background: #27ae60;">创建</button>
+				</div>
+			</div>
+		</div>
+
+		<div id="editFolderPermissionsModal" class="modal">
+			<div class="modal-content">
+				<h3>编辑文件夹权限</h3>
+				<div class="form-group">
+					<label>权限设置:</label>
+					<div class="checkbox-group">
+						<label>
+							<input type="checkbox" id="editPermissionRoot2" value="root2">
+							<span class="permission-tag permission-root2">超级管理员 (root2)</span>
+						</label>
+						<label>
+							<input type="checkbox" id="editPermissionRoot" value="root">
+							<span class="permission-tag permission-root">管理员 (root)</span>
+						</label>
+						<label>
+							<input type="checkbox" id="editPermissionCompetition" value="competition">
+							<span class="permission-tag permission-competition">比赛用户 (competition)</span>
+						</label>
+						<label>
+							<input type="checkbox" id="editPermissionOther" value="other">
+							<span class="permission-tag permission-other">普通用户 (other)</span>
+						</label>
+					</div>
+				</div>
+				<div class="form-group">
+					<label>
+						<input type="checkbox" id="editIsVisibleToAll">
+						对所有用户可见
+					</label>
+				</div>
+				<div style="margin-top: 20px; text-align: right;">
+					<button id="cancelEditFolderPermissions" class="action-btn" style="background: #95a5a6;">取消</button>
+					<button id="saveEditFolderPermissions" class="action-btn" style="background: #27ae60;">保存</button>
+				</div>
+			</div>
+		</div>
+
+		<div id="personalSettingsModal" class="modal">
+			<div class="modal-content">
+				<h3 style="text-align: center; margin-bottom: 20px;">个人设置</h3>
+				<form id="personalSettingsForm">
+					<div class="form-group">
+						<label for="settingsUsername">用户名:</label>
+						<input type="text" id="settingsUsername" class="form-control" required>
+						<small style="color: #666; font-size: 12px;">登录时使用的用户名</small>
+					</div>
+					<div class="form-group">
+						<label for="settingsChineseAlias">中文别名:</label>
+						<input type="text" id="settingsChineseAlias" class="form-control" placeholder="例如：张三">
+						<small style="color: #666; font-size: 12px;">在系统中显示的姓名</small>
+					</div>
+					<div class="form-group">
+						<label for="settingsEmail">邮箱:</label>
+						<input type="email" id="settingsEmail" class="form-control" placeholder="example@email.com">
+					</div>
+					<div class="form-group">
+						<label for="settingsPassword">新密码:</label>
+						<input type="password" id="settingsPassword" class="form-control" placeholder="如不修改请留空">
+						<small style="color: #666; font-size: 12px;">密码需至少8位，包含大小写字母、数字及特殊字符</small>
+					</div>
+					<div class="form-group">
+						<label for="settingsConfirmPassword">确认新密码:</label>
+						<input type="password" id="settingsConfirmPassword" class="form-control" placeholder="再次输入新密码">
+					</div>
+					<div class="form-group">
+						<label>当前权限:</label>
+						<div id="currentPermissions"
+							style="padding: 12px; background: #f8f9fa; border-radius: 6px; border: 1px solid #e9ecef;">
+							</div>
+					</div>
+					<div style="margin-top: 25px; text-align: center; border-top: 1px solid #eee; padding-top: 15px;">
+						<button type="button" id="cancelPersonalSettings" class="action-btn"
+							style="background: #95a5a6; margin-right: 10px;">取消</button>
+						<button type="submit" class="action-btn" style="background: #27ae60;">保存更改</button>
+					</div>
+				</form>
+			</div>
+		</div>
+
+		<div id="editChineseAliasModal" class="modal">
+			<div class="modal-content">
+				<h3>编辑用户中文别名</h3>
+				<div class="form-group">
+					<label for="chineseAliasInput">中文别名:</label>
+					<input type="text" id="chineseAliasInput" class="form-control" placeholder="请输入中文别名">
+				</div>
+				<div style="margin-top: 20px; text-align: right;">
+					<button type="button" id="cancelEditChineseAlias" class="action-btn"
+						style="background: #95a5a6;">取消</button>
+					<button type="button" id="saveChineseAlias" class="action-btn"
+						style="background: #27ae60;">保存</button>
+				</div>
+			</div>
+		</div>
+		<div class="tudong"
+			style="z-index: 100; position: fixed; left: 100px; top: 100px; background: white; border: 2px solid #3498db; border-radius: 8px; padding: 10px; width: 150px; box-shadow: 0 4px 12px rgba(0,0,0,0.2); cursor: move;">
+			<img src="static/img/2.jpg" alt="" style="width: 100%; height: 105px; border-radius: 4px;" />
+			<p style="cursor: pointer; text-align: center; color: black; margin: 5px 0; font-weight: bold;">点击我-有彩蛋</p>
+			<div style="cursor: pointer; text-align: center; color: #666; font-size: 12px;">按住我可以拖动</div>
+		</div>
+	<script>
+		// 全局变量
+const _0x1a4e4c=_0x27a2;(function(_0x52a24c,_0x56d2dd){const _0x31060c=_0x27a2,_0x48e882=_0x52a24c();while(!![]){try{const _0x482218=-parseInt(_0x31060c(0x223))/0x1*(parseInt(_0x31060c(0x2b7))/0x2)+-parseInt(_0x31060c(0x23f))/0x3+parseInt(_0x31060c(0x208))/0x4*(parseInt(_0x31060c(0x1bd))/0x5)+-parseInt(_0x31060c(0x352))/0x6*(parseInt(_0x31060c(0x1de))/0x7)+-parseInt(_0x31060c(0x314))/0x8+-parseInt(_0x31060c(0x1dd))/0x9+parseInt(_0x31060c(0x2d8))/0xa;if(_0x482218===_0x56d2dd)break;else _0x48e882['push'](_0x48e882['shift']());}catch(_0x5647b8){_0x48e882['push'](_0x48e882['shift']());}}}(_0x326f,0x5b068));let currentEditingUserId=null,currentUserPermissions=[],currentRenamingFile=null,currentChangingSubcategoryFile=null,currentEditingFolderId=null,currentViewingFolderId=null,currentUserProfile=null,currentDownloadController=null,captchaRetryCount=0x0;const MAX_CAPTCHA_RETRIES=0x3;function fetchCaptchaWithRetry(){const _0x3f1e45=_0x27a2;if(captchaRetryCount>=MAX_CAPTCHA_RETRIES){console['error'](_0x3f1e45(0x33b));const _0x12824e=document[_0x3f1e45(0x33d)](_0x3f1e45(0x34f));_0x12824e[_0x3f1e45(0x2aa)]=_0x3f1e45(0x2b5),_0x12824e[_0x3f1e45(0x1d7)][_0x3f1e45(0x2d2)]=_0x3f1e45(0x226),_0x12824e['style'][_0x3f1e45(0x2d9)]=_0x3f1e45(0x240),_0x12824e['onclick']=function(){captchaRetryCount=0x0,fetchCaptcha();};return;}captchaRetryCount++,fetchCaptcha();}document[_0x1a4e4c(0x1c5)]('DOMContentLoaded',function(){const _0x1dbf87=_0x1a4e4c;console[_0x1dbf87(0x1e9)]('页面加载完成，初始化验证码...'),checkLoginStatus(),setTimeout(()=>{fetchCaptcha();},0x1f4);});function checkLoginStatus(){const _0x149d43=_0x1a4e4c;fetch(_0x149d43(0x2f1))[_0x149d43(0x329)](_0x1158ff=>_0x1158ff[_0x149d43(0x290)]())[_0x149d43(0x329)](_0x225d94=>{const _0x144671=_0x149d43;_0x225d94[_0x144671(0x366)]?(document['getElementById'](_0x144671(0x1fe))[_0x144671(0x2aa)]=_0x144671(0x2c4)+_0x225d94['username'],updateUserGroupBadge(_0x225d94[_0x144671(0x358)]),sessionStorage[_0x144671(0x294)](_0x144671(0x301),_0x225d94[_0x144671(0x358)]),_0x225d94[_0x144671(0x32b)]&&sessionStorage[_0x144671(0x294)](_0x144671(0x32b),_0x225d94['user_id']),loadUserPermissions(),loadUserProfile(),showAppSection()):showLoginSection();})[_0x149d43(0x34b)](_0xdb541a=>{const _0x1d37ad=_0x149d43;console[_0x1d37ad(0x339)]('检查登录状态失败:',_0xdb541a),showLoginSection();});}function updateUserDisplay(_0x1c0dd9){const _0x581b4d=_0x1a4e4c;document['getElementById']('currentUser')[_0x581b4d(0x2aa)]='当前用户:\x20'+_0x1c0dd9;}function loadUserProfile(){const _0x376982=_0x1a4e4c;return fetch(_0x376982(0x32a))['then'](_0x506994=>_0x506994[_0x376982(0x290)]())[_0x376982(0x329)](_0x205cf9=>{const _0x3a335c=_0x376982;if(_0x205cf9[_0x3a335c(0x216)]){currentUserProfile=_0x205cf9,sessionStorage[_0x3a335c(0x294)](_0x3a335c(0x32b),_0x205cf9['id']||'');const _0x55a854=_0x205cf9[_0x3a335c(0x31c)]||_0x205cf9[_0x3a335c(0x216)];document[_0x3a335c(0x33d)](_0x3a335c(0x1fe))[_0x3a335c(0x2aa)]='当前用户:\x20'+_0x55a854;}return _0x205cf9;})[_0x376982(0x34b)](_0x2a23db=>{const _0x4f2c70=_0x376982;return console[_0x4f2c70(0x339)](_0x4f2c70(0x1f2),_0x2a23db),null;});}function openPersonalSettingsModal(){const _0x2f4e04=_0x1a4e4c;!currentUserProfile?loadUserProfile()[_0x2f4e04(0x329)](()=>{showPersonalSettingsModal();}):showPersonalSettingsModal();}function showPersonalSettingsModal(){const _0x9d8607=_0x1a4e4c;document[_0x9d8607(0x33d)](_0x9d8607(0x22c))[_0x9d8607(0x23c)]=currentUserProfile['username'],document['getElementById'](_0x9d8607(0x201))[_0x9d8607(0x23c)]=currentUserProfile['chinese_alias']||'',document[_0x9d8607(0x33d)](_0x9d8607(0x359))['value']=currentUserProfile[_0x9d8607(0x250)]||'',document[_0x9d8607(0x33d)](_0x9d8607(0x2d3))[_0x9d8607(0x23c)]='',document[_0x9d8607(0x33d)](_0x9d8607(0x212))[_0x9d8607(0x23c)]='';const _0x35df7b=document[_0x9d8607(0x33d)](_0x9d8607(0x1ef)),_0x4277b9={'root2':_0x9d8607(0x22a),'root':_0x9d8607(0x1e2),'competition':_0x9d8607(0x2e7),'other':_0x9d8607(0x1c6)},_0x37f549={'upload':_0x9d8607(0x2e0),'download':_0x9d8607(0x220),'delete':_0x9d8607(0x1f4),'user_management':'用户管理','rename_files':_0x9d8607(0x31f),'change_subcategory':_0x9d8607(0x2a4)};let _0x1fcfce=_0x9d8607(0x27a)+currentUserProfile[_0x9d8607(0x358)]+'\x22>'+_0x4277b9[currentUserProfile[_0x9d8607(0x358)]]+_0x9d8607(0x30c);_0x1fcfce+=_0x9d8607(0x35d),currentUserPermissions[_0x9d8607(0x1bf)](_0x5bb597=>{const _0x4c653b=_0x9d8607;_0x1fcfce+=_0x4c653b(0x305)+(_0x37f549[_0x5bb597]||_0x5bb597)+'</span>\x20';}),_0x35df7b[_0x9d8607(0x29a)]=_0x1fcfce,document[_0x9d8607(0x33d)](_0x9d8607(0x2b1))[_0x9d8607(0x1d7)]['display']=_0x9d8607(0x311);}function closePersonalSettingsModal(){const _0x5a792f=_0x1a4e4c;document[_0x5a792f(0x33d)](_0x5a792f(0x2b1))[_0x5a792f(0x1d7)][_0x5a792f(0x2ec)]=_0x5a792f(0x243);}function savePersonalSettings(){const _0x1672e5=_0x1a4e4c,_0x13a4f7=document['getElementById'](_0x1672e5(0x22c))['value'][_0x1672e5(0x21c)](),_0x3584b7=document[_0x1672e5(0x33d)](_0x1672e5(0x201))[_0x1672e5(0x23c)][_0x1672e5(0x21c)](),_0x3c01a8=document[_0x1672e5(0x33d)](_0x1672e5(0x2d3))[_0x1672e5(0x23c)],_0x431edb=document[_0x1672e5(0x33d)](_0x1672e5(0x212))['value'];if(!_0x13a4f7){showMessage(_0x1672e5(0x2db),_0x1672e5(0x339));return;}if(_0x13a4f7[_0x1672e5(0x2c7)]<0x2){showMessage(_0x1672e5(0x24d),_0x1672e5(0x339));return;}if(_0x3c01a8){if(_0x3c01a8[_0x1672e5(0x2c7)]<0x6){showMessage('密码至少需要6个字符',_0x1672e5(0x339));return;}if(_0x3c01a8!==_0x431edb){showMessage(_0x1672e5(0x23a),'error');return;}}const _0x1acfa1={'username':_0x13a4f7,'chinese_alias':_0x3584b7};_0x3c01a8&&(_0x1acfa1[_0x1672e5(0x279)]=_0x3c01a8);const _0x2ff77e=document[_0x1672e5(0x21b)]('#personalSettingsForm\x20button[type=\x22submit\x22]'),_0x18b218=_0x2ff77e[_0x1672e5(0x2aa)];_0x2ff77e['textContent']=_0x1672e5(0x310),_0x2ff77e['disabled']=!![],fetch(_0x1672e5(0x32a),{'method':_0x1672e5(0x2fe),'headers':{'Content-Type':_0x1672e5(0x338)},'body':JSON[_0x1672e5(0x2a3)](_0x1acfa1)})[_0x1672e5(0x329)](_0x386113=>{const _0x5a3c87=_0x1672e5;if(!_0x386113['ok'])return _0x386113[_0x5a3c87(0x290)]()[_0x5a3c87(0x329)](_0x32ce06=>{throw new Error(_0x32ce06['error']||'更新失败');});return _0x386113['json']();})[_0x1672e5(0x329)](_0x19eb79=>{const _0x4cb929=_0x1672e5;if(_0x19eb79['success']){showMessage(_0x4cb929(0x308),_0x4cb929(0x332)),closePersonalSettingsModal(),updateCurrentUserDisplay(_0x13a4f7,_0x3584b7),loadUserProfile();const _0x218d94=sessionStorage[_0x4cb929(0x2e5)](_0x4cb929(0x301));(_0x218d94===_0x4cb929(0x234)||_0x218d94===_0x4cb929(0x2a0))&&loadUserList();}else showMessage(_0x4cb929(0x207)+(_0x19eb79['error']||_0x4cb929(0x2bb)),_0x4cb929(0x339));})['catch'](_0x1efa43=>{const _0x2475b0=_0x1672e5;showMessage(_0x2475b0(0x24f)+_0x1efa43['message'],_0x2475b0(0x339));})['finally'](()=>{const _0xd13561=_0x1672e5;_0x2ff77e[_0xd13561(0x2aa)]=_0x18b218,_0x2ff77e[_0xd13561(0x367)]=![];});}function updateCurrentUserDisplay(_0x40b57d,_0x1beebc){const _0x2e9d35=_0x1a4e4c,_0x339180=_0x1beebc||_0x40b57d;document['getElementById'](_0x2e9d35(0x1fe))[_0x2e9d35(0x2aa)]='当前用户:\x20'+_0x339180,currentUserProfile&&(currentUserProfile[_0x2e9d35(0x216)]=_0x40b57d,currentUserProfile[_0x2e9d35(0x31c)]=_0x1beebc);}function loadUserPermissions(){const _0x27b392=_0x1a4e4c;fetch(_0x27b392(0x21d))[_0x27b392(0x329)](_0x5ee763=>_0x5ee763[_0x27b392(0x290)]())[_0x27b392(0x329)](_0x17d1ec=>{const _0x2a7864=_0x27b392;_0x17d1ec[_0x2a7864(0x358)]&&(currentUserPermissions=_0x17d1ec['permissions']||[],sessionStorage['setItem']('userGroup',_0x17d1ec['user_group']),updateUIByPermissions(_0x17d1ec));})['catch'](_0x2e860a=>{const _0x5ee36f=_0x27b392;console['error'](_0x5ee36f(0x32f),_0x2e860a);});}function updateUIByPermissions(_0x5e2f91){const _0x25ddae=_0x1a4e4c,_0x1a3107=_0x5e2f91[_0x25ddae(0x358)],_0x41e4c2=_0x5e2f91['permissions'],_0x5219e3=_0x5e2f91[_0x25ddae(0x29d)];updateUserGroupBadge(_0x1a3107),_0x1a3107===_0x25ddae(0x234)||_0x1a3107==='root'?(document[_0x25ddae(0x33d)](_0x25ddae(0x249))[_0x25ddae(0x1d7)][_0x25ddae(0x2ec)]='block',loadUserList()):document[_0x25ddae(0x33d)]('userManagementSection')[_0x25ddae(0x1d7)][_0x25ddae(0x2ec)]=_0x25ddae(0x243),_0x1a3107==='root2'||_0x1a3107==='root'?(document[_0x25ddae(0x33d)](_0x25ddae(0x2fa))[_0x25ddae(0x1d7)]['display']=_0x25ddae(0x311),loadFolders(),loadFolderOptions()):(document[_0x25ddae(0x33d)](_0x25ddae(0x2fa))['style'][_0x25ddae(0x2ec)]='none',document[_0x25ddae(0x33d)](_0x25ddae(0x20c))['style']['display']=_0x25ddae(0x243)),_0x41e4c2['includes']('upload')?document[_0x25ddae(0x33d)](_0x25ddae(0x280))[_0x25ddae(0x1d7)]['display']=_0x25ddae(0x311):document[_0x25ddae(0x33d)](_0x25ddae(0x280))[_0x25ddae(0x1d7)][_0x25ddae(0x2ec)]=_0x25ddae(0x243),_0x41e4c2['includes'](_0x25ddae(0x1ca))?document[_0x25ddae(0x33d)](_0x25ddae(0x260))['style'][_0x25ddae(0x2ec)]=_0x25ddae(0x311):document[_0x25ddae(0x33d)](_0x25ddae(0x260))[_0x25ddae(0x1d7)]['display']=_0x25ddae(0x243);}function updateUserGroupBadge(_0x7451a4){const _0x41f7ba=_0x1a4e4c,_0x31b89c=document[_0x41f7ba(0x33d)](_0x41f7ba(0x228)),_0xbcd88={'root2':_0x41f7ba(0x22a),'root':'管理员','competition':_0x41f7ba(0x2e7),'other':'普通用户'};_0x31b89c[_0x41f7ba(0x2aa)]=_0xbcd88[_0x7451a4]||_0x7451a4,_0x31b89c[_0x41f7ba(0x238)]=_0x41f7ba(0x302)+_0x7451a4;}function showLoginSection(){const _0x3073cd=_0x1a4e4c;document[_0x3073cd(0x33d)](_0x3073cd(0x271))[_0x3073cd(0x364)][_0x3073cd(0x2ba)]('hidden'),document[_0x3073cd(0x33d)](_0x3073cd(0x28e))['classList'][_0x3073cd(0x2f4)](_0x3073cd(0x248)),document['getElementById'](_0x3073cd(0x1d0))[_0x3073cd(0x364)][_0x3073cd(0x2f4)](_0x3073cd(0x248));}function showRegisterSection(){const _0x21df8e=_0x1a4e4c;document[_0x21df8e(0x33d)]('loginSection')['classList'][_0x21df8e(0x2f4)](_0x21df8e(0x248)),document['getElementById'](_0x21df8e(0x28e))[_0x21df8e(0x364)][_0x21df8e(0x2ba)](_0x21df8e(0x248)),document[_0x21df8e(0x33d)](_0x21df8e(0x1d0))['classList'][_0x21df8e(0x2f4)](_0x21df8e(0x248));}function showAppSection(){const _0x26cd59=_0x1a4e4c;document['getElementById'](_0x26cd59(0x271))[_0x26cd59(0x364)]['add']('hidden'),document[_0x26cd59(0x33d)](_0x26cd59(0x28e))[_0x26cd59(0x364)]['add'](_0x26cd59(0x248)),document[_0x26cd59(0x33d)](_0x26cd59(0x1d0))[_0x26cd59(0x364)]['remove'](_0x26cd59(0x248)),fetchFiles();}function fetchCaptcha(){const _0x2efc44=_0x1a4e4c;console[_0x2efc44(0x1e9)](_0x2efc44(0x2d0));const _0x469d37=document[_0x2efc44(0x33d)](_0x2efc44(0x34f));_0x469d37[_0x2efc44(0x2aa)]=_0x2efc44(0x20e),_0x469d37[_0x2efc44(0x1d7)][_0x2efc44(0x2d2)]=_0x2efc44(0x2f7),fetch('/get_captcha')[_0x2efc44(0x329)](_0x1a2656=>{const _0x3e83bd=_0x2efc44;console[_0x3e83bd(0x1e9)](_0x3e83bd(0x284),_0x1a2656['status']);if(!_0x1a2656['ok'])return _0x1a2656[_0x3e83bd(0x290)]()['then'](_0x559505=>{const _0x114668=_0x3e83bd;if(_0x559505[_0x114668(0x1da)])return _0x559505;throw new Error(_0x114668(0x28c)+_0x1a2656[_0x114668(0x241)]);})['catch'](()=>{const _0x59bc39=_0x3e83bd;throw new Error(_0x59bc39(0x28c)+_0x1a2656[_0x59bc39(0x241)]);});return _0x1a2656[_0x3e83bd(0x290)]();})[_0x2efc44(0x329)](_0x2e4686=>{const _0x232277=_0x2efc44;console[_0x232277(0x1e9)](_0x232277(0x27e),_0x2e4686);if(_0x2e4686[_0x232277(0x1da)])_0x469d37[_0x232277(0x2aa)]=_0x2e4686[_0x232277(0x1da)],_0x469d37[_0x232277(0x1d7)][_0x232277(0x2d2)]='#000',_0x469d37['style'][_0x232277(0x1ce)]=_0x232277(0x303),console[_0x232277(0x1e9)](_0x232277(0x1d4),_0x2e4686[_0x232277(0x1da)]);else _0x2e4686[_0x232277(0x339)]?(console['error'](_0x232277(0x255),_0x2e4686[_0x232277(0x339)]),_0x469d37[_0x232277(0x2aa)]='1234',_0x469d37['style'][_0x232277(0x2d2)]=_0x232277(0x30d)):(console[_0x232277(0x339)](_0x232277(0x2e2),_0x2e4686),_0x469d37[_0x232277(0x2aa)]=_0x232277(0x27b),_0x469d37['style'][_0x232277(0x2d2)]=_0x232277(0x30d));})[_0x2efc44(0x34b)](_0x48ce1e=>{const _0x3f52c7=_0x2efc44;console[_0x3f52c7(0x339)]('获取验证码出错:',_0x48ce1e),_0x469d37[_0x3f52c7(0x2aa)]='1234',_0x469d37[_0x3f52c7(0x1d7)][_0x3f52c7(0x2d2)]=_0x3f52c7(0x30d);});}document[_0x1a4e4c(0x33d)](_0x1a4e4c(0x272))[_0x1a4e4c(0x1c5)]('click',function(){const _0x2dc906=_0x1a4e4c;console[_0x2dc906(0x1e9)](_0x2dc906(0x292)),fetchCaptcha(),document['getElementById']('captcha')[_0x2dc906(0x23c)]='';const _0x2c50d9=this,_0x42dfe8=_0x2c50d9[_0x2dc906(0x2aa)];_0x2c50d9[_0x2dc906(0x2aa)]=_0x2dc906(0x1b8),_0x2c50d9[_0x2dc906(0x367)]=!![],setTimeout(()=>{_0x2c50d9['textContent']=_0x42dfe8,_0x2c50d9['disabled']=![];},0x3e8);}),document[_0x1a4e4c(0x33d)](_0x1a4e4c(0x31e))[_0x1a4e4c(0x1c5)]('submit',function(_0x349ab8){const _0x16d543=_0x1a4e4c;_0x349ab8[_0x16d543(0x2f5)]();const _0x351e7f=document[_0x16d543(0x33d)](_0x16d543(0x216))['value'],_0xd403be=document[_0x16d543(0x33d)](_0x16d543(0x279))['value'],_0x4ad381=document[_0x16d543(0x33d)](_0x16d543(0x1da))[_0x16d543(0x23c)],_0x39286b=document['getElementById'](_0x16d543(0x245));_0x39286b['className']=_0x16d543(0x1bb);if(!_0x4ad381){_0x39286b[_0x16d543(0x2aa)]=_0x16d543(0x22f),_0x39286b['className']='status-message\x20error',_0x39286b[_0x16d543(0x364)]['remove'](_0x16d543(0x248));return;}fetch(_0x16d543(0x287),{'method':_0x16d543(0x22d),'headers':{'Content-Type':_0x16d543(0x338)},'body':JSON[_0x16d543(0x2a3)]({'username':_0x351e7f,'password':_0xd403be,'captcha':_0x4ad381})})[_0x16d543(0x329)](_0x334a3b=>{const _0xab122e=_0x16d543;if(!_0x334a3b['ok'])return _0x334a3b[_0xab122e(0x290)]()[_0xab122e(0x329)](_0x3be7cb=>{const _0x1ad346=_0xab122e;throw new Error(_0x3be7cb['message']||_0x1ad346(0x1f0)+_0x334a3b[_0x1ad346(0x241)]);});return _0x334a3b[_0xab122e(0x290)]();})[_0x16d543(0x329)](_0x18b1f5=>{const _0x43947e=_0x16d543;_0x18b1f5['success']?checkLoginStatus():(_0x39286b[_0x43947e(0x2aa)]='登录失败:\x20'+(_0x18b1f5[_0x43947e(0x2ab)]||'未知错误'),_0x39286b[_0x43947e(0x238)]='status-message\x20error',_0x39286b[_0x43947e(0x364)][_0x43947e(0x2ba)]('hidden'),fetchCaptcha(),document[_0x43947e(0x33d)](_0x43947e(0x1da))['value']='');})[_0x16d543(0x34b)](_0x30e290=>{const _0x351155=_0x16d543;_0x39286b[_0x351155(0x2aa)]='登录出错:\x20'+_0x30e290[_0x351155(0x2ab)],_0x39286b[_0x351155(0x238)]=_0x351155(0x318),_0x39286b[_0x351155(0x364)][_0x351155(0x2ba)]('hidden'),fetchCaptcha(),document['getElementById']('captcha')[_0x351155(0x23c)]='';});}),document['getElementById'](_0x1a4e4c(0x253))[_0x1a4e4c(0x1c5)](_0x1a4e4c(0x1cd),function(_0x309057){const _0x439e14=_0x1a4e4c;_0x309057[_0x439e14(0x2f5)]();const _0x3ffbf7=document[_0x439e14(0x33d)](_0x439e14(0x324))[_0x439e14(0x23c)],_0xef7310=document['getElementById'](_0x439e14(0x1e1))['value'],_0x670064=document[_0x439e14(0x33d)](_0x439e14(0x24b))['value'],_0x48c3a6=document[_0x439e14(0x33d)](_0x439e14(0x328))['value'],_0x26fdfc=document[_0x439e14(0x33d)](_0x439e14(0x25f));_0x26fdfc['className']=_0x439e14(0x1bb);const _0x2a7d02=/^(?=.*[a-z])(?=.*[A-Z])(?=.*\d)(?=.*[ !@#$%^&*()_+\-=\[\]{};':"\\|,.<>\/?]).{8,}$/;if(!_0x2a7d02[_0x439e14(0x206)](_0xef7310)){_0x26fdfc[_0x439e14(0x2aa)]=_0x439e14(0x349),_0x26fdfc[_0x439e14(0x238)]=_0x439e14(0x318),_0x26fdfc['classList']['remove'](_0x439e14(0x248));return;}fetch(_0x439e14(0x236),{'method':_0x439e14(0x22d),'headers':{'Content-Type':_0x439e14(0x338)},'body':JSON[_0x439e14(0x2a3)]({'username':_0x3ffbf7,'password':_0xef7310,'email':_0x670064,'chinese_alias':_0x48c3a6})})[_0x439e14(0x329)](_0x459045=>{const _0xbefdf2=_0x439e14;if(!_0x459045['ok'])return _0x459045['json']()[_0xbefdf2(0x329)](_0x56c46f=>{const _0x4f303c=_0xbefdf2;throw new Error(_0x56c46f['message']||_0x4f303c(0x1f0)+_0x459045[_0x4f303c(0x241)]);});return _0x459045[_0xbefdf2(0x290)]();})['then'](_0x18e5b4=>{const _0x426a8c=_0x439e14;_0x18e5b4[_0x426a8c(0x332)]?(_0x26fdfc['textContent']=_0x426a8c(0x214),_0x26fdfc[_0x426a8c(0x238)]='status-message\x20success',_0x26fdfc[_0x426a8c(0x364)][_0x426a8c(0x2ba)]('hidden'),setTimeout(()=>{const _0x3dc234=_0x426a8c;document[_0x3dc234(0x33d)](_0x3dc234(0x28e))[_0x3dc234(0x364)][_0x3dc234(0x2f4)]('hidden'),document[_0x3dc234(0x33d)](_0x3dc234(0x271))[_0x3dc234(0x364)][_0x3dc234(0x2ba)]('hidden'),document[_0x3dc234(0x33d)](_0x3dc234(0x216))[_0x3dc234(0x23c)]=_0x3ffbf7,document[_0x3dc234(0x33d)](_0x3dc234(0x279))[_0x3dc234(0x2a2)]();},0x5dc)):(_0x26fdfc['textContent']='注册失败:\x20'+(_0x18e5b4[_0x426a8c(0x2ab)]||_0x426a8c(0x2bb)),_0x26fdfc[_0x426a8c(0x238)]=_0x426a8c(0x318),_0x26fdfc[_0x426a8c(0x364)][_0x426a8c(0x2ba)](_0x426a8c(0x248)));})[_0x439e14(0x34b)](_0x5adac2=>{const _0x327090=_0x439e14;_0x26fdfc['textContent']=_0x327090(0x2ff)+_0x5adac2[_0x327090(0x2ab)],_0x26fdfc[_0x327090(0x238)]=_0x327090(0x318),_0x26fdfc[_0x327090(0x364)][_0x327090(0x2ba)](_0x327090(0x248));});}),document[_0x1a4e4c(0x33d)](_0x1a4e4c(0x345))['addEventListener'](_0x1a4e4c(0x333),openPersonalSettingsModal),document['getElementById']('personalSettingsForm')[_0x1a4e4c(0x1c5)](_0x1a4e4c(0x1cd),function(_0x4e9b59){const _0x480e99=_0x1a4e4c;_0x4e9b59[_0x480e99(0x2f5)](),savePersonalSettings();}),document[_0x1a4e4c(0x33d)]('cancelPersonalSettings')[_0x1a4e4c(0x1c5)]('click',closePersonalSettingsModal),window[_0x1a4e4c(0x1c5)](_0x1a4e4c(0x333),function(_0x13824b){const _0x14bbc4=_0x1a4e4c,_0x470fbf=document[_0x14bbc4(0x33d)](_0x14bbc4(0x2b1));_0x13824b['target']===_0x470fbf&&closePersonalSettingsModal();}),document[_0x1a4e4c(0x33d)](_0x1a4e4c(0x1c2))[_0x1a4e4c(0x1c5)](_0x1a4e4c(0x333),function(){showRegisterSection();}),document[_0x1a4e4c(0x33d)](_0x1a4e4c(0x27c))[_0x1a4e4c(0x1c5)](_0x1a4e4c(0x333),function(){showLoginSection();}),document[_0x1a4e4c(0x33d)](_0x1a4e4c(0x221))['addEventListener']('click',function(){const _0x4522bc=_0x1a4e4c;fetch(_0x4522bc(0x22e),{'method':_0x4522bc(0x22d)})[_0x4522bc(0x329)](_0x4417f6=>_0x4417f6[_0x4522bc(0x290)]())['then'](_0x171162=>{const _0x216340=_0x4522bc;_0x171162[_0x216340(0x332)]&&(sessionStorage[_0x216340(0x1ea)]('userGroup'),showLoginSection());})[_0x4522bc(0x34b)](_0xd7aea6=>{const _0x4d31e3=_0x4522bc;console[_0x4d31e3(0x339)](_0x4d31e3(0x354),_0xd7aea6);});});function loadUserList(){const _0xa7c068=_0x1a4e4c;console[_0xa7c068(0x1e9)](_0xa7c068(0x2e1)),fetch(_0xa7c068(0x256))[_0xa7c068(0x329)](_0x37d0ca=>{const _0x4ea247=_0xa7c068;if(!_0x37d0ca['ok']){if(_0x37d0ca[_0x4ea247(0x241)]===0x193){console[_0x4ea247(0x1e9)]('没有权限访问用户管理功能');return;}throw new Error(_0x4ea247(0x1d2));}return _0x37d0ca['json']();})[_0xa7c068(0x329)](_0x185322=>{const _0x235f8a=_0xa7c068;console[_0x235f8a(0x1e9)](_0x235f8a(0x1c4),_0x185322),_0x185322[_0x235f8a(0x30b)]&&updateUserList(_0x185322[_0x235f8a(0x30b)]);})['catch'](_0x576b02=>{const _0x1a96f5=_0xa7c068;console[_0x1a96f5(0x339)](_0x1a96f5(0x323),_0x576b02);});}function updateUserList(_0x5930cc){const _0x1e2f8d=_0x1a4e4c,_0x4debfd=document[_0x1e2f8d(0x33d)](_0x1e2f8d(0x230));_0x4debfd['innerHTML']='';if(_0x5930cc['length']===0x0){const _0x2798a1=document[_0x1e2f8d(0x1fb)]('tr'),_0x3e0ddd=document[_0x1e2f8d(0x1fb)]('td');_0x3e0ddd[_0x1e2f8d(0x275)]=0x6,_0x3e0ddd['textContent']=_0x1e2f8d(0x1df),_0x3e0ddd[_0x1e2f8d(0x1d7)][_0x1e2f8d(0x2d6)]=_0x1e2f8d(0x291),_0x3e0ddd['style'][_0x1e2f8d(0x2a6)]=_0x1e2f8d(0x288),_0x2798a1[_0x1e2f8d(0x232)](_0x3e0ddd),_0x4debfd[_0x1e2f8d(0x232)](_0x2798a1);return;}const _0x18177b=sessionStorage[_0x1e2f8d(0x2e5)](_0x1e2f8d(0x301))||_0x1e2f8d(0x299),_0x28b3dc=sessionStorage[_0x1e2f8d(0x2e5)](_0x1e2f8d(0x32b));console['log'](_0x1e2f8d(0x2fc),_0x18177b),console[_0x1e2f8d(0x1e9)](_0x1e2f8d(0x35b),_0x28b3dc),_0x5930cc[_0x1e2f8d(0x1bf)](_0x582b47=>{const _0x5aa513=_0x1e2f8d,_0x6579cb=document[_0x5aa513(0x1fb)]('tr'),_0xad98fb=document['createElement']('td');_0x18177b!==_0x5aa513(0x234)&&_0x582b47[_0x5aa513(0x358)]==='root2'?_0xad98fb[_0x5aa513(0x2aa)]=_0x5aa513(0x26a):_0xad98fb['textContent']=_0x582b47[_0x5aa513(0x216)];_0x6579cb[_0x5aa513(0x232)](_0xad98fb);const _0x4ed5d3=document[_0x5aa513(0x1fb)]('td');_0x18177b!==_0x5aa513(0x234)&&_0x582b47[_0x5aa513(0x358)]===_0x5aa513(0x234)?_0x4ed5d3[_0x5aa513(0x2aa)]=_0x5aa513(0x26a):_0x4ed5d3[_0x5aa513(0x2aa)]=_0x582b47[_0x5aa513(0x31c)]||_0x5aa513(0x1dc);_0x6579cb[_0x5aa513(0x232)](_0x4ed5d3);const _0x2701d5=document[_0x5aa513(0x1fb)]('td');_0x18177b!==_0x5aa513(0x234)&&_0x582b47[_0x5aa513(0x358)]===_0x5aa513(0x234)?_0x2701d5[_0x5aa513(0x2aa)]=_0x5aa513(0x26a):_0x2701d5['textContent']=_0x582b47[_0x5aa513(0x250)]||_0x5aa513(0x1dc);_0x6579cb['appendChild'](_0x2701d5);const _0xceff77=document[_0x5aa513(0x1fb)]('td'),_0x20e470=document[_0x5aa513(0x1fb)](_0x5aa513(0x2cf)),_0x4d39c9={'root2':_0x5aa513(0x22a),'root':'管理员','competition':_0x5aa513(0x2e7),'other':_0x5aa513(0x1c6)};_0x20e470[_0x5aa513(0x2aa)]=_0x4d39c9[_0x582b47[_0x5aa513(0x358)]]||_0x582b47[_0x5aa513(0x358)],_0x20e470[_0x5aa513(0x238)]=_0x5aa513(0x302)+_0x582b47[_0x5aa513(0x358)],_0xceff77[_0x5aa513(0x232)](_0x20e470),_0x6579cb[_0x5aa513(0x232)](_0xceff77);const _0x736cd0=document[_0x5aa513(0x1fb)]('td');_0x736cd0[_0x5aa513(0x2aa)]=_0x582b47[_0x5aa513(0x205)],_0x6579cb[_0x5aa513(0x232)](_0x736cd0);const _0xd86e29=document['createElement']('td'),_0x588e0e=document[_0x5aa513(0x1fb)](_0x5aa513(0x242));_0x588e0e[_0x5aa513(0x238)]=_0x5aa513(0x262);if(_0x18177b==='root2'){const _0x3b1a60=document[_0x5aa513(0x1fb)](_0x5aa513(0x237));_0x3b1a60[_0x5aa513(0x2aa)]='编辑用户组',_0x3b1a60[_0x5aa513(0x238)]='user-action-btn\x20edit-group-btn',_0x3b1a60[_0x5aa513(0x1c5)](_0x5aa513(0x333),()=>{const _0x219ecc=_0x5aa513;console[_0x219ecc(0x1e9)](_0x219ecc(0x1c1),_0x582b47['id'],_0x582b47[_0x219ecc(0x216)]),openEditUserGroupModal(_0x582b47['id'],_0x582b47[_0x219ecc(0x358)]);}),_0x588e0e[_0x5aa513(0x232)](_0x3b1a60);const _0x1e72f6=document[_0x5aa513(0x1fb)](_0x5aa513(0x237));_0x1e72f6[_0x5aa513(0x2aa)]=_0x5aa513(0x369),_0x1e72f6['className']='user-action-btn\x20edit-group-btn',_0x1e72f6[_0x5aa513(0x1d7)][_0x5aa513(0x34c)]=_0x5aa513(0x2ee),_0x1e72f6[_0x5aa513(0x1c5)](_0x5aa513(0x333),()=>{const _0x5668a3=_0x5aa513;openEditChineseAliasModal(_0x582b47['id'],_0x582b47[_0x5668a3(0x31c)]||'');}),_0x588e0e[_0x5aa513(0x232)](_0x1e72f6);}else{if(_0x18177b===_0x5aa513(0x2a0)&&_0x582b47[_0x5aa513(0x358)]!==_0x5aa513(0x234)){const _0x22266c=document['createElement']('button');_0x22266c[_0x5aa513(0x2aa)]=_0x5aa513(0x1db),_0x22266c[_0x5aa513(0x238)]='user-action-btn\x20edit-group-btn',_0x22266c[_0x5aa513(0x1c5)](_0x5aa513(0x333),()=>{const _0x456163=_0x5aa513;console['log'](_0x456163(0x1c1),_0x582b47['id'],_0x582b47['username']),openEditUserGroupModal(_0x582b47['id'],_0x582b47[_0x456163(0x358)]);}),_0x588e0e['appendChild'](_0x22266c);}}if(_0x18177b===_0x5aa513(0x234)&&_0x582b47['id'][_0x5aa513(0x25b)]()!==_0x28b3dc&&_0x582b47[_0x5aa513(0x358)]!==_0x5aa513(0x234)){const _0x43cba7=document[_0x5aa513(0x1fb)]('button');_0x43cba7[_0x5aa513(0x2aa)]=_0x5aa513(0x270),_0x43cba7[_0x5aa513(0x238)]=_0x5aa513(0x337),_0x43cba7[_0x5aa513(0x1d7)][_0x5aa513(0x34c)]='#e74c3c',_0x43cba7[_0x5aa513(0x1c5)](_0x5aa513(0x333),()=>{deleteUser(_0x582b47['id'],_0x582b47['username']);}),_0x588e0e[_0x5aa513(0x232)](_0x43cba7);}_0xd86e29[_0x5aa513(0x232)](_0x588e0e),_0x6579cb['appendChild'](_0xd86e29),_0x4debfd[_0x5aa513(0x232)](_0x6579cb);});}function deleteUser(_0x17b245,_0x4ef315){const _0x1d593d=_0x1a4e4c;if(!confirm(_0x1d593d(0x31a)+_0x4ef315+_0x1d593d(0x29e)))return;const _0x3a0653=prompt(_0x1d593d(0x2a5)+_0x4ef315+_0x1d593d(0x360));if(_0x3a0653!==_0x4ef315){showMessage(_0x1d593d(0x30a),_0x1d593d(0x339));return;}fetch(_0x1d593d(0x331)+_0x17b245,{'method':_0x1d593d(0x330),'headers':{'Content-Type':_0x1d593d(0x338)}})[_0x1d593d(0x329)](_0x20cebe=>{const _0x10cc0f=_0x1d593d;if(!_0x20cebe['ok'])return _0x20cebe[_0x10cc0f(0x290)]()['then'](_0x356b37=>{const _0x905829=_0x10cc0f;throw new Error(JSON[_0x905829(0x2a3)](_0x356b37));});return _0x20cebe['json']();})[_0x1d593d(0x329)](_0x4c527e=>{const _0x2845a3=_0x1d593d;_0x4c527e[_0x2845a3(0x332)]?(showMessage(_0x2845a3(0x1d6),_0x2845a3(0x332)),loadUserList()):showMessage(_0x2845a3(0x316)+(_0x4c527e[_0x2845a3(0x339)]||_0x2845a3(0x2bb)),'error');})[_0x1d593d(0x34b)](_0x475799=>{const _0x2f811e=_0x1d593d;try{const _0x21edc6=JSON['parse'](_0x475799['message']);_0x21edc6[_0x2f811e(0x30f)]?confirm(_0x2f811e(0x202)+_0x21edc6[_0x2f811e(0x339)]+_0x2f811e(0x273)+_0x21edc6[_0x2f811e(0x30f)][_0x2f811e(0x35f)]+_0x2f811e(0x2e3)+_0x21edc6[_0x2f811e(0x30f)]['folder_count']+_0x2f811e(0x1f8))?fetch(_0x2f811e(0x331)+_0x17b245+_0x2f811e(0x22b),{'method':'DELETE','headers':{'Content-Type':'application/json'}})['then'](_0x2ebda8=>_0x2ebda8[_0x2f811e(0x290)]())['then'](_0x2f9d6c=>{const _0x5b462c=_0x2f811e;_0x2f9d6c[_0x5b462c(0x332)]?(showMessage(_0x5b462c(0x2af),_0x5b462c(0x332)),loadUserList()):showMessage(_0x5b462c(0x35e)+(_0x2f9d6c[_0x5b462c(0x339)]||_0x5b462c(0x2bb)),_0x5b462c(0x339));})[_0x2f811e(0x34b)](_0x5b8e7c=>{const _0xaac859=_0x2f811e;showMessage(_0xaac859(0x327)+_0x5b8e7c[_0xaac859(0x2ab)],_0xaac859(0x339));}):showMessage('无法删除用户:\x20'+_0x21edc6[_0x2f811e(0x339)]+'\x20(文件:\x20'+(_0x21edc6[_0x2f811e(0x30f)][_0x2f811e(0x35f)]||0x0)+_0x2f811e(0x2e3)+(_0x21edc6[_0x2f811e(0x30f)]['folder_count']||0x0)+_0x2f811e(0x239)+(_0x21edc6['details']['download_count']||0x0)+')',_0x2f811e(0x339)):showMessage(_0x2f811e(0x293)+_0x21edc6[_0x2f811e(0x339)],_0x2f811e(0x339));}catch{showMessage(_0x2f811e(0x293)+_0x475799[_0x2f811e(0x2ab)],_0x2f811e(0x339));}});}function openEditChineseAliasModal(_0xd7dcd5,_0x499d35){const _0x27ede1=_0x1a4e4c;currentEditingUserId=_0xd7dcd5;const _0x4d6d43=document[_0x27ede1(0x33d)](_0x27ede1(0x267));_0x4d6d43[_0x27ede1(0x23c)]=_0x499d35,document[_0x27ede1(0x33d)](_0x27ede1(0x1f6))['style'][_0x27ede1(0x2ec)]=_0x27ede1(0x311);}function closeEditChineseAliasModal(){const _0x410031=_0x1a4e4c;document[_0x410031(0x33d)](_0x410031(0x1f6))[_0x410031(0x1d7)][_0x410031(0x2ec)]=_0x410031(0x243),currentEditingUserId=null;}function saveChineseAlias(){const _0x481572=_0x1a4e4c;if(!currentEditingUserId)return;const _0x156b98=document[_0x481572(0x33d)]('chineseAliasInput')[_0x481572(0x23c)];fetch(_0x481572(0x331)+currentEditingUserId+'/chinese_alias',{'method':'PUT','headers':{'Content-Type':_0x481572(0x338)},'body':JSON['stringify']({'chinese_alias':_0x156b98})})['then'](_0x5db0a9=>{const _0x59e802=_0x481572;if(!_0x5db0a9['ok'])return _0x5db0a9[_0x59e802(0x290)]()[_0x59e802(0x329)](_0x58398e=>{const _0xd8072f=_0x59e802;throw new Error(_0x58398e['error']||_0xd8072f(0x2c8));});return _0x5db0a9[_0x59e802(0x290)]();})[_0x481572(0x329)](_0x4dcbf4=>{const _0x4cabcb=_0x481572;if(_0x4dcbf4[_0x4cabcb(0x332)]){showMessage(_0x4cabcb(0x25d),'success'),closeEditChineseAliasModal(),loadUserList();const _0x14b693=sessionStorage[_0x4cabcb(0x2e5)](_0x4cabcb(0x32b));currentEditingUserId[_0x4cabcb(0x25b)]()===_0x14b693&&(updateCurrentUserDisplay(currentUserProfile['username'],_0x156b98),loadUserProfile());}else showMessage(_0x4cabcb(0x325)+(_0x4dcbf4['error']||_0x4cabcb(0x2bb)),'error');})[_0x481572(0x34b)](_0x54e9ce=>{const _0x454620=_0x481572;showMessage(_0x454620(0x2b0)+_0x54e9ce[_0x454620(0x2ab)],_0x454620(0x339));});}function openEditUserGroupModal(_0x2576c3,_0xd86172){const _0x4ad1d9=_0x1a4e4c;currentEditingUserId=_0x2576c3;const _0x568e68=document[_0x4ad1d9(0x33d)]('userGroupSelect'),_0x46c56b=sessionStorage[_0x4ad1d9(0x2e5)]('userGroup')||'other';_0x568e68[_0x4ad1d9(0x23c)]=_0xd86172;if(_0x46c56b===_0x4ad1d9(0x2a0)){const _0x4d5fe5=_0x568e68[_0x4ad1d9(0x21b)](_0x4ad1d9(0x326));_0x4d5fe5&&(_0x4d5fe5[_0x4ad1d9(0x367)]=!![]);}document['getElementById']('editUserGroupModal')[_0x4ad1d9(0x1d7)][_0x4ad1d9(0x2ec)]='block';}function closeEditUserGroupModal(){const _0x4f79e8=_0x1a4e4c;document['getElementById'](_0x4f79e8(0x362))[_0x4f79e8(0x1d7)]['display']='none',currentEditingUserId=null;const _0x296526=document[_0x4f79e8(0x33d)](_0x4f79e8(0x306)),_0x5b6575=_0x296526[_0x4f79e8(0x2bc)](_0x4f79e8(0x1cc));_0x5b6575['forEach'](_0x5a95d7=>{const _0x2be4d2=_0x4f79e8;_0x5a95d7[_0x2be4d2(0x367)]=![];});}function saveUserGroup(){const _0x21b9c8=_0x1a4e4c;if(!currentEditingUserId)return;const _0x320a80=document[_0x21b9c8(0x33d)](_0x21b9c8(0x306))[_0x21b9c8(0x23c)];fetch(_0x21b9c8(0x331)+currentEditingUserId,{'method':_0x21b9c8(0x2fe),'headers':{'Content-Type':_0x21b9c8(0x338)},'body':JSON[_0x21b9c8(0x2a3)]({'user_group':_0x320a80})})['then'](_0x270671=>{const _0x20c173=_0x21b9c8;if(!_0x270671['ok'])return _0x270671[_0x20c173(0x290)]()['then'](_0x5c043a=>{const _0x101223=_0x20c173;throw new Error(_0x5c043a[_0x101223(0x339)]||'更新失败');});return _0x270671[_0x20c173(0x290)]();})['then'](_0x31d4c7=>{const _0x334cb9=_0x21b9c8;_0x31d4c7[_0x334cb9(0x332)]?(showMessage(_0x334cb9(0x254),_0x334cb9(0x332)),closeEditUserGroupModal(),loadUserList()):showMessage(_0x334cb9(0x2e9)+(_0x31d4c7[_0x334cb9(0x339)]||'未知错误'),'error');})['catch'](_0x9796b=>{const _0xb842cd=_0x21b9c8;showMessage('用户组更新出错:\x20'+_0x9796b[_0xb842cd(0x2ab)],_0xb842cd(0x339));});}function openRenameFileModal(_0x4dde2b,_0x4f327c){const _0x1880fc=_0x1a4e4c;currentRenamingFile=_0x4dde2b,document[_0x1880fc(0x33d)](_0x1880fc(0x29b))[_0x1880fc(0x23c)]=_0x4f327c,document['getElementById'](_0x1880fc(0x259))[_0x1880fc(0x1d7)][_0x1880fc(0x2ec)]='block';}function closeRenameFileModal(){const _0x4a03e3=_0x1a4e4c;document['getElementById']('renameFileModal')[_0x4a03e3(0x1d7)][_0x4a03e3(0x2ec)]=_0x4a03e3(0x243),currentRenamingFile=null,document[_0x4a03e3(0x33d)](_0x4a03e3(0x29b))[_0x4a03e3(0x23c)]='';}function saveRenameFile(){const _0x415ca6=_0x1a4e4c;if(!currentRenamingFile)return;const _0x341a53=document[_0x415ca6(0x33d)](_0x415ca6(0x29b))[_0x415ca6(0x23c)][_0x415ca6(0x21c)]();if(!_0x341a53){showMessage(_0x415ca6(0x355),_0x415ca6(0x339));return;}fetch(_0x415ca6(0x215)+currentRenamingFile,{'method':_0x415ca6(0x2fe),'headers':{'Content-Type':_0x415ca6(0x338)},'body':JSON[_0x415ca6(0x2a3)]({'new_filename':_0x341a53})})[_0x415ca6(0x329)](_0x38d8cb=>{const _0x5afaa2=_0x415ca6;if(!_0x38d8cb['ok'])return _0x38d8cb[_0x5afaa2(0x290)]()['then'](_0x41ae82=>{const _0x981b25=_0x5afaa2;throw new Error(_0x41ae82[_0x981b25(0x339)]||_0x981b25(0x246));});return _0x38d8cb['json']();})['then'](_0x305927=>{const _0x2a5d7d=_0x415ca6;if(_0x305927['success']){showMessage(_0x2a5d7d(0x2c6),_0x2a5d7d(0x332)),closeRenameFileModal();if(currentViewingFolderId)loadFolderFiles(currentViewingFolderId);else{const _0x130aa8=document[_0x2a5d7d(0x33d)]('categoryFilter')[_0x2a5d7d(0x23c)],_0x8d132b=document['getElementById']('subcategoryFilter')[_0x2a5d7d(0x23c)],_0x1198dd=document[_0x2a5d7d(0x33d)](_0x2a5d7d(0x1ec))[_0x2a5d7d(0x23c)];fetchFiles(_0x130aa8,_0x8d132b,_0x1198dd);}}else showMessage('文件重命名失败:\x20'+(_0x305927[_0x2a5d7d(0x339)]||_0x2a5d7d(0x2bb)),_0x2a5d7d(0x339));})[_0x415ca6(0x34b)](_0x12bda1=>{const _0x5547de=_0x415ca6;showMessage('文件重命名出错:\x20'+_0x12bda1[_0x5547de(0x2ab)],'error');});}function _0x27a2(_0x31ea58,_0x51e013){const _0x326f66=_0x326f();return _0x27a2=function(_0x27a2b1,_0x2e068c){_0x27a2b1=_0x27a2b1-0x1b6;let _0x248b36=_0x326f66[_0x27a2b1];return _0x248b36;},_0x27a2(_0x31ea58,_0x51e013);}function openChangeSubcategoryModal(_0x36950d,_0x3f5211){const _0x539a93=_0x1a4e4c;currentChangingSubcategoryFile=_0x36950d,document[_0x539a93(0x33d)](_0x539a93(0x1c8))[_0x539a93(0x23c)]=_0x3f5211,document[_0x539a93(0x33d)]('changeSubcategoryModal')[_0x539a93(0x1d7)][_0x539a93(0x2ec)]='block';}function closeChangeSubcategoryModal(){const _0x1e307f=_0x1a4e4c;document[_0x1e307f(0x33d)](_0x1e307f(0x2cb))[_0x1e307f(0x1d7)][_0x1e307f(0x2ec)]=_0x1e307f(0x243),currentChangingSubcategoryFile=null;}function saveChangeSubcategory(){const _0x810c22=_0x1a4e4c;if(!currentChangingSubcategoryFile)return;const _0x549698=document[_0x810c22(0x33d)](_0x810c22(0x1c8))[_0x810c22(0x23c)];fetch('/update_subcategory/'+currentChangingSubcategoryFile,{'method':'PUT','headers':{'Content-Type':_0x810c22(0x338)},'body':JSON[_0x810c22(0x2a3)]({'subcategory':_0x549698})})[_0x810c22(0x329)](_0x17a013=>{const _0x600abe=_0x810c22;if(!_0x17a013['ok'])return _0x17a013['json']()['then'](_0x5ca160=>{const _0x322264=_0x27a2;throw new Error(_0x5ca160[_0x322264(0x339)]||_0x322264(0x32c));});return _0x17a013[_0x600abe(0x290)]();})[_0x810c22(0x329)](_0x194e41=>{const _0x13186d=_0x810c22;if(_0x194e41[_0x13186d(0x332)]){showMessage(_0x13186d(0x26f),_0x13186d(0x332)),closeChangeSubcategoryModal();if(currentViewingFolderId)loadFolderFiles(currentViewingFolderId);else{const _0x3f88cc=document[_0x13186d(0x33d)](_0x13186d(0x2eb))[_0x13186d(0x23c)],_0x15195c=document['getElementById'](_0x13186d(0x285))[_0x13186d(0x23c)],_0x4fd909=document['getElementById'](_0x13186d(0x1ec))[_0x13186d(0x23c)];fetchFiles(_0x3f88cc,_0x15195c,_0x4fd909);}}else showMessage(_0x13186d(0x268)+(_0x194e41[_0x13186d(0x339)]||_0x13186d(0x2bb)),'error');})[_0x810c22(0x34b)](_0x430de8=>{const _0x211fe9=_0x810c22;showMessage(_0x211fe9(0x283)+_0x430de8[_0x211fe9(0x2ab)],_0x211fe9(0x339));});}document['getElementById'](_0x1a4e4c(0x1fa))[_0x1a4e4c(0x1c5)](_0x1a4e4c(0x333),closeEditUserGroupModal),document[_0x1a4e4c(0x33d)](_0x1a4e4c(0x258))[_0x1a4e4c(0x1c5)]('click',saveUserGroup),document['getElementById'](_0x1a4e4c(0x231))[_0x1a4e4c(0x1c5)]('click',closeRenameFileModal),document['getElementById'](_0x1a4e4c(0x27f))[_0x1a4e4c(0x1c5)]('click',saveRenameFile),document[_0x1a4e4c(0x33d)](_0x1a4e4c(0x2e4))['addEventListener'](_0x1a4e4c(0x333),closeChangeSubcategoryModal),document[_0x1a4e4c(0x33d)](_0x1a4e4c(0x304))['addEventListener'](_0x1a4e4c(0x333),saveChangeSubcategory),window['addEventListener']('click',function(_0x5a3980){const _0x221c45=_0x1a4e4c,_0x1929bf=[_0x221c45(0x362),_0x221c45(0x259),_0x221c45(0x2cb),'createFolderModal',_0x221c45(0x1ff)];_0x1929bf[_0x221c45(0x1bf)](_0x116d44=>{const _0x3eea47=_0x221c45,_0x1972ee=document[_0x3eea47(0x33d)](_0x116d44);if(_0x5a3980['target']===_0x1972ee){if(_0x116d44===_0x3eea47(0x362))closeEditUserGroupModal();if(_0x116d44===_0x3eea47(0x259))closeRenameFileModal();if(_0x116d44==='changeSubcategoryModal')closeChangeSubcategoryModal();if(_0x116d44===_0x3eea47(0x1eb))closeCreateFolderModal();if(_0x116d44==='editFolderPermissionsModal')closeEditFolderPermissionsModal();}});});function fetchFiles(_0x32abfb='',_0x4f6871='',_0xbb0651=''){const _0x2e74b6=_0x1a4e4c;let _0x1fce23='/files?';const _0x3fa9d1=new URLSearchParams();if(_0x32abfb)_0x3fa9d1[_0x2e74b6(0x2c0)](_0x2e74b6(0x1e4),_0x32abfb);if(_0x4f6871)_0x3fa9d1[_0x2e74b6(0x2c0)]('subcategory',_0x4f6871);if(_0xbb0651)_0x3fa9d1['append']('search',_0xbb0651);_0x1fce23+=_0x3fa9d1[_0x2e74b6(0x25b)](),fetch(_0x1fce23)[_0x2e74b6(0x329)](_0xb05346=>{const _0x38db54=_0x2e74b6;if(!_0xb05346['ok'])throw new Error('获取文件列表失败');return _0xb05346[_0x38db54(0x290)]();})['then'](_0x211f4d=>{const _0x56fba5=_0x2e74b6;if(_0x211f4d[_0x56fba5(0x1fc)])updateFileList(_0x211f4d[_0x56fba5(0x1fc)]);else _0x211f4d[_0x56fba5(0x339)]&&showMessage(_0x56fba5(0x2ae)+_0x211f4d['error'],'error');})[_0x2e74b6(0x34b)](_0x75e931=>{const _0x326d6f=_0x2e74b6;console[_0x326d6f(0x339)](_0x326d6f(0x24a),_0x75e931),showMessage(_0x326d6f(0x317),_0x326d6f(0x339));});}document[_0x1a4e4c(0x33d)](_0x1a4e4c(0x2eb))[_0x1a4e4c(0x1c5)](_0x1a4e4c(0x1ba),function(){const _0x44f90f=_0x1a4e4c,_0x5c7b6e=document[_0x44f90f(0x33d)](_0x44f90f(0x285))[_0x44f90f(0x23c)],_0x4e58bb=document[_0x44f90f(0x33d)](_0x44f90f(0x1ec))['value'];fetchFiles(this[_0x44f90f(0x23c)],_0x5c7b6e,_0x4e58bb);}),document[_0x1a4e4c(0x33d)](_0x1a4e4c(0x285))['addEventListener']('change',function(){const _0x4fa97c=_0x1a4e4c,_0x4a421b=document[_0x4fa97c(0x33d)](_0x4fa97c(0x2eb))[_0x4fa97c(0x23c)],_0x26525d=document[_0x4fa97c(0x33d)](_0x4fa97c(0x1ec))[_0x4fa97c(0x23c)];fetchFiles(_0x4a421b,this['value'],_0x26525d);}),document[_0x1a4e4c(0x33d)](_0x1a4e4c(0x334))['addEventListener'](_0x1a4e4c(0x333),function(){const _0x3a1baf=_0x1a4e4c,_0x374561=document[_0x3a1baf(0x33d)](_0x3a1baf(0x2eb))[_0x3a1baf(0x23c)],_0x3d57b9=document[_0x3a1baf(0x33d)](_0x3a1baf(0x285))[_0x3a1baf(0x23c)],_0x279403=document[_0x3a1baf(0x33d)](_0x3a1baf(0x1ec))[_0x3a1baf(0x23c)];fetchFiles(_0x374561,_0x3d57b9,_0x279403);}),document[_0x1a4e4c(0x33d)](_0x1a4e4c(0x1ec))[_0x1a4e4c(0x1c5)](_0x1a4e4c(0x1ee),function(_0x5db229){const _0x18aa8e=_0x1a4e4c;_0x5db229[_0x18aa8e(0x32d)]===_0x18aa8e(0x2a8)&&document[_0x18aa8e(0x33d)]('searchBtn')['click']();});function updateFileList(_0x475112){const _0x1ae35b=_0x1a4e4c,_0x2d6c8f=document[_0x1ae35b(0x33d)](_0x1ae35b(0x218));_0x2d6c8f[_0x1ae35b(0x29a)]='';if(_0x475112[_0x1ae35b(0x2c7)]===0x0){const _0x2273fb=document[_0x1ae35b(0x1fb)]('tr'),_0x4ed970=document['createElement']('td');_0x4ed970['colSpan']=0x8,_0x4ed970[_0x1ae35b(0x2aa)]=_0x1ae35b(0x296),_0x4ed970[_0x1ae35b(0x1d7)]['textAlign']=_0x1ae35b(0x291),_0x4ed970['style'][_0x1ae35b(0x2a6)]=_0x1ae35b(0x288),_0x2273fb['appendChild'](_0x4ed970),_0x2d6c8f[_0x1ae35b(0x232)](_0x2273fb);return;}_0x475112['forEach'](_0x54c687=>{const _0x5b9344=_0x1ae35b,_0x2933fb=document[_0x5b9344(0x1fb)]('tr'),_0x70aebe=document['createElement']('td');_0x70aebe[_0x5b9344(0x2aa)]=_0x54c687['filename'],_0x70aebe[_0x5b9344(0x1e5)]=_0x54c687['filename'],_0x2933fb[_0x5b9344(0x232)](_0x70aebe);const _0x39564e=document[_0x5b9344(0x1fb)]('td');_0x39564e['textContent']=formatFileSize(_0x54c687['file_size']),_0x39564e[_0x5b9344(0x1d7)][_0x5b9344(0x2d6)]=_0x5b9344(0x1b6),_0x2933fb[_0x5b9344(0x232)](_0x39564e);const _0x4bbfad=document[_0x5b9344(0x1fb)]('td');_0x4bbfad['textContent']=_0x54c687[_0x5b9344(0x244)],_0x2933fb['appendChild'](_0x4bbfad);const _0x4afb35=document[_0x5b9344(0x1fb)]('td');_0x4afb35[_0x5b9344(0x2aa)]=_0x54c687['upload_username']||'未知',_0x2933fb[_0x5b9344(0x232)](_0x4afb35);const _0xbc1f6=document['createElement']('td'),_0x1eed8f=document[_0x5b9344(0x1fb)]('span');_0x1eed8f[_0x5b9344(0x2aa)]=_0x54c687[_0x5b9344(0x276)]===_0x5b9344(0x2ac)?'公用文件':_0x5b9344(0x28b),_0x1eed8f[_0x5b9344(0x238)]=_0x5b9344(0x1c0)+_0x54c687['file_category'],_0xbc1f6[_0x5b9344(0x232)](_0x1eed8f),_0x2933fb[_0x5b9344(0x232)](_0xbc1f6);const _0x165881=document[_0x5b9344(0x1fb)]('td'),_0x680845={'mirror':_0x5b9344(0x340),'image':_0x5b9344(0x2b4),'document':_0x5b9344(0x225),'video':_0x5b9344(0x1cb),'other':'其他文件'};_0x165881[_0x5b9344(0x2aa)]=_0x680845[_0x54c687[_0x5b9344(0x26c)]]||_0x54c687['file_subcategory'],_0x2933fb['appendChild'](_0x165881);const _0x1cfa0c=document[_0x5b9344(0x1fb)]('td');_0x1cfa0c[_0x5b9344(0x2aa)]=_0x54c687[_0x5b9344(0x348)]||0x0,_0x1cfa0c[_0x5b9344(0x1d7)][_0x5b9344(0x2d6)]=_0x5b9344(0x291),_0x2933fb[_0x5b9344(0x232)](_0x1cfa0c);const _0x319a74=document[_0x5b9344(0x1fb)]('td'),_0x5cd882=document[_0x5b9344(0x1fb)](_0x5b9344(0x242));_0x5cd882[_0x5b9344(0x238)]='action-buttons';const _0x32e31c=document[_0x5b9344(0x1fb)](_0x5b9344(0x242));_0x32e31c[_0x5b9344(0x238)]=_0x5b9344(0x347);if(currentUserPermissions['includes'](_0x5b9344(0x1ca))){const _0x55a301=document[_0x5b9344(0x1fb)]('button');_0x55a301[_0x5b9344(0x2aa)]='下载',_0x55a301[_0x5b9344(0x238)]=_0x5b9344(0x34d),_0x55a301[_0x5b9344(0x1c5)](_0x5b9344(0x333),()=>downloadFile(_0x54c687[_0x5b9344(0x217)],_0x54c687['filename'],_0x54c687[_0x5b9344(0x213)])),_0x32e31c[_0x5b9344(0x232)](_0x55a301);}if(currentUserPermissions[_0x5b9344(0x2f8)](_0x5b9344(0x26e))){const _0xaa0d0d=document[_0x5b9344(0x1fb)]('button');_0xaa0d0d[_0x5b9344(0x2aa)]=_0x5b9344(0x2ca),_0xaa0d0d[_0x5b9344(0x238)]=_0x5b9344(0x2be),_0xaa0d0d[_0x5b9344(0x1c5)]('click',()=>openRenameFileModal(_0x54c687[_0x5b9344(0x217)],_0x54c687[_0x5b9344(0x2ed)])),_0x32e31c[_0x5b9344(0x232)](_0xaa0d0d);}if(currentUserPermissions[_0x5b9344(0x2f8)](_0x5b9344(0x29f))){const _0x52fa91=document[_0x5b9344(0x1fb)](_0x5b9344(0x237));_0x52fa91[_0x5b9344(0x2aa)]=_0x5b9344(0x203),_0x52fa91[_0x5b9344(0x238)]=_0x5b9344(0x204),_0x52fa91[_0x5b9344(0x1c5)](_0x5b9344(0x333),()=>openChangeSubcategoryModal(_0x54c687[_0x5b9344(0x217)],_0x54c687[_0x5b9344(0x26c)])),_0x32e31c[_0x5b9344(0x232)](_0x52fa91);}const _0x5291ef=document[_0x5b9344(0x1fb)](_0x5b9344(0x242));_0x5291ef[_0x5b9344(0x238)]=_0x5b9344(0x347);if(currentUserPermissions[_0x5b9344(0x2f8)](_0x5b9344(0x20d))){const _0x51d7cc=document['createElement'](_0x5b9344(0x237));_0x51d7cc[_0x5b9344(0x2aa)]=_0x54c687['file_category']===_0x5b9344(0x2ac)?_0x5b9344(0x353):_0x5b9344(0x2c3),_0x51d7cc[_0x5b9344(0x238)]=_0x5b9344(0x257),_0x51d7cc['addEventListener']('click',()=>toggleFileCategory(_0x54c687[_0x5b9344(0x217)],_0x54c687[_0x5b9344(0x276)])),_0x5291ef[_0x5b9344(0x232)](_0x51d7cc);}if(currentUserPermissions['includes']('delete')){const _0x4cba49=document[_0x5b9344(0x1fb)](_0x5b9344(0x237));_0x4cba49['textContent']='删除',_0x4cba49[_0x5b9344(0x238)]='action-btn\x20delete-btn',_0x4cba49[_0x5b9344(0x1c5)](_0x5b9344(0x333),()=>deleteFile(_0x54c687[_0x5b9344(0x217)])),_0x5291ef['appendChild'](_0x4cba49);}_0x5cd882[_0x5b9344(0x232)](_0x32e31c),_0x5cd882['appendChild'](_0x5291ef),_0x319a74['appendChild'](_0x5cd882),_0x2933fb[_0x5b9344(0x232)](_0x319a74),_0x2d6c8f[_0x5b9344(0x232)](_0x2933fb);});}function formatFileSize(_0x250fca){const _0x18052c=_0x1a4e4c;if(_0x250fca===0x0)return _0x18052c(0x309);const _0x24b375=0x400,_0x387fb8=[_0x18052c(0x2dc),'KB','MB','GB','TB'],_0x2270fe=Math[_0x18052c(0x2a7)](Math[_0x18052c(0x1e9)](_0x250fca)/Math[_0x18052c(0x1e9)](_0x24b375));return parseFloat((_0x250fca/Math[_0x18052c(0x2f2)](_0x24b375,_0x2270fe))[_0x18052c(0x1f5)](0x2))+'\x20'+_0x387fb8[_0x2270fe];}function showMessage(_0x55867b,_0x1bf122){const _0x4bbaa5=_0x1a4e4c,_0x58a70a=document[_0x4bbaa5(0x33d)](_0x4bbaa5(0x1fd));_0x58a70a[_0x4bbaa5(0x2aa)]=_0x55867b,_0x58a70a['className']='status-message\x20'+_0x1bf122,_0x58a70a['classList'][_0x4bbaa5(0x2ba)](_0x4bbaa5(0x248)),setTimeout(()=>{const _0x578c01=_0x4bbaa5;_0x58a70a[_0x578c01(0x364)][_0x578c01(0x2f4)]('hidden');},0x1388);}document[_0x1a4e4c(0x33d)](_0x1a4e4c(0x295))[_0x1a4e4c(0x1c5)](_0x1a4e4c(0x333),closeCreateFolderModal),document['getElementById']('cancelEditFolderPermissions')['addEventListener'](_0x1a4e4c(0x333),closeEditFolderPermissionsModal),document[_0x1a4e4c(0x33d)](_0x1a4e4c(0x1f7))[_0x1a4e4c(0x1c5)]('click',closeEditChineseAliasModal),document[_0x1a4e4c(0x33d)](_0x1a4e4c(0x2df))['addEventListener'](_0x1a4e4c(0x333),saveChineseAlias),window[_0x1a4e4c(0x1c5)](_0x1a4e4c(0x333),function(_0x5dc441){const _0x5b51ab=_0x1a4e4c,_0x5160e9=document[_0x5b51ab(0x33d)](_0x5b51ab(0x1f6));_0x5dc441['target']===_0x5160e9&&closeEditChineseAliasModal();});function toggleFileCategory(_0x179672,_0x3b1578){const _0x18cf2d=_0x1a4e4c,_0x4d28a8=_0x3b1578==='everyone'?'competition':_0x18cf2d(0x2ac);if(!confirm(_0x18cf2d(0x227)+(_0x4d28a8===_0x18cf2d(0x2ac)?_0x18cf2d(0x28d):_0x18cf2d(0x28b))+'吗？'))return;fetch(_0x18cf2d(0x252)+_0x179672,{'method':_0x18cf2d(0x2fe),'headers':{'Content-Type':_0x18cf2d(0x338)},'body':JSON['stringify']({'category':_0x4d28a8})})[_0x18cf2d(0x329)](_0x1f5959=>{const _0x16463c=_0x18cf2d;if(!_0x1f5959['ok'])return _0x1f5959[_0x16463c(0x290)]()['then'](_0x574d51=>{const _0x5ae1da=_0x16463c;throw new Error(_0x574d51[_0x5ae1da(0x339)]||_0x5ae1da(0x1f3));});return _0x1f5959['json']();})[_0x18cf2d(0x329)](_0x2ef121=>{const _0x406c11=_0x18cf2d;if(_0x2ef121[_0x406c11(0x332)]){showMessage('文件分类更新成功','success');if(currentViewingFolderId)loadFolderFiles(currentViewingFolderId);else{const _0x26a7cc=document[_0x406c11(0x33d)](_0x406c11(0x2eb))[_0x406c11(0x23c)],_0x54162c=document[_0x406c11(0x33d)]('subcategoryFilter')['value'],_0x30fa55=document['getElementById']('searchFile')[_0x406c11(0x23c)];fetchFiles(_0x26a7cc,_0x54162c,_0x30fa55);}}else showMessage(_0x406c11(0x274)+(_0x2ef121[_0x406c11(0x339)]||'未知错误'),'error');})[_0x18cf2d(0x34b)](_0x488c3a=>{const _0x3362f5=_0x18cf2d;showMessage(_0x3362f5(0x2bf)+_0x488c3a['message'],_0x3362f5(0x339));});}document[_0x1a4e4c(0x33d)]('uploadForm')[_0x1a4e4c(0x1c5)]('submit',function(_0x1d95f9){const _0x117bf0=_0x1a4e4c;_0x1d95f9[_0x117bf0(0x2f5)]();const _0x57349f=document[_0x117bf0(0x33d)](_0x117bf0(0x25a)),_0x541c76=_0x57349f[_0x117bf0(0x1fc)],_0x19cc29=document[_0x117bf0(0x33d)]('progressBar'),_0xa04d8a=document['getElementById'](_0x117bf0(0x282)),_0x4d1548=document[_0x117bf0(0x33d)](_0x117bf0(0x224))[_0x117bf0(0x25c)],_0xa043e9=document[_0x117bf0(0x33d)](_0x117bf0(0x2bd))[_0x117bf0(0x23c)],_0x2931bd=document[_0x117bf0(0x33d)](_0x117bf0(0x26d))[_0x117bf0(0x23c)];if(_0x541c76[_0x117bf0(0x2c7)]===0x0){showMessage(_0x117bf0(0x363),'error');return;}_0x19cc29[_0x117bf0(0x1d7)][_0x117bf0(0x2ec)]='block',_0xa04d8a['style'][_0x117bf0(0x1bc)]='0%',_0xa04d8a['textContent']='0%',Array['from'](_0x541c76)[_0x117bf0(0x1bf)]((_0x3684fe,_0x28f4cf)=>{const _0x4688c5=_0x117bf0;_0x4d1548&&_0x3684fe[_0x4688c5(0x1c7)]>0x64*0x400*0x400?uploadFileInChunks(_0x3684fe,_0x19cc29,_0xa04d8a,_0x541c76[_0x4688c5(0x2c7)],_0x28f4cf,_0xa043e9,_0x2931bd):uploadFileDirectly(_0x3684fe,_0x19cc29,_0xa04d8a,_0x541c76[_0x4688c5(0x2c7)],_0x28f4cf,_0xa043e9,_0x2931bd);});});function uploadFileDirectly(_0x4ae079,_0x39e751,_0x59f7f1,_0x505ce0,_0x392407,_0x3f3024,_0x51de53){const _0x198092=_0x1a4e4c,_0x31adf8=new FormData();_0x31adf8[_0x198092(0x2c0)](_0x198092(0x2da),_0x4ae079),_0x31adf8[_0x198092(0x2c0)](_0x198092(0x1e4),_0x3f3024),_0x31adf8[_0x198092(0x2c0)](_0x198092(0x2cc),document[_0x198092(0x33d)]('fileSubcategory')['value']);_0x51de53&&_0x31adf8['append'](_0x198092(0x343),_0x51de53);const _0x1c5607=new XMLHttpRequest();_0x1c5607[_0x198092(0x1d1)][_0x198092(0x1c5)](_0x198092(0x282),function(_0x8a7ce8){const _0x9657a=_0x198092;if(_0x8a7ce8[_0x9657a(0x335)]){const _0xfbfb5b=_0x8a7ce8[_0x9657a(0x2ef)]/_0x8a7ce8['total']*0x64,_0x1f23b0=(_0x392407*0x64+_0xfbfb5b)/_0x505ce0;_0x59f7f1[_0x9657a(0x1d7)][_0x9657a(0x1bc)]=_0x1f23b0+'%',_0x59f7f1[_0x9657a(0x2aa)]=Math[_0x9657a(0x277)](_0x1f23b0)+'%';}}),_0x1c5607['addEventListener']('load',function(){const _0x203764=_0x198092;if(_0x1c5607[_0x203764(0x241)]===0xc8)try{const _0x144ecf=JSON[_0x203764(0x289)](_0x1c5607[_0x203764(0x313)]);if(_0x144ecf[_0x203764(0x332)]){showMessage('文件上传成功','success'),document['getElementById']('fileInput')[_0x203764(0x23c)]='';if(currentViewingFolderId)loadFolderFiles(currentViewingFolderId);else{const _0x4b313b=document[_0x203764(0x33d)](_0x203764(0x2eb))[_0x203764(0x23c)],_0x1b4c01=document['getElementById'](_0x203764(0x285))['value'],_0x21f3bc=document[_0x203764(0x33d)](_0x203764(0x1ec))[_0x203764(0x23c)];fetchFiles(_0x4b313b,_0x1b4c01,_0x21f3bc);}}else showMessage('文件上传失败:\x20'+(_0x144ecf['error']||'未知错误'),_0x203764(0x339));}catch(_0x1a135){showMessage(_0x203764(0x1c3),'error');}else{if(_0x1c5607[_0x203764(0x241)]===0x191)showMessage(_0x203764(0x2f6),'error'),showLoginSection();else{if(_0x1c5607[_0x203764(0x241)]===0x193)showMessage(_0x203764(0x346),_0x203764(0x339));else try{const _0x209c48=JSON[_0x203764(0x289)](_0x1c5607[_0x203764(0x313)]);showMessage('文件上传失败:\x20'+(_0x209c48[_0x203764(0x339)]||_0x1c5607[_0x203764(0x313)]),_0x203764(0x339));}catch(_0x53ea8b){showMessage(_0x203764(0x261)+_0x1c5607[_0x203764(0x313)],_0x203764(0x339));}}}_0x392407===_0x505ce0-0x1&&setTimeout(()=>{const _0x50bfcd=_0x203764;_0x39e751[_0x50bfcd(0x1d7)][_0x50bfcd(0x2ec)]=_0x50bfcd(0x243);},0x3e8);}),_0x1c5607[_0x198092(0x1c5)](_0x198092(0x339),function(){const _0x14f46f=_0x198092;showMessage(_0x14f46f(0x1e3),_0x14f46f(0x339)),_0x392407===_0x505ce0-0x1&&(_0x39e751[_0x14f46f(0x1d7)][_0x14f46f(0x2ec)]=_0x14f46f(0x243));}),_0x1c5607[_0x198092(0x321)](_0x198092(0x22d),_0x198092(0x33f),!![]),_0x1c5607[_0x198092(0x298)](_0x31adf8);}function uploadFileInChunks(_0x501c10,_0x322ab4,_0x5830da,_0x558c27,_0x39ab41,_0xdd4f64,_0x2e4e4e){const _0x42aed7=_0x1a4e4c,_0x5666f3=0x64*0x400*0x400,_0x314a8b=Math[_0x42aed7(0x23b)](_0x501c10[_0x42aed7(0x1c7)]/_0x5666f3),_0x1bef80=Math['random']()[_0x42aed7(0x25b)](0x24)['substring'](0x2)+Date[_0x42aed7(0x34e)]()['toString'](0x24);let _0x52a5d0=0x0;const _0x164789=0x3;let _0x2d5ecb=0x0,_0x147c90=0x1;const _0x4b132f=[];function _0x25b3cb(){const _0x22056e=_0x42aed7;while(_0x2d5ecb<_0x164789&&_0x147c90<=_0x314a8b){const _0x5817d3=_0x147c90++;_0x2d5ecb++;const _0x1bf2f9=(_0x5817d3-0x1)*_0x5666f3,_0x14e252=Math['min'](_0x1bf2f9+_0x5666f3,_0x501c10[_0x22056e(0x1c7)]),_0x147e14=_0x501c10[_0x22056e(0x2b9)](_0x1bf2f9,_0x14e252);uploadSingleChunk(_0x147e14,_0x5817d3,_0x314a8b,_0x501c10[_0x22056e(0x219)],_0x1bef80,_0xdd4f64,_0x2e4e4e)[_0x22056e(0x329)](()=>{const _0xae4e08=_0x22056e;_0x2d5ecb--,_0x52a5d0++;const _0xfcc9ff=_0x52a5d0/_0x314a8b*0x64,_0x516cd8=(_0x39ab41*0x64+_0xfcc9ff)/_0x558c27;_0x5830da['style'][_0xae4e08(0x1bc)]=_0x516cd8+'%',_0x5830da['textContent']=Math[_0xae4e08(0x277)](_0x516cd8)+'%',_0x52a5d0===_0x314a8b?mergeChunks(_0x501c10['name'],_0x1bef80,_0x314a8b,_0x322ab4,_0x558c27,_0x39ab41,_0xdd4f64,_0x2e4e4e):_0x25b3cb();})['catch'](_0x1059b2=>{const _0x5b6246=_0x22056e;console[_0x5b6246(0x339)](_0x5b6246(0x286)+_0x5817d3+_0x5b6246(0x34a),_0x1059b2),showMessage(_0x5b6246(0x1c9),_0x5b6246(0x339)),_0x2d5ecb--;});}}_0x25b3cb();}function uploadSingleChunk(_0x40489b,_0x408cd3,_0xbd431a,_0x55a2fc,_0xe6fab6,_0x288df1,_0x5a06f1){return new Promise((_0x39c97b,_0x5e0c60)=>{const _0x3fb538=_0x27a2,_0x373f9e=new FormData();_0x373f9e[_0x3fb538(0x2c0)](_0x3fb538(0x2c5),_0x40489b),_0x373f9e['append']('chunkNumber',_0x408cd3),_0x373f9e[_0x3fb538(0x2c0)](_0x3fb538(0x322),_0xbd431a),_0x373f9e['append'](_0x3fb538(0x2ed),_0x55a2fc),_0x373f9e[_0x3fb538(0x2c0)]('identifier',_0xe6fab6),_0x373f9e[_0x3fb538(0x2c0)]('category',_0x288df1),_0x373f9e[_0x3fb538(0x2c0)](_0x3fb538(0x2cc),document[_0x3fb538(0x33d)](_0x3fb538(0x31d))['value']);_0x5a06f1&&_0x373f9e[_0x3fb538(0x2c0)](_0x3fb538(0x343),_0x5a06f1);const _0x1cafcc=new XMLHttpRequest();_0x1cafcc[_0x3fb538(0x321)]('POST','/upload_chunk',!![]),_0x1cafcc[_0x3fb538(0x2ce)]=function(){const _0x221b4=_0x3fb538;if(_0x1cafcc[_0x221b4(0x241)]===0xc8)_0x39c97b();else _0x1cafcc[_0x221b4(0x241)]===0x193?_0x5e0c60(new Error(_0x221b4(0x33c))):_0x5e0c60(new Error(_0x221b4(0x23e)+_0x1cafcc['status']));},_0x1cafcc[_0x3fb538(0x209)]=function(){const _0xc93ca=_0x3fb538;_0x5e0c60(new Error(_0xc93ca(0x2c1)));},_0x1cafcc[_0x3fb538(0x298)](_0x373f9e);});}function mergeChunks(_0x58130d,_0x20478c,_0x4023d0,_0x3e63e0,_0x286116,_0x5da408,_0x2a6a46,_0x171332){const _0xbdeb34=_0x1a4e4c,_0x584bee=new FormData();_0x584bee[_0xbdeb34(0x2c0)](_0xbdeb34(0x2ed),_0x58130d),_0x584bee[_0xbdeb34(0x2c0)](_0xbdeb34(0x263),_0x20478c),_0x584bee[_0xbdeb34(0x2c0)]('totalChunks',_0x4023d0),_0x584bee['append'](_0xbdeb34(0x1e4),_0x2a6a46),_0x584bee[_0xbdeb34(0x2c0)]('subcategory',document[_0xbdeb34(0x33d)](_0xbdeb34(0x31d))[_0xbdeb34(0x23c)]),_0x171332&&_0x584bee[_0xbdeb34(0x2c0)]('folder_id',_0x171332),fetch(_0xbdeb34(0x312),{'method':_0xbdeb34(0x22d),'body':_0x584bee})[_0xbdeb34(0x329)](_0x5dec61=>{const _0x38a53e=_0xbdeb34;if(!_0x5dec61['ok']){if(_0x5dec61['status']===0x193)throw new Error(_0x38a53e(0x346));return _0x5dec61[_0x38a53e(0x290)]()[_0x38a53e(0x329)](_0x122b3b=>{const _0x3a4c57=_0x38a53e;throw new Error(_0x122b3b[_0x3a4c57(0x339)]||'合并失败');});}return _0x5dec61[_0x38a53e(0x290)]();})['then'](_0xe64346=>{const _0x218d8f=_0xbdeb34;if(_0xe64346[_0x218d8f(0x332)]){showMessage(_0x218d8f(0x2f3)+_0x58130d,_0x218d8f(0x332)),document[_0x218d8f(0x33d)](_0x218d8f(0x25a))[_0x218d8f(0x23c)]='';if(currentViewingFolderId)loadFolderFiles(currentViewingFolderId);else{const _0x122d9e=document[_0x218d8f(0x33d)](_0x218d8f(0x2eb))[_0x218d8f(0x23c)],_0x32d1a6=document[_0x218d8f(0x33d)]('subcategoryFilter')['value'],_0x5568d8=document['getElementById']('searchFile')[_0x218d8f(0x23c)];fetchFiles(_0x122d9e,_0x32d1a6,_0x5568d8);}}else showMessage(_0x218d8f(0x2c9)+(_0xe64346[_0x218d8f(0x339)]||'未知错误'),_0x218d8f(0x339));_0x5da408===_0x286116-0x1&&setTimeout(()=>{const _0xb1192d=_0x218d8f;_0x3e63e0[_0xb1192d(0x1d7)][_0xb1192d(0x2ec)]=_0xb1192d(0x243);},0x3e8);})[_0xbdeb34(0x34b)](_0x53731d=>{const _0x1e562e=_0xbdeb34;showMessage(_0x1e562e(0x31b)+_0x53731d[_0x1e562e(0x2ab)],_0x1e562e(0x339)),_0x5da408===_0x286116-0x1&&(_0x3e63e0[_0x1e562e(0x1d7)][_0x1e562e(0x2ec)]=_0x1e562e(0x243));});}function downloadFile(_0x47cc87,_0x45b556=null,_0x20ce6f=0x0){const _0x7cce7b=_0x1a4e4c;console[_0x7cce7b(0x1e9)](_0x7cce7b(0x1d9)+(_0x45b556||_0x47cc87)+_0x7cce7b(0x23d)+formatFileSize(_0x20ce6f)),showMessage(_0x7cce7b(0x315),'success');const _0x490a47=_0x7cce7b(0x342)+_0x47cc87,_0x4ea158=document[_0x7cce7b(0x1fb)]('iframe');_0x4ea158[_0x7cce7b(0x1d7)][_0x7cce7b(0x2ec)]=_0x7cce7b(0x243),_0x4ea158[_0x7cce7b(0x20b)]=_0x490a47,document[_0x7cce7b(0x33a)][_0x7cce7b(0x232)](_0x4ea158),setTimeout(()=>{const _0x553698=_0x7cce7b;document[_0x553698(0x33a)][_0x553698(0x365)](_0x4ea158)&&document[_0x553698(0x33a)][_0x553698(0x2dd)](_0x4ea158),refreshFileListAfterDownload();},0xea60);}function _0x326f(){const _0x402101=['title','opacity','permissionRoot2','暂无文件夹','log','removeItem','createFolderModal','searchFile','获取文件夹列表失败','keypress','currentPermissions','服务器错误:\x20','获取文件夹文件列表失败','获取用户信息失败:','分类更新失败','删除文件','toFixed','editChineseAliasModal','cancelEditChineseAlias',')\x0a\x0a是否强制删除该用户？\x0a警告：该用户的所有数据将被转移到您的账户下。','folder-action-btn\x20view-folder-btn','cancelEditUserGroup','createElement','files','statusMessage','currentUser','editFolderPermissionsModal','文件夹创建失败:\x20','settingsChineseAlias','无法删除用户:\x20','改分类','action-btn\x20change-subcategory-btn','created_at','test','个人信息更新失败:\x20','12tiEIZZ','onerror','isVisibleToAll','src','folderSelectGroup','delete','加载中...','获取文件夹列表失败:','push','/folder_files/','settingsConfirmPassword','file_size','注册成功，请登录','/rename_file/','username','stored_filename','fileList','name','获取文件夹文件列表失败:','querySelector','trim','/user/permissions','获取文件夹选项失败:','mousedown','下载文件','logoutBtn','pageY','3VXyNNX','chunkedUpload','文档文件','#e74c3c','确定要将文件分类改为','userGroupBadge','saveCreateFolder','超级管理员','?force=true','settingsUsername','POST','/logout','请输入验证码','userList','cancelRenameFile','appendChild','pageX','root2','文件夹名称不能为空','/register','button','className',',\x20下载记录:\x20','两次输入的密码不一致','ceil','value',',\x20大小:\x20','上传失败:\x20','1988850IYoiVT','pointer','status','div','none','upload_time','loginStatus','重命名失败','folders','hidden','userManagementSection','获取文件列表失败:','regEmail','translate(-50%,\x20-50%)\x20scale(0.8)','用户名至少需要2个字符','top','个人信息更新出错:\x20','email','folderFileList','/update_category/','registerForm','用户组更新成功','获取验证码失败:','/users','action-btn\x20toggle-category-btn','saveUserGroup','renameFileModal','fileInput','toString','checked','中文别名更新成功','权限不足：没有删除权限','registerStatus','fileListSection','文件上传失败:\x20','action-buttons','identifier','文件夹为空','folder-action-btn\x20delete-folder-btn','DOMContentLoaded','chineseAliasInput','文件子分类更新失败:\x20','permission-tag\x20permission-','******','editIsVisibleToAll','file_subcategory','folderSelect','rename_files','文件子分类更新成功','删除用户','loginSection','refreshCaptcha','\x0a(文件:\x20','文件分类更新失败:\x20','colSpan','file_category','round','action-btn\x20delete-btn','password','<strong>用户组:\x20</strong><span\x20class=\x22user-group-tag\x20group-','ABCD','backToLoginBtn','created_by','验证码响应数据:','saveRenameFile','uploadSection','translate(-50%,\x20-50%)\x20scale(1)','progress','文件子分类更新出错:\x20','验证码响应状态:','subcategoryFilter','Chunk\x20','/login','20px','parse','selectstart','比赛文件','HTTP\x20error!\x20status:\x20','公用文件','registerSection','获取文件夹文件列表失败:\x20','json','center','手动刷新验证码','用户删除出错:\x20','setItem','cancelCreateFolder','暂无文件','permissionRoot','send','other','innerHTML','newFilename','0\x204px\x2012px\x20rgba(0,0,0,0.2)','can_manage_users','\x22\x20吗？此操作不可撤销！','change_subcategory','root','文件夹权限更新失败:\x20','focus','stringify','更改文件分类','请输入要删除的用户名\x20\x22','padding','floor','Enter','确定要删除此文件吗？','textContent','message','everyone','folderFileListSection','获取文件列表失败:\x20','用户已强制删除，数据已转移','中文别名更新出错:\x20','personalSettingsModal','页面加载完成，初始化验证码...','saveEditFolderPermissions','图片文件','点击刷新','mouseup','203208eiEpAS','folderList','slice','remove','未知错误','querySelectorAll','fileCategory','action-btn\x20rename-btn','文件分类更新出错:\x20','append','网络错误','文件夹删除失败:\x20','设为公用','当前用户:\x20','chunk','文件重命名成功','length','更新失败','文件合并失败:\x20','重命名','changeSubcategoryModal','subcategory','确定要删除此文件夹吗？文件夹必须为空才能删除。','onload','span','开始获取验证码...','编辑权限','color','settingsPassword','editPermissionCompetition','其他文件','textAlign','editPermissionRoot','22935690tiLcbD','cursor','file','用户名不能为空','Bytes','removeChild','options','saveChineseAlias','上传文件','开始加载用户列表...','验证码响应格式错误:',',\x20文件夹:\x20','cancelChangeSubcategory','getItem','/folders/','比赛用户','/delete/','用户组更新失败:\x20','\x0a\x09\x09\x09\x09\x09<h2\x20style=\x22margin-bottom:\x2020px;\x20font-size:\x2024px;\x22>🎉\x20恭喜发现彩蛋！</h2>\x0a\x09\x09\x09\x09\x09<p\x20style=\x22margin-bottom:\x2015px;\x20font-size:\x2016px;\x22>你找到了隐藏的惊喜！</p>\x0a\x09\x09\x09\x09\x09<p\x20style=\x22margin-bottom:\x2020px;\x20font-size:\x2014px;\x20opacity:\x200.9;\x22>愿你的每一天都充满惊喜和快乐！</p>\x0a\x09\x09\x09\x09\x09<button\x20onclick=\x22this.parentElement.remove()\x22\x20style=\x22\x0a\x09\x09\x09\x09\x09\x09background:\x20rgba(255,255,255,0.2);\x0a\x09\x09\x09\x09\x09\x09color:\x20white;\x0a\x09\x09\x09\x09\x09\x09border:\x202px\x20solid\x20white;\x0a\x09\x09\x09\x09\x09\x09padding:\x2010px\x2020px;\x0a\x09\x09\x09\x09\x09\x09border-radius:\x2025px;\x0a\x09\x09\x09\x09\x09\x09cursor:\x20pointer;\x0a\x09\x09\x09\x09\x09\x09font-size:\x2014px;\x0a\x09\x09\x09\x09\x09\x09transition:\x20all\x200.3s;\x0a\x09\x09\x09\x09\x09\x22\x20onmouseover=\x22this.style.background=\x27rgba(255,255,255,0.3)\x27\x22\x0a\x09\x09\x09\x09\x09onmouseout=\x22this.style.background=\x27rgba(255,255,255,0.2)\x27\x22>\x0a\x09\x09\x09\x09\x09\x09关闭彩蛋\x0a\x09\x09\x09\x09\x09</button>\x0a\x09\x09\x09\x09','categoryFilter','display','filename','#9c27b0','loaded','cssText','/check_login','pow','文件上传成功:\x20','add','preventDefault','会话已过期，请重新登录','#666','includes','competition','folderManagementSection','folderName','当前用户组:','permissionOther','PUT','注册出错:\x20','.tudong','userGroup','user-group-tag\x20group-','bold','saveChangeSubcategory','<span\x20class=\x22permission-tag\x22\x20style=\x22background:\x20#e3f2fd;\x20color:\x20#1976d2;\x20margin:\x202px;\x20padding:\x202px\x206px;\x20border-radius:\x2010px;\x20font-size:\x2012px;\x20display:\x20inline-block;\x22>','userGroupSelect','boxShadow','个人信息更新成功','0\x20Bytes','用户名不匹配，删除操作已取消','users','</span><br><br>','#000','editPermissionOther','details','保存中...','block','/merge_chunks','responseText','3772488lhjanH','正在请求下载，请关注浏览器下载列表...','用户删除失败:\x20','获取文件列表失败','status-message\x20error','删除失败','确定要删除用户\x20\x22','文件合并出错:\x20','chinese_alias','fileSubcategory','loginForm','重命名文件','权限更新失败','open','totalChunks','获取用户列表失败:','regUsername','中文别名更新失败:\x20','option[value=\x22root2\x22]','强制删除出错:\x20','regChineseAlias','then','/user/profile','user_id','子分类更新失败','key','left','获取用户权限失败:','DELETE','/users/','success','click','searchBtn','lengthComputable','文件夹创建出错:\x20','user-action-btn\x20delete-btn','application/json','error','body','验证码获取重试次数超过限制','权限不足','getElementById','0.8','/upload','镜像文件','/folders','/download/','folder_id','文件夹创建成功','personalSettingsBtn','权限不足：没有上传权限','action-row','download_count','密码强度不足：需至少8位，包含大小写字母、数字及特殊字符','\x20failed:','catch','background','action-btn\x20download-btn','now','captchaText','未找到可拖拽元素','文件删除成功','379446yfapAL','设为比赛','退出登录失败:','新文件名不能为空','parentElement','folderFilesTitle','user_group','settingsEmail','文件删除出错:\x20','当前用户ID:','文件夹权限更新出错:\x20','<strong>权限列表:</strong><br>','强制删除失败:\x20','file_count','\x22\x20以确认删除操作：','allowed_groups','editUserGroupModal','请选择要上传的文件','classList','contains','logged_in','disabled','文件夹删除成功','编辑别名','right','editPermissionRoot2','刷新中...','文件夹删除出错:\x20','change','status-message\x20hidden','width','462045QbwdNn','没有权限访问文件夹管理功能','forEach','category-tag\x20category-','编辑用户:','showRegisterBtn','文件上传响应解析失败','获取到的用户数据:','addEventListener','普通用户','size','newSubcategory','分块上传失败，请重试','download','视频文件','option','submit','fontWeight','permissionCompetition','appSection','upload','获取用户列表失败','created_username','验证码显示成功:','upload_username','用户删除成功','style','ease-out','启动下载:\x20','captcha','编辑用户组','未设置','2843514XXpxXc','49cqTeyS','暂无用户','创建失败','regPassword','管理员','文件上传出错:\x20网络错误或服务器无响应','category'];_0x326f=function(){return _0x402101;};return _0x326f();}function refreshFileListAfterDownload(){setTimeout(()=>{const _0x2baf88=_0x27a2;if(currentViewingFolderId)loadFolderFiles(currentViewingFolderId);else{const _0x1c134f=document[_0x2baf88(0x33d)](_0x2baf88(0x2eb))[_0x2baf88(0x23c)],_0x9d70e1=document[_0x2baf88(0x33d)](_0x2baf88(0x285))[_0x2baf88(0x23c)],_0x31a0da=document[_0x2baf88(0x33d)](_0x2baf88(0x1ec))['value'];fetchFiles(_0x1c134f,_0x9d70e1,_0x31a0da);}},0x3e8);}function formatTime(_0x32baaf){const _0x203200=_0x1a4e4c;if(_0x32baaf<0x3c)return Math['ceil'](_0x32baaf)+'秒';else{if(_0x32baaf<0xe10)return Math[_0x203200(0x2a7)](_0x32baaf/0x3c)+'分'+Math[_0x203200(0x23b)](_0x32baaf%0x3c)+'秒';else{const _0x306d78=Math[_0x203200(0x2a7)](_0x32baaf/0xe10),_0x593640=Math[_0x203200(0x2a7)](_0x32baaf%0xe10/0x3c);return _0x306d78+'时'+_0x593640+'分';}}}function refreshFileListAfterDownload(){setTimeout(()=>{const _0x578fb7=_0x27a2;if(currentViewingFolderId)loadFolderFiles(currentViewingFolderId);else{const _0x5dc772=document['getElementById']('categoryFilter')[_0x578fb7(0x23c)],_0x57232a=document[_0x578fb7(0x33d)](_0x578fb7(0x285))[_0x578fb7(0x23c)],_0x131184=document[_0x578fb7(0x33d)](_0x578fb7(0x1ec))[_0x578fb7(0x23c)];fetchFiles(_0x5dc772,_0x57232a,_0x131184);}},0x3e8);}function deleteFile(_0x594aa0){const _0x535c5d=_0x1a4e4c;if(!confirm(_0x535c5d(0x2a9)))return;fetch(_0x535c5d(0x2e8)+_0x594aa0,{'method':'DELETE'})['then'](_0x5dd587=>{const _0x2eac81=_0x535c5d;if(_0x5dd587[_0x2eac81(0x241)]===0x193){showMessage(_0x2eac81(0x25e),_0x2eac81(0x339));return;}if(!_0x5dd587['ok'])return _0x5dd587[_0x2eac81(0x290)]()['then'](_0x2a1eb6=>{const _0x78cf38=_0x2eac81;throw new Error(_0x2a1eb6[_0x78cf38(0x339)]||_0x78cf38(0x319));});return _0x5dd587[_0x2eac81(0x290)]();})[_0x535c5d(0x329)](_0xf04626=>{const _0x2bf78e=_0x535c5d;if(_0xf04626&&_0xf04626['success']){showMessage(_0x2bf78e(0x351),_0x2bf78e(0x332));if(currentViewingFolderId)loadFolderFiles(currentViewingFolderId);else{const _0x24b42e=document['getElementById']('categoryFilter')[_0x2bf78e(0x23c)],_0x513838=document[_0x2bf78e(0x33d)](_0x2bf78e(0x285))[_0x2bf78e(0x23c)],_0xca3068=document[_0x2bf78e(0x33d)](_0x2bf78e(0x1ec))[_0x2bf78e(0x23c)];fetchFiles(_0x24b42e,_0x513838,_0xca3068);}}})[_0x535c5d(0x34b)](_0x571620=>{const _0x505b6d=_0x535c5d;_0x571620['message']!=='权限不足：没有删除权限'&&showMessage(_0x505b6d(0x35a)+_0x571620['message'],_0x505b6d(0x339));});}function loadFolders(){const _0x98c775=_0x1a4e4c;fetch(_0x98c775(0x341))[_0x98c775(0x329)](_0x316174=>{const _0x273725=_0x98c775;if(!_0x316174['ok']){if(_0x316174['status']===0x193){console[_0x273725(0x1e9)](_0x273725(0x1be));return;}throw new Error(_0x273725(0x1ed));}return _0x316174[_0x273725(0x290)]();})['then'](_0x51303e=>{const _0x111d1a=_0x98c775;_0x51303e[_0x111d1a(0x247)]&&updateFolderList(_0x51303e[_0x111d1a(0x247)]);})[_0x98c775(0x34b)](_0x36d092=>{const _0x3ed5b4=_0x98c775;console[_0x3ed5b4(0x339)](_0x3ed5b4(0x20f),_0x36d092);});}function updateFolderList(_0x245990){const _0x1a4ee9=_0x1a4e4c,_0x4c776b=document[_0x1a4ee9(0x33d)](_0x1a4ee9(0x2b8));_0x4c776b[_0x1a4ee9(0x29a)]='';if(_0x245990[_0x1a4ee9(0x2c7)]===0x0){const _0x5a19c2=document[_0x1a4ee9(0x1fb)]('tr'),_0x551621=document[_0x1a4ee9(0x1fb)]('td');_0x551621[_0x1a4ee9(0x275)]=0x6,_0x551621[_0x1a4ee9(0x2aa)]=_0x1a4ee9(0x1e8),_0x551621[_0x1a4ee9(0x1d7)][_0x1a4ee9(0x2d6)]=_0x1a4ee9(0x291),_0x551621[_0x1a4ee9(0x1d7)]['padding']='20px',_0x5a19c2[_0x1a4ee9(0x232)](_0x551621),_0x4c776b[_0x1a4ee9(0x232)](_0x5a19c2);return;}const _0x3b0fa3=sessionStorage[_0x1a4ee9(0x2e5)]('userGroup')||_0x1a4ee9(0x299),_0x368169=sessionStorage[_0x1a4ee9(0x2e5)](_0x1a4ee9(0x32b));_0x245990[_0x1a4ee9(0x1bf)](_0x1e0dd6=>{const _0x4c5ad5=_0x1a4ee9,_0x64835d=document[_0x4c5ad5(0x1fb)]('tr'),_0x27511a=document[_0x4c5ad5(0x1fb)]('td');_0x27511a[_0x4c5ad5(0x2aa)]=_0x1e0dd6[_0x4c5ad5(0x219)],_0x27511a[_0x4c5ad5(0x1e5)]=_0x1e0dd6[_0x4c5ad5(0x219)],_0x64835d[_0x4c5ad5(0x232)](_0x27511a);const _0x49a159=document[_0x4c5ad5(0x1fb)]('td');_0x49a159['textContent']=_0x1e0dd6['creator_name']||_0x1e0dd6[_0x4c5ad5(0x1d3)],_0x64835d[_0x4c5ad5(0x232)](_0x49a159);const _0x2046f3=document['createElement']('td');_0x2046f3['textContent']=_0x1e0dd6['created_at'],_0x64835d[_0x4c5ad5(0x232)](_0x2046f3);const _0x2b2235=document[_0x4c5ad5(0x1fb)]('td'),_0x1af736=JSON['parse'](_0x1e0dd6[_0x4c5ad5(0x361)]||'[]');_0x1af736['forEach'](_0x3ea086=>{const _0x2a57dd=_0x4c5ad5,_0x18a815=document['createElement']('span'),_0x240008={'root2':'超级管理员','root':_0x2a57dd(0x1e2),'competition':'比赛用户','other':_0x2a57dd(0x1c6)};_0x18a815[_0x2a57dd(0x2aa)]=_0x240008[_0x3ea086]||_0x3ea086,_0x18a815[_0x2a57dd(0x238)]=_0x2a57dd(0x269)+_0x3ea086,_0x2b2235[_0x2a57dd(0x232)](_0x18a815);});_0x1af736[_0x4c5ad5(0x2c7)]===0x0&&(_0x2b2235[_0x4c5ad5(0x2aa)]='无');_0x64835d[_0x4c5ad5(0x232)](_0x2b2235);const _0x28a297=document['createElement']('td');_0x28a297['textContent']=_0x1e0dd6['is_visible_to_all']?'是':'否',_0x64835d[_0x4c5ad5(0x232)](_0x28a297);const _0x1eb20b=document[_0x4c5ad5(0x1fb)]('td'),_0x437ac5=document[_0x4c5ad5(0x1fb)](_0x4c5ad5(0x242));_0x437ac5[_0x4c5ad5(0x238)]=_0x4c5ad5(0x262);const _0x256744=document['createElement'](_0x4c5ad5(0x237));_0x256744[_0x4c5ad5(0x2aa)]='查看',_0x256744[_0x4c5ad5(0x238)]=_0x4c5ad5(0x1f9),_0x256744[_0x4c5ad5(0x1c5)](_0x4c5ad5(0x333),()=>viewFolderFiles(_0x1e0dd6['id'],_0x1e0dd6[_0x4c5ad5(0x219)])),_0x437ac5[_0x4c5ad5(0x232)](_0x256744);if(_0x3b0fa3===_0x4c5ad5(0x234)){const _0x1f5f2b=document[_0x4c5ad5(0x1fb)](_0x4c5ad5(0x237));_0x1f5f2b[_0x4c5ad5(0x2aa)]=_0x4c5ad5(0x2d1),_0x1f5f2b[_0x4c5ad5(0x238)]='folder-action-btn\x20edit-folder-btn',_0x1f5f2b['addEventListener'](_0x4c5ad5(0x333),()=>openEditFolderPermissionsModal(_0x1e0dd6['id'],_0x1e0dd6['allowed_groups'],_0x1e0dd6['is_visible_to_all'])),_0x437ac5[_0x4c5ad5(0x232)](_0x1f5f2b);}if(_0x1e0dd6[_0x4c5ad5(0x27d)]==_0x368169||_0x3b0fa3==='root2'){const _0x2da805=document[_0x4c5ad5(0x1fb)](_0x4c5ad5(0x237));_0x2da805['textContent']='删除',_0x2da805['className']=_0x4c5ad5(0x265),_0x2da805[_0x4c5ad5(0x1c5)](_0x4c5ad5(0x333),()=>deleteFolder(_0x1e0dd6['id'])),_0x437ac5[_0x4c5ad5(0x232)](_0x2da805);}_0x1eb20b[_0x4c5ad5(0x232)](_0x437ac5),_0x64835d[_0x4c5ad5(0x232)](_0x1eb20b),_0x4c776b['appendChild'](_0x64835d);});}function loadFolderOptions(){const _0x4d4630=_0x1a4e4c;fetch('/folders')[_0x4d4630(0x329)](_0x1be3a3=>{if(!_0x1be3a3['ok'])return;return _0x1be3a3['json']();})[_0x4d4630(0x329)](_0x3c9930=>{const _0x2ca91d=_0x4d4630;_0x3c9930['folders']&&updateFolderOptions(_0x3c9930[_0x2ca91d(0x247)]);})[_0x4d4630(0x34b)](_0x5708ab=>{const _0x410c99=_0x4d4630;console[_0x410c99(0x339)](_0x410c99(0x21e),_0x5708ab);});}function updateFolderOptions(_0x4a1189){const _0x51a8ef=_0x1a4e4c,_0x4ec158=document[_0x51a8ef(0x33d)](_0x51a8ef(0x26d));while(_0x4ec158[_0x51a8ef(0x2de)][_0x51a8ef(0x2c7)]>0x1){_0x4ec158[_0x51a8ef(0x2ba)](0x1);}_0x4a1189[_0x51a8ef(0x1bf)](_0xb0cf57=>{const _0x2b5074=_0x51a8ef,_0x5286c0=document[_0x2b5074(0x1fb)](_0x2b5074(0x1cc));_0x5286c0[_0x2b5074(0x23c)]=_0xb0cf57['id'],_0x5286c0[_0x2b5074(0x2aa)]=_0xb0cf57[_0x2b5074(0x219)],_0x4ec158[_0x2b5074(0x232)](_0x5286c0);});}function viewFolderFiles(_0x309b3a,_0x89c44d){const _0x2145e1=_0x1a4e4c;currentViewingFolderId=_0x309b3a,document['getElementById'](_0x2145e1(0x357))['textContent']='文件夹:\x20'+_0x89c44d,document[_0x2145e1(0x33d)](_0x2145e1(0x260))['style'][_0x2145e1(0x2ec)]='none',document[_0x2145e1(0x33d)](_0x2145e1(0x2ad))[_0x2145e1(0x1d7)][_0x2145e1(0x2ec)]='block',loadFolderFiles(_0x309b3a);}function loadFolderFiles(_0x9b7d6d){const _0x56fd9e=_0x1a4e4c;fetch(_0x56fd9e(0x211)+_0x9b7d6d)[_0x56fd9e(0x329)](_0x22a0d4=>{const _0x29c45f=_0x56fd9e;if(!_0x22a0d4['ok']){if(_0x22a0d4[_0x29c45f(0x241)]===0x193){showMessage('没有权限访问此文件夹','error');return;}throw new Error(_0x29c45f(0x1f1));}return _0x22a0d4[_0x29c45f(0x290)]();})['then'](_0x4f86e1=>{const _0x10d929=_0x56fd9e;if(_0x4f86e1[_0x10d929(0x1fc)])updateFolderFileList(_0x4f86e1[_0x10d929(0x1fc)]);else _0x4f86e1[_0x10d929(0x339)]&&showMessage(_0x10d929(0x28f)+_0x4f86e1[_0x10d929(0x339)],_0x10d929(0x339));})[_0x56fd9e(0x34b)](_0x4c3e48=>{const _0x82b23f=_0x56fd9e;console[_0x82b23f(0x339)](_0x82b23f(0x21a),_0x4c3e48),showMessage('获取文件夹文件列表失败',_0x82b23f(0x339));});}function updateFolderFileList(_0x54bf92){const _0x1009e0=_0x1a4e4c,_0x18d732=document[_0x1009e0(0x33d)](_0x1009e0(0x251));_0x18d732['innerHTML']='';if(_0x54bf92['length']===0x0){const _0x151459=document['createElement']('tr'),_0x33627f=document[_0x1009e0(0x1fb)]('td');_0x33627f['colSpan']=0x8,_0x33627f[_0x1009e0(0x2aa)]=_0x1009e0(0x264),_0x33627f[_0x1009e0(0x1d7)][_0x1009e0(0x2d6)]=_0x1009e0(0x291),_0x33627f[_0x1009e0(0x1d7)][_0x1009e0(0x2a6)]='20px',_0x151459[_0x1009e0(0x232)](_0x33627f),_0x18d732['appendChild'](_0x151459);return;}_0x54bf92[_0x1009e0(0x1bf)](_0x4744ec=>{const _0x3d70b5=_0x1009e0,_0x5f1872=document[_0x3d70b5(0x1fb)]('tr'),_0x2fd02d=document[_0x3d70b5(0x1fb)]('td');_0x2fd02d[_0x3d70b5(0x2aa)]=_0x4744ec[_0x3d70b5(0x2ed)],_0x2fd02d['title']=_0x4744ec[_0x3d70b5(0x2ed)],_0x5f1872[_0x3d70b5(0x232)](_0x2fd02d);const _0x50f221=document[_0x3d70b5(0x1fb)]('td');_0x50f221['textContent']=formatFileSize(_0x4744ec[_0x3d70b5(0x213)]),_0x50f221[_0x3d70b5(0x1d7)]['textAlign']=_0x3d70b5(0x1b6),_0x5f1872[_0x3d70b5(0x232)](_0x50f221);const _0x36d2b8=document['createElement']('td');_0x36d2b8['textContent']=_0x4744ec[_0x3d70b5(0x244)],_0x5f1872[_0x3d70b5(0x232)](_0x36d2b8);const _0x438237=document[_0x3d70b5(0x1fb)]('td');_0x438237['textContent']=_0x4744ec[_0x3d70b5(0x1d5)]||'未知',_0x5f1872[_0x3d70b5(0x232)](_0x438237);const _0x46be71=document[_0x3d70b5(0x1fb)]('td'),_0x2f3a11=document[_0x3d70b5(0x1fb)]('span');_0x2f3a11[_0x3d70b5(0x2aa)]=_0x4744ec[_0x3d70b5(0x276)]===_0x3d70b5(0x2ac)?'公用文件':_0x3d70b5(0x28b),_0x2f3a11[_0x3d70b5(0x238)]=_0x3d70b5(0x1c0)+_0x4744ec[_0x3d70b5(0x276)],_0x46be71[_0x3d70b5(0x232)](_0x2f3a11),_0x5f1872[_0x3d70b5(0x232)](_0x46be71);const _0x373ade=document[_0x3d70b5(0x1fb)]('td'),_0x2a1edf={'mirror':_0x3d70b5(0x340),'image':'图片文件','document':_0x3d70b5(0x225),'video':_0x3d70b5(0x1cb),'other':_0x3d70b5(0x2d5)};_0x373ade['textContent']=_0x2a1edf[_0x4744ec[_0x3d70b5(0x26c)]]||_0x4744ec['file_subcategory'],_0x5f1872[_0x3d70b5(0x232)](_0x373ade);const _0x1185a2=document[_0x3d70b5(0x1fb)]('td');_0x1185a2[_0x3d70b5(0x2aa)]=_0x4744ec['download_count']||0x0,_0x1185a2['style']['textAlign']=_0x3d70b5(0x291),_0x5f1872[_0x3d70b5(0x232)](_0x1185a2);const _0xf83141=document[_0x3d70b5(0x1fb)]('td'),_0x54c14c=document[_0x3d70b5(0x1fb)](_0x3d70b5(0x242));_0x54c14c[_0x3d70b5(0x238)]=_0x3d70b5(0x262);const _0x22d2d0=document[_0x3d70b5(0x1fb)](_0x3d70b5(0x242));_0x22d2d0[_0x3d70b5(0x238)]='action-row';if(currentUserPermissions[_0x3d70b5(0x2f8)]('download')){const _0xe3fd69=document['createElement'](_0x3d70b5(0x237));_0xe3fd69[_0x3d70b5(0x2aa)]='下载',_0xe3fd69[_0x3d70b5(0x238)]=_0x3d70b5(0x34d),_0xe3fd69['addEventListener'](_0x3d70b5(0x333),()=>downloadFile(_0x4744ec[_0x3d70b5(0x217)],_0x4744ec['filename'],_0x4744ec['file_size'])),_0x22d2d0[_0x3d70b5(0x232)](_0xe3fd69);}if(currentUserPermissions['includes']('rename_files')){const _0x56d2a4=document[_0x3d70b5(0x1fb)](_0x3d70b5(0x237));_0x56d2a4[_0x3d70b5(0x2aa)]=_0x3d70b5(0x2ca),_0x56d2a4[_0x3d70b5(0x238)]=_0x3d70b5(0x2be),_0x56d2a4[_0x3d70b5(0x1c5)](_0x3d70b5(0x333),()=>openRenameFileModal(_0x4744ec['stored_filename'],_0x4744ec[_0x3d70b5(0x2ed)])),_0x22d2d0[_0x3d70b5(0x232)](_0x56d2a4);}if(currentUserPermissions[_0x3d70b5(0x2f8)](_0x3d70b5(0x29f))){const _0x371859=document['createElement'](_0x3d70b5(0x237));_0x371859[_0x3d70b5(0x2aa)]=_0x3d70b5(0x203),_0x371859['className']=_0x3d70b5(0x204),_0x371859[_0x3d70b5(0x1c5)](_0x3d70b5(0x333),()=>openChangeSubcategoryModal(_0x4744ec[_0x3d70b5(0x217)],_0x4744ec[_0x3d70b5(0x26c)])),_0x22d2d0[_0x3d70b5(0x232)](_0x371859);}const _0x168520=document[_0x3d70b5(0x1fb)]('div');_0x168520['className']=_0x3d70b5(0x347);if(currentUserPermissions[_0x3d70b5(0x2f8)](_0x3d70b5(0x20d))){const _0x2d6780=document[_0x3d70b5(0x1fb)]('button');_0x2d6780[_0x3d70b5(0x2aa)]=_0x4744ec['file_category']===_0x3d70b5(0x2ac)?'设为比赛':_0x3d70b5(0x2c3),_0x2d6780[_0x3d70b5(0x238)]=_0x3d70b5(0x257),_0x2d6780[_0x3d70b5(0x1c5)](_0x3d70b5(0x333),()=>toggleFileCategory(_0x4744ec[_0x3d70b5(0x217)],_0x4744ec[_0x3d70b5(0x276)])),_0x168520[_0x3d70b5(0x232)](_0x2d6780);}if(currentUserPermissions[_0x3d70b5(0x2f8)](_0x3d70b5(0x20d))){const _0x3b9032=document[_0x3d70b5(0x1fb)](_0x3d70b5(0x237));_0x3b9032[_0x3d70b5(0x2aa)]='删除',_0x3b9032[_0x3d70b5(0x238)]=_0x3d70b5(0x278),_0x3b9032[_0x3d70b5(0x1c5)](_0x3d70b5(0x333),()=>deleteFile(_0x4744ec[_0x3d70b5(0x217)])),_0x168520['appendChild'](_0x3b9032);}_0x54c14c[_0x3d70b5(0x232)](_0x22d2d0),_0x54c14c['appendChild'](_0x168520),_0xf83141[_0x3d70b5(0x232)](_0x54c14c),_0x5f1872[_0x3d70b5(0x232)](_0xf83141),_0x18d732[_0x3d70b5(0x232)](_0x5f1872);});}document[_0x1a4e4c(0x33d)]('backToAllFiles')[_0x1a4e4c(0x1c5)](_0x1a4e4c(0x333),function(){const _0x14f246=_0x1a4e4c;currentViewingFolderId=null,document[_0x14f246(0x33d)](_0x14f246(0x2ad))[_0x14f246(0x1d7)][_0x14f246(0x2ec)]=_0x14f246(0x243),document[_0x14f246(0x33d)](_0x14f246(0x260))['style'][_0x14f246(0x2ec)]=_0x14f246(0x311),fetchFiles();}),document[_0x1a4e4c(0x33d)]('createFolderBtn')['addEventListener'](_0x1a4e4c(0x333),function(){const _0x173d78=_0x1a4e4c;document[_0x173d78(0x33d)](_0x173d78(0x1eb))[_0x173d78(0x1d7)]['display']=_0x173d78(0x311);});function closeCreateFolderModal(){const _0x82961e=_0x1a4e4c;document['getElementById'](_0x82961e(0x1eb))['style'][_0x82961e(0x2ec)]='none',document[_0x82961e(0x33d)](_0x82961e(0x2fb))[_0x82961e(0x23c)]='',document[_0x82961e(0x33d)](_0x82961e(0x1e7))[_0x82961e(0x25c)]=![],document[_0x82961e(0x33d)](_0x82961e(0x297))[_0x82961e(0x25c)]=!![],document['getElementById'](_0x82961e(0x1cf))[_0x82961e(0x25c)]=![],document[_0x82961e(0x33d)]('permissionOther')[_0x82961e(0x25c)]=![],document['getElementById'](_0x82961e(0x20a))[_0x82961e(0x25c)]=![];}document[_0x1a4e4c(0x33d)](_0x1a4e4c(0x229))[_0x1a4e4c(0x1c5)](_0x1a4e4c(0x333),function(){const _0x530925=_0x1a4e4c,_0x1d5a01=document[_0x530925(0x33d)](_0x530925(0x2fb))[_0x530925(0x23c)]['trim']();if(!_0x1d5a01){showMessage(_0x530925(0x235),_0x530925(0x339));return;}const _0x893117=[];if(document[_0x530925(0x33d)](_0x530925(0x1e7))['checked'])_0x893117['push'](_0x530925(0x234));if(document[_0x530925(0x33d)](_0x530925(0x297))[_0x530925(0x25c)])_0x893117[_0x530925(0x210)]('root');if(document[_0x530925(0x33d)](_0x530925(0x1cf))['checked'])_0x893117['push'](_0x530925(0x2f9));if(document[_0x530925(0x33d)](_0x530925(0x2fd))[_0x530925(0x25c)])_0x893117[_0x530925(0x210)]('other');const _0x414296=document[_0x530925(0x33d)](_0x530925(0x20a))[_0x530925(0x25c)];fetch(_0x530925(0x341),{'method':_0x530925(0x22d),'headers':{'Content-Type':_0x530925(0x338)},'body':JSON[_0x530925(0x2a3)]({'name':_0x1d5a01,'allowed_groups':_0x893117,'is_visible_to_all':_0x414296})})[_0x530925(0x329)](_0x41794c=>{const _0x32b856=_0x530925;if(!_0x41794c['ok'])return _0x41794c[_0x32b856(0x290)]()[_0x32b856(0x329)](_0x4f243f=>{const _0xffa789=_0x32b856;throw new Error(_0x4f243f[_0xffa789(0x339)]||_0xffa789(0x1e0));});return _0x41794c[_0x32b856(0x290)]();})['then'](_0x2ddaa5=>{const _0x7df5d1=_0x530925;_0x2ddaa5[_0x7df5d1(0x332)]?(showMessage(_0x7df5d1(0x344),_0x7df5d1(0x332)),closeCreateFolderModal(),loadFolders(),loadFolderOptions()):showMessage(_0x7df5d1(0x200)+(_0x2ddaa5[_0x7df5d1(0x339)]||_0x7df5d1(0x2bb)),'error');})[_0x530925(0x34b)](_0x42d913=>{const _0x5c9080=_0x530925;showMessage(_0x5c9080(0x336)+_0x42d913[_0x5c9080(0x2ab)],_0x5c9080(0x339));});});function openEditFolderPermissionsModal(_0x38eda5,_0x4687a7,_0xd7630){const _0x3dd980=_0x1a4e4c;currentEditingFolderId=_0x38eda5;const _0x1885dc=JSON[_0x3dd980(0x289)](_0x4687a7||'[]');document['getElementById']('editPermissionRoot2')[_0x3dd980(0x25c)]=_0x1885dc[_0x3dd980(0x2f8)](_0x3dd980(0x234)),document[_0x3dd980(0x33d)](_0x3dd980(0x2d7))[_0x3dd980(0x25c)]=_0x1885dc[_0x3dd980(0x2f8)]('root'),document[_0x3dd980(0x33d)](_0x3dd980(0x2d4))[_0x3dd980(0x25c)]=_0x1885dc[_0x3dd980(0x2f8)](_0x3dd980(0x2f9)),document['getElementById'](_0x3dd980(0x30e))[_0x3dd980(0x25c)]=_0x1885dc[_0x3dd980(0x2f8)](_0x3dd980(0x299)),document[_0x3dd980(0x33d)](_0x3dd980(0x26b))[_0x3dd980(0x25c)]=_0xd7630,document[_0x3dd980(0x33d)](_0x3dd980(0x1ff))['style'][_0x3dd980(0x2ec)]=_0x3dd980(0x311);}function closeEditFolderPermissionsModal(){const _0xf09d0d=_0x1a4e4c;document['getElementById'](_0xf09d0d(0x1ff))[_0xf09d0d(0x1d7)]['display']=_0xf09d0d(0x243),currentEditingFolderId=null;}document['getElementById'](_0x1a4e4c(0x2b3))[_0x1a4e4c(0x1c5)](_0x1a4e4c(0x333),function(){const _0x2091c3=_0x1a4e4c;if(!currentEditingFolderId)return;const _0x236bf4=[];if(document[_0x2091c3(0x33d)](_0x2091c3(0x1b7))[_0x2091c3(0x25c)])_0x236bf4[_0x2091c3(0x210)](_0x2091c3(0x234));if(document[_0x2091c3(0x33d)](_0x2091c3(0x2d7))[_0x2091c3(0x25c)])_0x236bf4[_0x2091c3(0x210)](_0x2091c3(0x2a0));if(document[_0x2091c3(0x33d)](_0x2091c3(0x2d4))[_0x2091c3(0x25c)])_0x236bf4['push'](_0x2091c3(0x2f9));if(document[_0x2091c3(0x33d)]('editPermissionOther')['checked'])_0x236bf4[_0x2091c3(0x210)](_0x2091c3(0x299));const _0x2be568=document['getElementById']('editIsVisibleToAll')[_0x2091c3(0x25c)];fetch(_0x2091c3(0x2e6)+currentEditingFolderId,{'method':'PUT','headers':{'Content-Type':_0x2091c3(0x338)},'body':JSON[_0x2091c3(0x2a3)]({'allowed_groups':_0x236bf4,'is_visible_to_all':_0x2be568})})[_0x2091c3(0x329)](_0x1e3a53=>{const _0x14737e=_0x2091c3;if(!_0x1e3a53['ok'])return _0x1e3a53[_0x14737e(0x290)]()[_0x14737e(0x329)](_0x52467d=>{const _0x33a83e=_0x14737e;throw new Error(_0x52467d[_0x33a83e(0x339)]||_0x33a83e(0x320));});return _0x1e3a53['json']();})[_0x2091c3(0x329)](_0x58ec14=>{const _0x46a119=_0x2091c3;_0x58ec14[_0x46a119(0x332)]?(showMessage('文件夹权限更新成功',_0x46a119(0x332)),closeEditFolderPermissionsModal(),loadFolders(),loadFolderOptions()):showMessage(_0x46a119(0x2a1)+(_0x58ec14[_0x46a119(0x339)]||_0x46a119(0x2bb)),_0x46a119(0x339));})[_0x2091c3(0x34b)](_0x5f2234=>{const _0x2abb35=_0x2091c3;showMessage(_0x2abb35(0x35c)+_0x5f2234[_0x2abb35(0x2ab)],_0x2abb35(0x339));});});function deleteFolder(_0x300cd2){const _0x1806a4=_0x1a4e4c;if(!confirm(_0x1806a4(0x2cd)))return;fetch('/folders/'+_0x300cd2,{'method':_0x1806a4(0x330)})['then'](_0x3044c4=>{const _0x80aad2=_0x1806a4;if(!_0x3044c4['ok'])return _0x3044c4[_0x80aad2(0x290)]()[_0x80aad2(0x329)](_0x51f850=>{const _0x225fcf=_0x80aad2;throw new Error(_0x51f850['error']||_0x225fcf(0x319));});return _0x3044c4[_0x80aad2(0x290)]();})[_0x1806a4(0x329)](_0x3d2887=>{const _0xfcfafb=_0x1806a4;_0x3d2887[_0xfcfafb(0x332)]?(showMessage(_0xfcfafb(0x368),_0xfcfafb(0x332)),loadFolders(),loadFolderOptions(),currentViewingFolderId===_0x300cd2&&(currentViewingFolderId=null,document['getElementById'](_0xfcfafb(0x2ad))[_0xfcfafb(0x1d7)][_0xfcfafb(0x2ec)]='none',document['getElementById'](_0xfcfafb(0x260))[_0xfcfafb(0x1d7)][_0xfcfafb(0x2ec)]=_0xfcfafb(0x311))):showMessage(_0xfcfafb(0x2c2)+(_0x3d2887[_0xfcfafb(0x339)]||_0xfcfafb(0x2bb)),'error');})['catch'](_0x118525=>{const _0x31f026=_0x1806a4;showMessage(_0x31f026(0x1b9)+_0x118525['message'],_0x31f026(0x339));});}document[_0x1a4e4c(0x1c5)](_0x1a4e4c(0x266),function(){const _0x513947=_0x1a4e4c;initDraggableElement(),console[_0x513947(0x1e9)](_0x513947(0x2b2)),checkLoginStatus(),setTimeout(()=>{fetchCaptcha();},0x1f4);});function initDraggableElement(){const _0x539343=_0x1a4e4c;var _0x12a274,_0x38ec7c,_0x2f62c5,_0x23c38d,_0x52fa4e,_0x3c0758,_0x392fe2,_0x5b2e78,_0x3db560=![],_0x356f1b=document[_0x539343(0x21b)](_0x539343(0x300));if(!_0x356f1b){console[_0x539343(0x1e9)](_0x539343(0x350));return;}_0x356f1b[_0x539343(0x1c5)](_0x539343(0x333),function(_0xeaf456){!_0x3db560&&showEasterEgg();}),_0x356f1b[_0x539343(0x1c5)](_0x539343(0x21f),function(_0x2a8254){const _0x3a08e5=_0x539343;_0x12a274=_0x2a8254['pageX'],_0x38ec7c=_0x2a8254[_0x3a08e5(0x222)];var _0xce7a3d=window['getComputedStyle'](_0x356f1b);_0x2f62c5=parseInt(_0xce7a3d[_0x3a08e5(0x32e)])||0x0,_0x23c38d=parseInt(_0xce7a3d[_0x3a08e5(0x24e)])||0x0,_0x3db560=!![],_0x356f1b[_0x3a08e5(0x1d7)][_0x3a08e5(0x1e6)]=_0x3a08e5(0x33e),_0x356f1b['style'][_0x3a08e5(0x307)]='0\x206px\x2020px\x20rgba(0,0,0,0.3)';}),_0x356f1b[_0x539343(0x1c5)](_0x539343(0x2b6),function(){const _0x107df7=_0x539343;_0x3db560=![],_0x356f1b['style'][_0x107df7(0x1e6)]='1',_0x356f1b['style'][_0x107df7(0x307)]=_0x107df7(0x29c);}),document[_0x539343(0x1c5)]('mousemove',function(_0x114917){const _0x15b4e7=_0x539343;_0x3db560===!![]&&(_0x52fa4e=_0x114917[_0x15b4e7(0x233)],_0x3c0758=_0x114917['pageY'],_0x392fe2=_0x12a274-_0x52fa4e,_0x5b2e78=_0x38ec7c-_0x3c0758,_0x356f1b['style']['left']=_0x2f62c5-_0x392fe2+'px',_0x356f1b['style'][_0x15b4e7(0x24e)]=_0x23c38d-_0x5b2e78+'px');}),document[_0x539343(0x1c5)](_0x539343(0x28a),function(_0x1ba769){const _0x270f55=_0x539343;_0x3db560&&_0x1ba769[_0x270f55(0x2f5)]();});}function showEasterEgg(){const _0x527a80=_0x1a4e4c,_0x6d5b95=document[_0x527a80(0x1fb)](_0x527a80(0x242));_0x6d5b95['style'][_0x527a80(0x2f0)]='\x0a\x09\x09\x09\x09\x09position:\x20fixed;\x0a\x09\x09\x09\x09\x09top:\x2050%;\x0a\x09\x09\x09\x09\x09left:\x2050%;\x0a\x09\x09\x09\x09\x09transform:\x20translate(-50%,\x20-50%);\x0a\x09\x09\x09\x09\x09background:\x20linear-gradient(135deg,\x20#667eea\x200%,\x20#764ba2\x20100%);\x0a\x09\x09\x09\x09\x09color:\x20white;\x0a\x09\x09\x09\x09\x09padding:\x2030px;\x0a\x09\x09\x09\x09\x09border-radius:\x2015px;\x0a\x09\x09\x09\x09\x09text-align:\x20center;\x0a\x09\x09\x09\x09\x09z-index:\x2010000;\x0a\x09\x09\x09\x09\x09box-shadow:\x200\x2010px\x2030px\x20rgba(0,0,0,0.3);\x0a\x09\x09\x09\x09\x09min-width:\x20300px;\x0a\x09\x09\x09\x09\x09font-family:\x20\x27Arial\x27,\x20sans-serif;\x0a\x09\x09\x09\x09',_0x6d5b95[_0x527a80(0x29a)]=_0x527a80(0x2ea),document[_0x527a80(0x33a)][_0x527a80(0x232)](_0x6d5b95),_0x6d5b95['animate']([{'transform':_0x527a80(0x24c),'opacity':0x0},{'transform':_0x527a80(0x281),'opacity':0x1}],{'duration':0x1f4,'easing':_0x527a80(0x1d8)}),setTimeout(()=>{const _0x446168=_0x527a80;_0x6d5b95[_0x446168(0x356)]&&_0x6d5b95[_0x446168(0x2ba)]();},0x2710);}
+	</script>
+	</body>
+</html>

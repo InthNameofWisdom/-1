@@ -1,0 +1,53 @@
+#!/usr/bin/env python3
+import pymysql
+from pymysql.cursors import DictCursor
+
+# 数据库配置
+DB_CONFIG = {
+    'host': 'localhost',
+    'user': 'root',
+    'password': 'Key-1122',
+    'db': 'file_manager',
+    'charset': 'utf8mb4',
+    'cursorclass': DictCursor
+}
+
+def fix_filename_mismatches():
+    """修复文件名不匹配问题"""
+    try:
+        conn = pymysql.connect(**DB_CONFIG)
+        with conn.cursor() as cursor:
+            # 查找可能的拼写错误
+            cursor.execute("""
+                SELECT stored_filename, original_filename 
+                FROM file_info 
+                WHERE stored_filename LIKE '%world%' OR original_filename LIKE '%world%'
+            """)
+            mismatches = cursor.fetchall()
+            
+            for file in mismatches:
+                old_name = file['stored_filename']
+                # 修复常见的拼写错误
+                new_name = old_name.replace('world', 'work')
+                
+                if new_name != old_name:
+                    print(f"修复: {old_name} -> {new_name}")
+                    
+                    # 更新数据库
+                    cursor.execute("""
+                        UPDATE file_info 
+                        SET stored_filename = %s, original_filename = %s 
+                        WHERE stored_filename = %s
+                    """, (new_name, new_name, old_name))
+            
+            conn.commit()
+            print("文件名修复完成")
+            
+    except Exception as e:
+        print(f"修复失败: {str(e)}")
+    finally:
+        if 'conn' in locals():
+            conn.close()
+
+if __name__ == '__main__':
+    fix_filename_mismatches()

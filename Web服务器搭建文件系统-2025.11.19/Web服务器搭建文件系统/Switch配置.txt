@@ -1,0 +1,353 @@
+交换机重置set default
+交换机和路由器write 
+交换机的重启: reload
+
+hostname 设备名字
+路由器重置: delete
+路由器重启:reboot
+
+防火墙:unset all
+
+防火墙保存:sav
+
+端口地址查看:show ip interface brief 
+
+VRF实例配置:ip vrf 实例名字
+
+端口绑定VRF实例:ip vrf forwarding VRF实例
+SW1(config-vlan11)#name CP-1:VLAN命名
+
+
+：链路聚合配置LACP模式
+ port-group 1
+  int e1/0/23-24
+  port-group 1 mode active
+
+FW1(config)# interface l1 //进入端口
+ zone trust (配置安全区域) *重点防火墙需要配置IP地址时，需要先配置安全区域
+ manage ping (端口开启ping服务)
+ manage ssh (端口开启ssh服务)
+ ip address 10.0.7.1/32(配置IP地址)
+
+
+
+
+
+
+  interface e1/0/23-24 //进入端口
+  switchport mode trunk //开启trunk模式
+  switchport trunk allowed vlan 11-14,21,24,31,34 //根据题目要求放行对应VLAN数据
+
+
+
+vlan 11 （配置VLAN的名字）
+ name CP-1
+!
+vlan 12
+ name XY-1
+!
+vlan 13
+ name CF-1
+!
+vlan 14
+ name XZ-1
+!
+
+
+
+
+
+交换机 :
+authentication line vty login local
+authentication line console login local
+username admin privilege 15 password admin
+
+交换机的开启SSH服务和本地认证方式
+  ssh-server enable
+  ssh-server timeout 540
+  ssh-server max-connection 6
+
+
+
+
+路由器开启SSH服务和本地认证
+ ip sshd enable 
+ ip sshd timeout 540
+ ip sshd max-user 1
+
+aaa authentication login default local
+aaa authentication enable default none 
+
+
+防火墙的SSH服务开启
+ interface l1
+FW2(config-if-loo1)# manage  ssh 
+ ssh timeout 9
+ ssh  max-session 1
+
+
+
+OSPF的配置
+ router ospf 1
+  router-id 10.0.1.1
+  show ip route connected \\查看路由表中的直连网段
+  network 10.0.11.0 0.00.0.255(反掩码/字符) a 0
+  network 10.0.12.0 0.0.0.255 a 0
+  network 10.0.13.0 0.0.0.255 a 0
+  network 10.0.14.0 0.0.0.255 a 0
+  network 10.0.255.0 0.0.0.3 a 0
+  network 10.0.255.8 0.0.0.3 a 0
+  network 10.0.255.16 0.0.0.3 a 0
+
+
+show ip ospf  neighbor \\查看OSPF邻居状态
+
+
+RIP的配置
+router rip
+version 版本号
+network 10.0.255.4/30
+
+ip vrouter trust-vr 防火墙进入虚拟路由接口
+
+查看RIP数据库信息show ip rip database 
+
+default-information originate默认路由的下发
+
+
+防火墙的RIP和OSPF配置
+ router rip
+    default-information originate
+    network 10.0.255.0/30
+    network 10.0.255.4/30
+    network 10.0.7.1/32
+  exit
+  router ospf 2
+    router-id 10.0.7.2
+    network 10.0.7.2/32 area 0
+    network 20.0.255.20/30 area 0
+    network 10.0.252.0/30 area 0
+
+
+防火墙tunnle(隧道接口)
+FW1(config)# tunnel  gre t1
+
+FW1(config-tunnel-gre)# source 20.0.255.22 (配置原接口地址)
+
+FW1(config-tunnel-gre)# destination 20.0.255.26(配置目的端口地址)
+
+FW1(config-tunnel-gre)# interface e0/1（配置出端口）
+FW1(config-tunnel-gre)# exit
+
+
+FW1(config)# interface tunnel1
+
+FW1(config-if-tun1)# tunnel  gre t1(绑定隧道接口的实例)
+
+show tunnel gre(查看隧道接口实例)
+
+
+
+
+R2_config#router rip 1(配置RIP进程)
+R2_config_rip_1#version 2  (配置版本)
+R2_config_rip_1#exit
+R2_config#int l1
+R2_config_l1#ip rip 1 enable (端口开启RIP)
+
+
+
+
+R1_config#int tu 2
+
+
+R1_config_t2#tunnel  source 20.0.255.30 (配置原接口地址)
+
+R1_config_t2#tunnel  destination 20.0.255.29(配置对端端口地址)
+
+
+
+
+
+BGP邻居的建立
+ router bgp 200
+  bgp  router-id 20.0.2.3
+  address-family ipv4 vrf Internet
+  neighbor 20.0.255.13 remote-as 100
+  neighbor 20.0.255.13 up vlan3013
+  neighbor 20.0.255.13 ebgp-multihop 2
+
+  show ip bgp neighbors vrf Internet
+  show ip bgp summary
+  show ip bgp vrf Internet summary
+
+
+ ip prefix-list T1 permit  20.0.255.28/30(匹配路由数据)
+  route-map T1 permit 10(创建路由策略)
+  match ip address prefix-list T1(匹配流量)
+  exit
+  router bgp 300
+  address-family ipv4 vrf Internet
+  redistribute connected route-map T1(重分布直连路由信息T1)
+
+
+
+
+
+ISIS配置
+R1_config_l2#ip router  isis  1（接口启用ISIS）
+R1_config_l2#isi circuit-type level-2 （接口ISIS类型）
+
+      
+R1_config#router isis  1 vrf Interent（ISIS的配置）
+R1_config_isis_1#net 10.0000.0000.0005.00
+R1_config_isis_1#is-type  level-2
+R1_config_isis_1#metric-style wide 
+
+R1_config_bgp_af#neighbor 20.0.6.2 route-reflector-client 
+
+
+
+
+
+IPsec配置方法
+
+R1_config#ip access-list extended VPN(抓取GRE隧道的流量)
+
+R1_config_ext_nacl#permit gre 20.0.255.30 255.255.255.255 20.0.255.22 255.255.255.255
+R1_config_ext_nacl#exit
+
+R1_config#crypto isakmp key 0 Key-1122 address 20.0.255.22 255.255.255.255 (配置需要建立IPsec邻居的端口IP地址)
+
+R1_config#crypto key load-keyconf  end (本地保存密码)
+
+R1_config#crypto isakmp policy 10 (配置第一阶段的安全加密方式)
+R1_config_isakmp#authentication pre-share 
+R1_config_isakmp#encryption aes 
+R1_config_isakmp#group 2
+R1_config_isakmp#hash sha 
+R1_config_isakmp#lifetime 86400
+R1_config_isakmp#exit
+
+R1_config#crypto ipsec transform-set tt3 esp-sha-hmac esp-aes 128(配置第二阶段的安全加密方式)
+R1-transform-set#mode tunnel 
+R1-transform-set#exit
+
+R1_config#crypto map 1 10 ipsec-isakmp （创建IPsec表）
+R1_crypto_map#set peer 20.0.255.22
+R1_crypto_map#set transform-set tt3
+R1_crypto_map#match address VPN
+R1_crypto_map#exit
+
+R1_config#int g0/0
+R1_config_g0/0#crypto map 1(端口绑定IPsec表
+
+
+
+
+spanning-tree mst configuration（生成树实例配置）
+ name ADMIN
+ revision-level 1
+ instance 0 vlan 1-9;11-19;21-4094
+ instance 1 vlan 10
+ instance 2 vlan 20
+ exit
+!
+spanning-tree（开启生成树）
+!
+
+
+spanning-tree mst configuration
+ name ADMIN
+ revision-level 1
+ instance 0 vlan 1-9;11-19;21-4094
+ instance 1 vlan 10
+ instance 2 vlan 20
+ exit
+!
+spanning-tree
+ spanning-tree mst 2 priority 4096
+!
+
+
+
+spanning-tree mst configuration
+ name ADMIN
+ revision-level 1
+ instance 0 vlan 1-9;11-19;21-4094
+ instance 1 vlan 10
+ instance 2 vlan 20
+ exit
+!
+spanning-tree
+ spanning-tree mst 1 priority 4096
+!
+
+
+无线
+interface Vlan1
+ ip address 192.168.1.1 255.255.255.0
+!
+ping 192.168.1.10
+获取AP的MAC地址信息
+
+无线配置第一步配置DHCP
+service dhcp
+!
+ip dhcp pool VLAN20
+ network-address 10.1.2.0 255.255.255.0
+ default-router 10.1.2.254
+ dns-server 114.114.114.114
+!
+ip dhcp pool VLAN10
+ host 10.1.1.130 255.255.255.0
+ hardware-address 00-03-0F-93-8A-80
+ default-router 10.1.1.254
+ dns-server 114.114.114.114
+!
+
+interface Vlan10
+ ip address 10.1.1.254 255.255.255.0
+!
+interface Vlan20
+ ip address 10.1.2.254 255.255.255.0
+!
+
+第二部配置链路状态
+vlan 1;10;20 
+!
+Interface Ethernet1/0/1
+ switchport mode trunk
+ switchport trunk native vlan 10
+!
+
+第三部
+ap authentication mac
+ discovery vlan-list 10
+ static-ip  10.1.1.254
+ ap database 00-03-0f-93-8a-80
+第四步
+network 1
+  security mode wpa-personal
+  ssid Key-1122
+  vlan 20
+  wpa key encrypted 12f90dcdcbc154c5b167a1674e7b64fe74d431f7bb8d4aa8bcd5f2c84b69b2c01e4b92fc5be77f27e9cd778317841a154ffd1340a51a6a51ceceaeb712935e62(密码进行了加密运算)
+  device-finger enable
+!
+第五步
+ ap profile 1
+  channel-plan an time 05:00
+  channel-plan bgn time 05:00
+  air-match template 1
+  radio 1
+   mode n-only-g
+   vap 0  
+enable (开启)
+networt 1 (绑定网络业务)
+!
+AC和AP的三层搭建方法:在DHCP服务器上配置 option 43 + 指向AC的管理地址
+第六步
+wireless ap  profile apply  1 (下发无线业务)
+
+show wireless ap failure status (无线上线失败原因)
+show wireless ap status (无线上线状态)
