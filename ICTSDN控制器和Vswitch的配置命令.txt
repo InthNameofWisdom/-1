@@ -1,0 +1,67 @@
+ovs服务的安装以及配置
+1.Switch1(服务安装)
+systemct1 stop firewalld(第一步要先将SDN控制器和Vswitch1的防火墙先关闭)
+systemct1 status firewalld 
+ll /opt/softward(查看目录)
+rpm -ivh /opt/software/*.rpm(安装以rpm结尾的可安装软件)
+systemct1 enable openvswitch(启动ovs)
+systemct1 start openvswitch
+systemct1 status openvswitch
+
+
+2.Switch1(虚拟网桥管理)
+ovs-vsct1 add-br br1
+ovs-vsct1 add-port br1 eth0 (ovs-vsct1 del-port br1 eth0 删除操作)
+（其他的物理接口配置基本相同）
+
+
+3.Switch(配置VLANtag)
+ovs-vsct1 set port eth0 tag=11(ovs-vsct1 clear-port eth0 tag VLANtag清除)
+
+4.Switch(创建子接口，配置IP地址，开启IP转发)
+ip link add link br1 name br1.11 type vlan id 11 (ip link del br1.11)
+
+ip addr add 10.1.1.1/24 dev br1.11(ip addr del 10.1.1.1/24 dev br1.11)
+
+ip link set br1 up
+sysct1 -w net.ipv4.ip foraward=1（开启IPv4由表）
+
+5.连接控制器
+controller(配置IP地址，开启服务)
+systemct1 stop firewalld(关闭SDN控制器的防火墙)
+floodlight (开启服务，看到不断的弹出回显信息就是成功了)
+netstat -tunlp (kill -9 <pid>终止进程ID，好像要终止进程为6653的进程)
+
+6.Swtich1 (测试能否与控制器互联,连接控制器)
+ping 控制器的IP地址
+ovs-vsct1 set-controller br1 tcp:10.1.1.2:6653<与控制器建立连接>(ovs-vsct1 del-controller br1<与控制器建立断开>)
+
+
+7.server<访问SDN控制器的主机>(配置IP地址，网页进入控制器,添加规则)
+提权编辑/etc/hosts , 追加内容"127.0.0.1 www.baidu.com"
+网页进入控制器: 10.1.1.2:8080/ui/index.html
+流表规则:
+		name: 任意
+		actions: output-noram1(数据包转发按照默认行为来处理数据包)
+8.网络测试
+相互ping(互通说明成功)
+
+9.Switch1(ip route show)(增加一条外网路由)
+ip route add 0.0.0.0/0 dev br1.12
+
+9.1后面server主机访问SDN控制器时进行长ping可以加速SDN控制器Web页面在server主机上的加载速度!!!
+
+10(后面的是网络排错部分了哦)
+
+
+
+
+
+
+
+
+
+
+
+
+
